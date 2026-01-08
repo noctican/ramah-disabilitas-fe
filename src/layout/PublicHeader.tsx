@@ -18,7 +18,7 @@ export default function PublicHeader() {
   useGSAP(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const threshold = 100;
+      const threshold = 10;
 
       if (scrollY > threshold && !isFloating.current) {
         isFloating.current = true;
@@ -56,7 +56,7 @@ export default function PublicHeader() {
 
   return (
     <div ref={containerRef}>
-      <nav ref={navRef} className="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-full py-4 border border-transparent bg-transparent">
+      <nav ref={navRef} className="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-full py-4 border border-transparent ">
         <div className="w-full h-full px-6 md:px-8 flex items-center justify-between">
           {/* LOGO */}
           <Link to="/" className="flex items-center gap-2 cursor-pointer select-none">
@@ -74,7 +74,7 @@ export default function PublicHeader() {
           {/* ACTIONS */}
           <div className="flex items-center gap-4">
             <div className="hidden md:block">
-              <Button className="rounded-full px-6" size="sm">Login</Button>
+              <Link to="/login"><Button className="rounded-full px-6" size="sm">Login</Button></Link>
             </div>
             <button className="md:hidden p-1 text-foreground" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
               {isMobileMenuOpen ? <X /> : <Menu />}
@@ -96,6 +96,8 @@ export default function PublicHeader() {
           </div>
         </div>
       )}
+
+      <div className="h-17"></div>
     </div>
   );
 }
