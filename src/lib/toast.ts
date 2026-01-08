@@ -1,12 +1,12 @@
 import Swal, { type SweetAlertIcon } from 'sweetalert2'
 
-export const toaster = (msg: string, icon: SweetAlertIcon) => {
+export const toaster = (msg: string, icon: SweetAlertIcon, timer: number = 5000) => {
     Swal.fire({
         icon,
         toast: true,
         position: "top-end",
         showConfirmButton: false,
-        timer: 5000,
+        timer: timer,
         timerProgressBar: true,
         title: msg,
         theme: 'bootstrap-5',

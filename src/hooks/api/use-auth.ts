@@ -30,7 +30,7 @@ export const useRegister = () => {
             console.error("Register failed:", err)
             toaster(err.response.data.error, 'error')
         }, onSuccess: (data) => {
-            toaster(data.message, 'success')
+            toaster(`${data.message}`, 'success', 15000)
             navigate({ to: '/' })
         }
     })
