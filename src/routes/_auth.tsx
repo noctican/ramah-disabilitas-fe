@@ -1,9 +1,32 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { createFileRoute, isRedirect, Outlet, redirect } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 import AuthIllustration from '@/components/illustrations/AuthIllustration'
+import { useAuthStore } from '@/data/store/auth_store'
+import { getToken } from '@/lib/token-handler'
+import { apiClient } from '@/lib/api-client'
+import { AUTH } from '@/data/const/api_path'
+import { ROLE_TEACHER } from '@/data/enums/roles'
 
 export const Route = createFileRoute('/_auth')({
+  beforeLoad: async () => {
+    const { login, logout } = useAuthStore.getState()
+    const token = getToken()
+
+    if(!token) return
+
+    try {
+      const userData = await apiClient.get(AUTH.ME)
+      login(userData.data.data)
+      throw redirect({
+        to: userData.data.data.role === ROLE_TEACHER ? '/lecturer' : '/student',
+      })
+    } catch (error) {
+      if(isRedirect(error)) throw error
+      console.error("Session restore failed:", error)
+      logout()
+    }
+  },
   component: RouteComponent,
 })
 

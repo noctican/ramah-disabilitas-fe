@@ -61,7 +61,7 @@ export default function PublicHeader() {
           {/* LOGO */}
           <Link to="/" className="flex items-center gap-2 cursor-pointer select-none">
             <img src="/favicon.ico" className="h-8" alt="" />
-            <span className="text-xl font-bold tracking-tight text-foreground">Nama Websitenya Apaan?</span>
+            <span className="text-xl font-bold tracking-tight text-foreground">{import.meta.env.VITE_APP_NAME}</span>
           </Link>
 
           {/* DESKTOP NAV */}

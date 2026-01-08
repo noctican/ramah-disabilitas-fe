@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/sidebar"
 import { NavMain } from "@/components/custom/NavMain";
 import { NavUser } from "@/components/custom/NavUser";
+import { Link } from "@tanstack/react-router";
 
 const data = {
   user: {
@@ -60,10 +61,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
-                <img src="https://shadcnuikit.com/logo.png" className="size-6 rounded-sm group-data-[collapsible=icon]:size-5" alt="shadcn ui kit svg logo" />
-                <span className="text-base font-medium">Shadcn UI Kit</span>
-              </a>
+              <Link to="/">
+                <img src="/favicon.ico" className="size-6 rounded-sm group-data-[collapsible=icon]:size-5" alt="shadcn ui kit svg logo" />
+                <span className="text-base font-medium">{import.meta.env.VITE_APP_NAME}</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
