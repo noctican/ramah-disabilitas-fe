@@ -1,14 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import {
-  LayoutDashboard,
-  Book,
-  Users,
-  MessageSquare,
-  MoreVertical,
-  Menu,
-  Moon,
-  Sun,
   Rocket,
   FileEdit,
   Image,
@@ -36,9 +28,19 @@ export const Route = createFileRoute('/_dashboard/lecturer/course/create')({
 function CreateCoursePage() {
   const [copyFeedback, setCopyFeedback] = useState(false)
   const [isModuleExpanded, setIsModuleExpanded] = useState(true)
+  const [accessCode, setAccessCode] = useState('4K8-X9L')
+
+  const generateCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    let part1 = ''
+    let part2 = ''
+    for (let i = 0; i < 3; i++) part1 += chars.charAt(Math.floor(Math.random() * chars.length))
+    for (let i = 0; i < 3; i++) part2 += chars.charAt(Math.floor(Math.random() * chars.length))
+    setAccessCode(`${part1}-${part2}`)
+  }
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText('4K8-X9L')
+    navigator.clipboard.writeText(accessCode)
     setCopyFeedback(true)
     setTimeout(() => setCopyFeedback(false), 2000)
   }
@@ -50,9 +52,9 @@ function CreateCoursePage() {
       <header className="h-16 flex items-center justify-between px-4 sm:px-8 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
         <div className="flex items-center gap-4">
           <nav className="hidden sm:flex items-center text-sm font-medium text-slate-500 dark:text-slate-400">
-            <a href="/lecturer/course" className="hover:text-slate-900 dark:hover:text-white transition-all">Courses</a>
+            <a href="/lecturer/course" className="hover:text-slate-900 dark:hover:text-white transition-all">Kursus</a>
             <ChevronRight className="mx-2 w-4 h-4 text-slate-300" />
-            <span className="text-slate-900 dark:text-white bg-gray-100 dark:bg-[#1e293b] px-2 py-0.5 rounded-md">Create New</span>
+            <span className="text-slate-900 dark:text-white bg-gray-100 dark:bg-[#1e293b] px-2 py-0.5 rounded-md">Buat Baru</span>
           </nav>
         </div>
 
@@ -68,51 +70,30 @@ function CreateCoursePage() {
           
           {/* Page Title */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Create New Course</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-2">Design your curriculum, upload assets, and get ready to teach.</p>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Buat Kursus Baru</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-2">Rancang kurikulum Anda, unggah aset, dan bersiaplah untuk mengajar.</p>
           </div>
 
           <div className="space-y-6">
               
-              {/* Card: Basic Info */}
-              <div className="bg-white dark:bg-[#0f172a] rounded-2xl shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-gray-100 dark:border-gray-800 p-6 sm:p-8">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                  <div className="p-1.5 bg-[#e0e7ff] dark:bg-[#1e293b] text-[#4f46e5] rounded-lg">
-                    <FileEdit className="w-5 h-5" />
-                  </div>
-                  Course Details
-                </h3>
-                
-                <div className="space-y-5">
-                  <div>
-                    <label htmlFor="course-title" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Course Title</label>
-                    <input type="text" id="course-title" className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] text-slate-900 dark:text-white placeholder-gray-400 focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/20 transition-all outline-none" placeholder="e.g. Masterclass in UX Design" />
-                  </div>
-                  <div>
-                    <label htmlFor="course-desc" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Description</label>
-                    <textarea id="course-desc" rows={4} className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] text-slate-900 dark:text-white placeholder-gray-400 focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/20 transition-all outline-none resize-none" placeholder="What will students learn in this course?"></textarea>
-                  </div>
-                </div>
-              </div>
-
-               {/* Join Code Widget (Moved here) */}
+               {/* Join Code Widget (Moved to top) */}
                <div className="bg-white dark:bg-[#0f172a] rounded-2xl shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-gray-100 dark:border-gray-800 p-6 sm:p-8">
                 <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
                     <div>
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-2">
                         <Key className="text-[#6366f1] w-5 h-5" />
-                        Student Access
+                        Akses Siswa
                         </h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
-                        Share this unique code with students for self-enrollment.
+                        Bagikan kode unik ini kepada siswa untuk pendaftaran mandiri.
                         </p>
                     </div>
 
                     <div className="flex items-center gap-4 w-full md:w-auto p-4 bg-slate-50 dark:bg-[#1e293b] rounded-xl border border-gray-100 dark:border-gray-800">
-                        <div className="text-2xl font-mono font-bold text-slate-900 dark:text-white tracking-widest">4K8-X9L</div>
+                        <div className="text-2xl font-mono font-bold text-slate-900 dark:text-white tracking-widest">{accessCode}</div>
                         <div className="w-px h-8 bg-gray-300 dark:bg-gray-600 mx-2"></div>
                         <div className="flex gap-2">
-                             <button className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer" title="Reset Code">
+                             <button onClick={generateCode} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer" title="Reset Kode">
                                 <RefreshCw className="w-5 h-5" />
                             </button>
                             <button 
@@ -120,12 +101,33 @@ function CreateCoursePage() {
                                 className={`p-2 transition-colors cursor-pointer ${
                                 copyFeedback ? 'text-green-500' : 'text-[#4f46e5] hover:text-[#4338ca]'
                                 }`}
-                                title="Copy Code"
+                                title="Salin Kode"
                             >
                                 {copyFeedback ? <CheckCircle className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                             </button>
                         </div>
                     </div>
+                </div>
+              </div>
+
+              {/* Card: Basic Info */}
+              <div className="bg-white dark:bg-[#0f172a] rounded-2xl shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-gray-100 dark:border-gray-800 p-6 sm:p-8">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                  <div className="p-1.5 bg-[#e0e7ff] dark:bg-[#1e293b] text-[#4f46e5] rounded-lg">
+                    <FileEdit className="w-5 h-5" />
+                  </div>
+                  Detail Kursus
+                </h3>
+                
+                <div className="space-y-5">
+                  <div>
+                    <label htmlFor="course-title" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Judul Kursus</label>
+                    <input type="text" id="course-title" className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] text-slate-900 dark:text-white placeholder-gray-400 focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/20 transition-all outline-none" placeholder="misal: Masterclass Desain UX" />
+                  </div>
+                  <div>
+                    <label htmlFor="course-desc" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Deskripsi</label>
+                    <textarea id="course-desc" rows={4} className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#1e293b] text-slate-900 dark:text-white placeholder-gray-400 focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/20 transition-all outline-none resize-none" placeholder="Apa yang akan dipelajari siswa dalam kursus ini?"></textarea>
+                  </div>
                 </div>
               </div>
 
@@ -135,7 +137,7 @@ function CreateCoursePage() {
                   <div className="p-1.5 bg-pink-100 dark:bg-pink-900/30 text-pink-600 rounded-lg">
                     <Image className="w-5 h-5" />
                   </div>
-                  Cover Media
+                  Media Sampul
                 </h3>
                 
                 <div className="relative group cursor-pointer">
@@ -144,8 +146,8 @@ function CreateCoursePage() {
                       <div className="p-3 bg-white dark:bg-[#1e293b] rounded-full shadow-sm mb-3 group-hover:scale-110 transition-all">
                         <CloudUpload className="w-8 h-8 text-[#6366f1]" />
                       </div>
-                      <p className="mb-1 text-sm text-slate-600 dark:text-slate-300 font-medium">Click to upload or drag and drop</p>
-                      <p className="text-xs text-slate-400">SVG, PNG, JPG or GIF (MAX. 10MB)</p>
+                      <p className="mb-1 text-sm text-slate-600 dark:text-slate-300 font-medium">Klik untuk mengunggah atau seret dan lepas</p>
+                      <p className="text-xs text-slate-400">SVG, PNG, JPG atau GIF (MAKS. 10MB)</p>
                     </div>
                     <input id="dropzone-file" type="file" className="hidden" />
                   </div>
@@ -159,10 +161,10 @@ function CreateCoursePage() {
                     <div className="p-1.5 bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded-lg">
                       <LayoutGrid className="w-5 h-5" />
                     </div>
-                    Curriculum
+                    Kurikulum
                   </h3>
                   <button onClick={() => setIsModuleExpanded(prev => !prev)} className="text-sm font-semibold text-[#4f46e5] hover:text-[#4338ca] dark:text-[#6366f1] cursor-pointer">
-                    {isModuleExpanded ? 'Collapse All' : 'Expand All'}
+                    {isModuleExpanded ? 'Tutup Semua' : 'Buka Semua'}
                   </button>
                 </div>
 
@@ -176,8 +178,8 @@ function CreateCoursePage() {
                         <div className="flex-1">
                           <div className="flex justify-between items-start mb-3">
                             <div className="w-full mr-4">
-                              <input type="text" defaultValue="Module 1: Introduction" className="w-full font-bold text-slate-900 dark:text-white bg-transparent border-none p-0 focus:ring-0 text-base outline-none" />
-                              <input type="text" defaultValue="Getting started with the basics." className="w-full text-sm text-slate-500 dark:text-slate-400 bg-transparent border-none p-0 focus:ring-0 mt-1 outline-none" />
+                              <input type="text" defaultValue="Modul 1: Pengantar" className="w-full font-bold text-slate-900 dark:text-white bg-transparent border-none p-0 focus:ring-0 text-base outline-none" />
+                              <input type="text" defaultValue="Memulai dengan dasar-dasar." className="w-full text-sm text-slate-500 dark:text-slate-400 bg-transparent border-none p-0 focus:ring-0 mt-1 outline-none" />
                             </div>
                             <div className="flex items-center gap-1">
                               <button className="p-1 text-slate-400 hover:text-[#6366f1] transition-all cursor-pointer"><Edit className="w-4 h-4" /></button>
@@ -191,20 +193,20 @@ function CreateCoursePage() {
                               <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center shrink-0">
                                 <PlayCircle className="w-5 h-5" />
                               </div>
-                              <span className="text-sm font-medium text-slate-700 dark:text-slate-300 flex-1">1.1 Welcome to the Course</span>
+                              <span className="text-sm font-medium text-slate-700 dark:text-slate-300 flex-1">1.1 Selamat Datang di Kursus</span>
                               <span className="text-xs text-slate-400">04:20</span>
                             </div>
                             <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-[#1e293b]/50 group transition-all cursor-pointer">
                               <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center shrink-0">
                                 <FileText className="w-5 h-5" />
                               </div>
-                              <span className="text-sm font-medium text-slate-700 dark:text-slate-300 flex-1">1.2 Course Syllabus & Tools</span>
-                              <span className="text-xs text-slate-400">Read</span>
+                              <span className="text-sm font-medium text-slate-700 dark:text-slate-300 flex-1">1.2 Silabus & Alat Kursus</span>
+                              <span className="text-xs text-slate-400">Baca</span>
                             </div>
                           </div>
                           
                           <button className="mt-3 text-xs font-bold text-[#4f46e5] dark:text-[#6366f1] hover:underline flex items-center gap-1 cursor-pointer">
-                            <Plus className="w-4 h-4" /> Add Lesson
+                            <Plus className="w-4 h-4" /> Tambah Pelajaran
                           </button>
                         </div>
                       </div>
@@ -216,8 +218,8 @@ function CreateCoursePage() {
                        <div className="p-4 flex items-center gap-3">
                          <GripVertical className="text-slate-300 cursor-grab hover:text-slate-500 w-5 h-5" />
                          <div className="flex-1">
-                           <h4 className="font-bold text-slate-900 dark:text-white text-sm">Module 1: Introduction</h4>
-                           <p className="text-xs text-slate-500 dark:text-slate-400">2 Lessons • 15 Mins</p>
+                           <h4 className="font-bold text-slate-900 dark:text-white text-sm">Modul 1: Pengantar</h4>
+                           <p className="text-xs text-slate-500 dark:text-slate-400">2 Pelajaran • 15 Menit</p>
                          </div>
                          <button onClick={() => setIsModuleExpanded(true)} className="p-1.5 text-slate-400 hover:bg-gray-100 dark:hover:bg-[#0f172a] rounded-lg transition-all cursor-pointer">
                            <ChevronDown className="w-5 h-5" />
@@ -231,8 +233,8 @@ function CreateCoursePage() {
                     <div className="p-4 flex items-center gap-3">
                       <GripVertical className="text-slate-300 cursor-grab hover:text-slate-500 w-5 h-5" />
                       <div className="flex-1">
-                        <h4 className="font-bold text-slate-900 dark:text-white text-sm">Module 2: Advanced Concepts</h4>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">3 Lessons • 45 Mins</p>
+                        <h4 className="font-bold text-slate-900 dark:text-white text-sm">Modul 2: Konsep Lanjutan</h4>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">3 Pelajaran • 45 Menit</p>
                       </div>
                       <button className="p-1.5 text-slate-400 hover:bg-gray-100 dark:hover:bg-[#0f172a] rounded-lg transition-all cursor-pointer">
                         <ChevronDown className="w-5 h-5" />
@@ -243,7 +245,7 @@ function CreateCoursePage() {
                   {/* Add Module Button */}
                   <button className="w-full py-3 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-sm font-semibold text-slate-500 hover:text-[#4f46e5] hover:border-[#6366f1] hover:bg-[#eef2ff] dark:hover:bg-[#0f172a]/10 transition-all flex items-center justify-center gap-2 group cursor-pointer">
                     <PlusCircle className="group-hover:scale-110 transition-all w-5 h-5" />
-                    Add New Module
+                    Tambah Modul Baru
                   </button>
 
                 </div>
@@ -255,11 +257,11 @@ function CreateCoursePage() {
       {/* Sticky Bottom Action Bar */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0f172a] sticky bottom-0 z-40 flex justify-end gap-3 shadow-[0_-4px_20px_-2px_rgba(0,0,0,0.05)]">
          <button className="px-6 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white bg-slate-100 dark:bg-[#1e293b] hover:bg-slate-200 dark:hover:bg-[#2e3b4e] rounded-xl transition-all cursor-pointer">
-            Save Draft
+            Simpan Draf
           </button>
           <button className="inline-flex items-center gap-2 px-8 py-2.5 text-sm font-semibold text-white bg-[#4f46e5] hover:bg-[#4338ca] rounded-xl shadow-lg shadow-[#6366f1]/30 transition-all active:scale-95 cursor-pointer">
             <Rocket className="w-[18px] h-[18px]" />
-            Publish Course
+            Terbitkan Kursus
           </button>
       </div>
       
@@ -267,7 +269,7 @@ function CreateCoursePage() {
       {copyFeedback && (
         <div className="fixed bottom-5 right-5 bg-[#0f172a] dark:bg-white text-white dark:text-[#0f172a] px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
             <CheckCircle className="text-green-400 dark:text-green-600 w-5 h-5" />
-            <span className="font-medium text-sm">Code copied to clipboard!</span>
+            <span className="font-medium text-sm">Kode disalin ke papan klip!</span>
         </div>
       )}
     </div>

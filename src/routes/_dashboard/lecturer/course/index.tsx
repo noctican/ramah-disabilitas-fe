@@ -25,8 +25,8 @@ function CourseManagementPage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           {/* Title Block */}
           <div className="flex flex-col gap-1">
-            <h2 className="text-[#121416] dark:text-white text-3xl font-extrabold tracking-tight">My Courses</h2>
-            <p className="text-[#6a7581] dark:text-gray-400 text-base font-normal">Manage your curriculum, content and student progress.</p>
+            <h2 className="text-[#121416] dark:text-white text-3xl font-extrabold tracking-tight">Kursus Saya</h2>
+            <p className="text-[#6a7581] dark:text-gray-400 text-base font-normal">Kelola kurikulum, konten, dan kemajuan siswa Anda.</p>
 
           </div>
 
@@ -36,7 +36,7 @@ function CourseManagementPage() {
             className="flex items-center gap-2 bg-[#6699cc] hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-[#6699cc]/30 transition-all active:scale-95 group cursor-pointer"
           >
             <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-            Create New Course
+            Buat Kursus Baru
           </Link>
         </div>
         
@@ -48,15 +48,15 @@ function CourseManagementPage() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#6699cc] transition-colors w-5 h-5" />
               <input 
                 className="w-full pl-11 pr-4 py-3 bg-white dark:bg-[#1e2126] border-none rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-[#6699cc]/50 text-[#121416] dark:text-white placeholder:text-gray-400 transition-all outline-none" 
-                placeholder="Search courses by name, tag or ID..." 
+                placeholder="Cari kursus berdasarkan nama, tag, atau ID..." 
                 type="text"
               />
             </div>
             <div className="relative min-w-[160px]">
               <select className="w-full pl-4 pr-10 py-3 bg-white dark:bg-[#1e2126] border-none rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-[#6699cc]/50 text-[#121416] dark:text-white appearance-none cursor-pointer outline-none">
-                <option>Sort by: Newest</option>
-                <option>Sort by: Name (A-Z)</option>
-                <option>Sort by: Status</option>
+                <option>Urutkan: Terbaru</option>
+                <option>Urutkan: Nama (A-Z)</option>
+                <option>Urutkan: Status</option>
               </select>
               <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none w-4 h-4" />
             </div>
@@ -66,19 +66,19 @@ function CourseManagementPage() {
           <div className="flex items-center gap-2 overflow-x-auto pb-2 xl:pb-0 no-scrollbar w-full xl:w-auto">
             <button className="flex items-center gap-2 px-4 py-2 bg-[#6699cc] text-white rounded-lg shadow-md shadow-[#6699cc]/20 text-sm font-semibold transition-transform hover:-translate-y-0.5 cursor-pointer">
               <Grid className="w-[18px] h-[18px]" />
-              All Courses
+              Semua Kursus
             </button>
             <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1e2126] text-gray-600 dark:text-gray-300 hover:text-[#6699cc] hover:bg-blue-50 dark:hover:bg-white/5 rounded-lg border border-transparent hover:border-blue-100 dark:hover:border-white/10 text-sm font-medium transition-all cursor-pointer">
               <CheckCircle className="w-[18px] h-[18px] text-green-500" />
-              Live
+              Aktif
             </button>
             <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1e2126] text-gray-600 dark:text-gray-300 hover:text-[#6699cc] hover:bg-blue-50 dark:hover:bg-white/5 rounded-lg border border-transparent hover:border-blue-100 dark:hover:border-white/10 text-sm font-medium transition-all cursor-pointer">
               <FileEdit className="w-[18px] h-[18px] text-amber-500" />
-              Draft
+              Draf
             </button>
             <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1e2126] text-gray-600 dark:text-gray-300 hover:text-[#6699cc] hover:bg-blue-50 dark:hover:bg-white/5 rounded-lg border border-transparent hover:border-blue-100 dark:hover:border-white/10 text-sm font-medium transition-all cursor-pointer">
               <Archive className="w-[18px] h-[18px] text-purple-500" />
-              Archived
+              Diarsipkan
             </button>
           </div>
         </div>
@@ -98,7 +98,7 @@ function CourseManagementPage() {
               <div className="absolute top-3 left-3">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-sm text-green-700 dark:text-green-400 text-xs font-bold shadow-sm">
                   <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                  Live
+                  Aktif
                 </span>
               </div>
               <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -109,9 +109,9 @@ function CourseManagementPage() {
             </div>
             <div className="p-5 flex flex-col flex-1">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-bold text-[#121416] dark:text-white leading-tight group-hover:text-[#6699cc] transition-colors">Introduction to UX Design</h3>
+                <h3 className="text-lg font-bold text-[#121416] dark:text-white leading-tight group-hover:text-[#6699cc] transition-colors">Pengantar Desain UX</h3>
               </div>
-              <p className="text-sm text-[#6a7581] dark:text-gray-400 mb-4 line-clamp-2">Learn the comprehensive fundamentals of user experience design, wireframing, and prototyping.</p>
+              <p className="text-sm text-[#6a7581] dark:text-gray-400 mb-4 line-clamp-2">Pelajari dasar-dasar komprehensif desain pengalaman pengguna, wireframing, dan prototyping.</p>
               <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <div className="flex -space-x-2">
@@ -119,10 +119,10 @@ function CourseManagementPage() {
                     <img alt="Student avatar" className="w-7 h-7 rounded-full border-2 border-white dark:border-[#1e2126]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoEA--BkR3UidnMYLE7CIuU6uydoX8tdA-rh5mMpWk045waU8eMOsRBBGa34DXgWJ3cfqnbcXuJWQytaPeBiHwWQs4q2NEF7maC_Oplzuvh2rNfEjgyTSBsly02HFH7NntiAVov2gILXCsxZlEzWLAY_gDabXJq64r4nDqDk78yU30v2Hxi72vEKqhrCRbf3tMlEuCMFcb6ecNSUmBH2VlSfo4a7MVfZUTIb901Bs_Ad0vUIPPL4oq9wj2ceWm06i5iuiikzcKlC0"/>
                     <img alt="Student avatar" className="w-7 h-7 rounded-full border-2 border-white dark:border-[#1e2126]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCg8T037RpbDYxNlElRnP1oea9_2ojwNDGJBsAuYmtOh91o56idORQjxZI9sKpqB7XVkVgmShJTZFfrOnecBLtXj6qtp7g5dBBSC3rsmS8ETnSzGDcIvxGMFNJG-7Ya2-A5zRG5jnCDvg15ULx_NIWVp3zSobeDDL-YvQahxKInXO_3s9-N7fRAv5SnTqCW-1xR81aIKJYVnbyuxc3gWdubqvH9VbXQUVp9rZQz0nwT9id82HYLBHlgfvp0qA2F1nQvgTA1OeF0SQ"/>
                   </div>
-                  <span className="text-xs text-[#6a7581] font-medium">+42 enrolled</span>
+                  <span className="text-xs text-[#6a7581] font-medium">+42 terdaftar</span>
                 </div>
                 <button className="text-[#6699cc] hover:text-blue-700 dark:hover:text-blue-300 font-semibold text-sm flex items-center gap-1 transition-colors cursor-pointer">
-                  Manage <ArrowRight className="w-4 h-4" />
+                  Kelola <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -139,22 +139,22 @@ function CourseManagementPage() {
                <div className="absolute top-3 left-3">
                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-sm text-amber-700 dark:text-amber-400 text-xs font-bold shadow-sm">
                    <FileEdit className="w-[14px] h-[14px]" />
-                   Draft
+                   Draf
                  </span>
                </div>
             </div>
             <div className="p-5 flex flex-col flex-1">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-bold text-[#121416] dark:text-white leading-tight group-hover:text-[#6699cc] transition-colors">Advanced Python for Data Science</h3>
+                <h3 className="text-lg font-bold text-[#121416] dark:text-white leading-tight group-hover:text-[#6699cc] transition-colors">Python Lanjutan untuk Ilmu Data</h3>
               </div>
-              <p className="text-sm text-[#6a7581] dark:text-gray-400 mb-4 line-clamp-2">Master pandas, numpy, and visualization libraries. A deep dive into data manipulation techniques.</p>
+              <p className="text-sm text-[#6a7581] dark:text-gray-400 mb-4 line-clamp-2">Kuasai pandas, numpy, dan pustaka visualisasi. Penyelaman mendalam ke teknik manipulasi data.</p>
               <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2">
-                <span className="text-xs text-[#6a7581] font-medium italic">Last edited 2h ago</span>
+                <span className="text-xs text-[#6a7581] font-medium italic">Terakhir diedit 2j yang lalu</span>
                 <div className="flex gap-2">
-                  <button className="p-2 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-[#6a7581] dark:text-gray-300 transition-colors cursor-pointer" title="Edit Content">
+                  <button className="p-2 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-[#6a7581] dark:text-gray-300 transition-colors cursor-pointer" title="Edit Konten">
                     <Edit className="w-4 h-4" />
                   </button>
-                  <button className="p-2 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-[#6a7581] dark:text-gray-300 transition-colors cursor-pointer" title="Settings">
+                  <button className="p-2 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-[#6a7581] dark:text-gray-300 transition-colors cursor-pointer" title="Pengaturan">
                     <Settings className="w-4 h-4" />
                   </button>
                 </div>
@@ -172,25 +172,25 @@ function CourseManagementPage() {
                <div className="absolute top-3 left-3">
                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-sm text-green-700 dark:text-green-400 text-xs font-bold shadow-sm">
                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                   Live
+                   Aktif
                  </span>
                </div>
             </div>
             <div className="p-5 flex flex-col flex-1">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-bold text-[#121416] dark:text-white leading-tight group-hover:text-[#6699cc] transition-colors">Modern Architecture 101</h3>
+                <h3 className="text-lg font-bold text-[#121416] dark:text-white leading-tight group-hover:text-[#6699cc] transition-colors">Arsitektur Modern 101</h3>
               </div>
-              <p className="text-sm text-[#6a7581] dark:text-gray-400 mb-4 line-clamp-2">Exploring the history and theory of modernist architecture from the 20th century to today.</p>
+              <p className="text-sm text-[#6a7581] dark:text-gray-400 mb-4 line-clamp-2">Menjelajahi sejarah dan teori arsitektur modernis dari abad ke-20 hingga hari ini.</p>
               <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <div className="flex -space-x-2">
                     <img alt="Student avatar" className="w-7 h-7 rounded-full border-2 border-white dark:border-[#1e2126]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5C-hpYvCPIHj7HV4uk7ilxi0apvDuJ1uigMMewBvkE6SWdor7zdiyJNxckmj_6tt1kYOILqwmHdFdDbGrRakcr7hlDMr8y8T75lVTCJUAbrmwyD1dEvZU8AFsFx9noMSyMT1N0K_E8WOBEODWcdnU_nei17dnZG-ELykCoDmT8dV_CWgpPXnzTIsMuY_VqcPFfZ7YkKo04sxuaT1oswiMtgZqw9a5W2B9Qjl3Qt_dkqsjg_2mcDntOzw_e0ZpiIjsiyB1uIHgtQg"/>
                     <img alt="Student avatar" className="w-7 h-7 rounded-full border-2 border-white dark:border-[#1e2126]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZQHxyMVG9tWy_dhb26BP6SMFyKrGlV4fiik6FlmD_aTtmuXCM6FsS4z8sIMsBmxFJFXYW7UWgNdXbejWq7qr6F6ckTT7Y_qalt5IJQO2q7DFBFfDGa1YlVa1TSVHKweGCl9FLzpShPZSAg_tAbg6Zqi8HyH720xW-zurAobM3bJTVGWClFyaorsvqKfuYUlCyfFftnBcpssJyueS-5iOq2Z079F9EDMESi2pDFnay242Waju3a0xz0BHeB_Fq3f7Kk8NtGIwWkB0"/>
                   </div>
-                  <span className="text-xs text-[#6a7581] font-medium">+156 enrolled</span>
+                  <span className="text-xs text-[#6a7581] font-medium">+156 terdaftar</span>
                 </div>
                 <button className="text-[#6699cc] hover:text-blue-700 dark:hover:text-blue-300 font-semibold text-sm flex items-center gap-1 transition-colors cursor-pointer">
-                  Manage <ArrowRight className="w-4 h-4" />
+                  Kelola <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -207,22 +207,22 @@ function CourseManagementPage() {
                <div className="absolute top-3 left-3">
                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-sm text-amber-700 dark:text-amber-400 text-xs font-bold shadow-sm">
                    <FileEdit className="w-[14px] h-[14px]" />
-                   Draft
+                   Draf
                  </span>
                </div>
             </div>
             <div className="p-5 flex flex-col flex-1">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-bold text-[#121416] dark:text-white leading-tight group-hover:text-[#6699cc] transition-colors">Digital Marketing Strategy</h3>
+                <h3 className="text-lg font-bold text-[#121416] dark:text-white leading-tight group-hover:text-[#6699cc] transition-colors">Strategi Pemasaran Digital</h3>
               </div>
-              <p className="text-sm text-[#6a7581] dark:text-gray-400 mb-4 line-clamp-2">Building comprehensive digital campaigns. SEO, SEM, and social media analytics.</p>
+              <p className="text-sm text-[#6a7581] dark:text-gray-400 mb-4 line-clamp-2">Membangun kampanye digital yang komprehensif. Analitik SEO, SEM, dan media sosial.</p>
               <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2">
-                <span className="text-xs text-[#6a7581] font-medium italic">Created yesterday</span>
+                <span className="text-xs text-[#6a7581] font-medium italic">Dibuat kemarin</span>
                 <div className="flex gap-2">
-                   <button className="p-2 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-[#6a7581] dark:text-gray-300 transition-colors cursor-pointer" title="Edit Content">
+                   <button className="p-2 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-[#6a7581] dark:text-gray-300 transition-colors cursor-pointer" title="Edit Konten">
                     <Edit className="w-4 h-4" />
                   </button>
-                  <button className="p-2 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-[#6a7581] dark:text-gray-300 transition-colors cursor-pointer" title="Settings">
+                  <button className="p-2 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-[#6a7581] dark:text-gray-300 transition-colors cursor-pointer" title="Pengaturan">
                     <Settings className="w-4 h-4" />
                   </button>
                 </div>
@@ -240,15 +240,15 @@ function CourseManagementPage() {
                <div className="absolute top-3 left-3">
                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-sm text-green-700 dark:text-green-400 text-xs font-bold shadow-sm">
                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                   Live
+                   Aktif
                  </span>
                </div>
             </div>
             <div className="p-5 flex flex-col flex-1">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-bold text-[#121416] dark:text-white leading-tight group-hover:text-[#6699cc] transition-colors">Art History: Renaissance</h3>
+                <h3 className="text-lg font-bold text-[#121416] dark:text-white leading-tight group-hover:text-[#6699cc] transition-colors">Sejarah Seni: Renaisans</h3>
               </div>
-              <p className="text-sm text-[#6a7581] dark:text-gray-400 mb-4 line-clamp-2">A journey through the masterpieces of Michelangelo, Da Vinci, and Raphael.</p>
+              <p className="text-sm text-[#6a7581] dark:text-gray-400 mb-4 line-clamp-2">Perjalanan melalui mahakarya Michelangelo, Da Vinci, dan Raphael.</p>
               <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <div className="flex -space-x-2">
@@ -259,7 +259,7 @@ function CourseManagementPage() {
                   </div>
                 </div>
                 <button className="text-[#6699cc] hover:text-blue-700 dark:hover:text-blue-300 font-semibold text-sm flex items-center gap-1 transition-colors cursor-pointer">
-                  Manage <ArrowRight className="w-4 h-4" />
+                  Kelola <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -270,15 +270,15 @@ function CourseManagementPage() {
             <div className="w-16 h-16 rounded-full bg-gray-50 dark:bg-white/5 group-hover:bg-[#6699cc]/10 flex items-center justify-center mb-4 transition-colors">
               <Plus className="w-8 h-8 text-gray-400 group-hover:text-[#6699cc] transition-colors" />
             </div>
-            <p className="text-[#121416] dark:text-white font-bold text-lg">Create New Course</p>
-            <p className="text-[#6a7581] dark:text-gray-400 text-sm mt-1">Start from scratch or template</p>
+            <p className="text-[#121416] dark:text-white font-bold text-lg">Buat Kursus Baru</p>
+            <p className="text-[#6a7581] dark:text-gray-400 text-sm mt-1">Mulai dari awal atau template</p>
           </div>
 
         </div>
         
         <div className="mt-12 text-center">
-            <p className="text-[#6a7581] text-sm">Showing 5 of 12 courses</p>
-            <button className="mt-4 text-[#6699cc] font-medium hover:underline cursor-pointer">Load More</button>
+            <p className="text-[#6a7581] text-sm">Menampilkan 5 dari 12 kursus</p>
+            <button className="mt-4 text-[#6699cc] font-medium hover:underline cursor-pointer">Muat Lebih Banyak</button>
         </div>
       </div>
     </div>
