@@ -52,3 +52,13 @@ export const putFetcher = async (url: string, {arg}: {arg:any} ) => {
     const res = await apiClient.put(url, arg)
     return res.data
 }
+
+export const getFetcher = async (url: string) => {
+    const res = await apiClient.get(url)
+    return res.data
+}
+
+export const deleteFetcher = async (url: string) => {
+    const res = await apiClient.delete(url)
+    return res.data
+}

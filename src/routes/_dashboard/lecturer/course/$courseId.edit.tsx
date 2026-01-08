@@ -7,10 +7,8 @@ import {
   CloudUpload,
   LayoutGrid,
   GripVertical,
-  Edit,
   Trash2,
   PlayCircle,
-  FileText,
   Plus,
   ChevronDown,
   PlusCircle,
@@ -21,16 +19,18 @@ import {
   ChevronRight,
   Loader2
 } from 'lucide-react'
-import { postFetcher } from '@/lib/api-client'
+import { getFetcher, postFetcher, putFetcher } from '@/lib/api-client'
 import { toast } from 'sonner'
 import { useNavigate } from '@tanstack/react-router'
 import { COURSE } from '@/data/const/api_path'
+import { useQuery } from '@tanstack/react-query'
 
-export const Route = createFileRoute('/_dashboard/lecturer/course/create')({
-  component: CreateCoursePage,
+export const Route = createFileRoute('/_dashboard/lecturer/course/$courseId/edit')({
+  component: EditCoursePage,
 })
 
-function CreateCoursePage() {
+function EditCoursePage() {
+  const { courseId } = Route.useParams()
   const [copyFeedback, setCopyFeedback] = useState(false)
   const [isModuleExpanded, setIsModuleExpanded] = useState(true)
   const [accessCode, setAccessCode] = useState('')
@@ -38,7 +38,7 @@ function CreateCoursePage() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [thumbnail, setThumbnail] = useState('https://example.com/thumbnails/golang-course.jpg')
+  const [thumbnail, setThumbnail] = useState('')
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
@@ -50,6 +50,7 @@ function CreateCoursePage() {
     raw_content?: string
     source_url?: string
     duration_min: number
+    has_captions: boolean
   }
 
   interface Module {
@@ -62,6 +63,37 @@ function CreateCoursePage() {
 
   const [modules, setModules] = useState<Module[]>([])
 
+  // Fetch course details
+  const { data: courseData, isLoading: isLoadingCourse } = useQuery({
+      queryKey: ['lecturer-course', courseId],
+      queryFn: () => getFetcher(COURSE.DETAIL.replace('{course_id}', courseId)),
+      enabled: !!courseId
+  })
+
+  // Populate state when data is fetched
+  useEffect(() => {
+      if (courseData && courseData.data) {
+          const c = courseData.data
+          setTitle(c.title)
+          setDescription(c.description)
+          setThumbnail(c.thumbnail)
+          setAccessCode(c.class_code)
+          
+          if (c.modules) {
+              // Map fetched modules to state structure
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const mappedModules = c.modules.map((m: any) => ({
+                  id: m.id,
+                  title: m.title,
+                  order: m.order,
+                  isExpanded: true,
+                  materials: m.materials || []
+              }))
+              setModules(mappedModules)
+          }
+      }
+  }, [courseData])
+
   const generateCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     let part1 = ''
@@ -70,10 +102,6 @@ function CreateCoursePage() {
     for (let i = 0; i < 3; i++) part2 += chars.charAt(Math.floor(Math.random() * chars.length))
     setAccessCode(`${part1}${part2}`)
   }
-
-  useEffect(() => {
-    generateCode()
-  }, [])
 
   const handleAddModule = () => {
     setModules(prev => [
@@ -103,7 +131,7 @@ function CreateCoursePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
 
-  const handlePublish = async () => {
+  const handleUpdate = async () => {
       try {
         setIsSubmitting(true)
         setValidationErrors({}) // Clear previous errors
@@ -126,20 +154,16 @@ function CreateCoursePage() {
                 raw_content: mat.raw_content,
                 source_url: mat.source_url,
                 duration_min: mat.duration_min,
-                has_captions: false
+                has_captions: mat.has_captions || false
             }))
         }))
         
         formData.append('modules', JSON.stringify(modulesPayload))
 
-        // Log FormData entries for debugging
-        console.log('Sending FormData:')
-        for (const pair of formData.entries()) {
-            console.log(pair[0], pair[1])
-        }
-
-        await postFetcher(COURSE.CREATE, { arg: formData })
-        toast.success('Kursus berhasil diterbitkan!')
+        // Use putFetcher for update
+        await putFetcher(COURSE.UPDATE.replace('{course_id}', courseId), { arg: formData })
+        
+        toast.success('Kursus berhasil diperbarui!')
         navigate({ to: '/lecturer/course' })
       } catch (error: any) {
         console.error(error)
@@ -150,7 +174,7 @@ function CreateCoursePage() {
                 description: 'Mohon periksa input Anda kembali.'
             })
         } else {
-            toast.error('Gagal menerbitkan kursus', {
+            toast.error('Gagal memperbarui kursus', {
               description: error.response?.data?.message || 'Terjadi kesalahan sistem'
             })
         }
@@ -165,22 +189,25 @@ function CreateCoursePage() {
     setTimeout(() => setCopyFeedback(false), 2000)
   }
 
+  if (isLoadingCourse) {
+      return (
+          <div className="flex-1 flex justify-center items-center">
+              <Loader2 className="w-10 h-10 animate-spin text-[#6366f1]" />
+          </div>
+      )
+  }
+
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-[#f7f7f8] dark:bg-[#020617] relative font-sans text-slate-800 dark:text-slate-200 rounded-xl overflow-hidden">
       
-      {/* Header (recreated to match design, assuming sticky behavior within container) */}
+      {/* Header */}
       <header className="h-16 flex items-center justify-between px-4 sm:px-8 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
         <div className="flex items-center gap-4">
           <nav className="hidden sm:flex items-center text-sm font-medium text-slate-500 dark:text-slate-400">
             <a href="/lecturer/course" className="hover:text-slate-900 dark:hover:text-white transition-all">Kursus</a>
             <ChevronRight className="mx-2 w-4 h-4 text-slate-300" />
-            <span className="text-slate-900 dark:text-white bg-gray-100 dark:bg-[#1e293b] px-2 py-0.5 rounded-md">Buat Baru</span>
+            <span className="text-slate-900 dark:text-white bg-gray-100 dark:bg-[#1e293b] px-2 py-0.5 rounded-md">Edit Kursus</span>
           </nav>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block"></div>
-          {/* Header Actions Moved to Bottom */}
         </div>
       </header>
 
@@ -190,13 +217,13 @@ function CreateCoursePage() {
           
           {/* Page Title */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Buat Kursus Baru</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-2">Rancang kurikulum Anda, unggah aset, dan bersiaplah untuk mengajar.</p>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Edit Kursus</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-2">Perbarui konten dan informasi kursus Anda.</p>
           </div>
 
           <div className="space-y-6">
               
-               {/* Join Code Widget (Moved to top) */}
+               {/* Join Code Widget */}
                <div className="bg-white dark:bg-[#0f172a] rounded-2xl shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-gray-100 dark:border-gray-800 p-6 sm:p-8">
                 <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
                     <div>
@@ -205,7 +232,7 @@ function CreateCoursePage() {
                         Akses Siswa
                         </h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
-                        Bagikan kode unik ini kepada siswa untuk pendaftaran mandiri.
+                        Kode unik untuk pendaftaran siswa.
                         </p>
                     </div>
 
@@ -414,16 +441,13 @@ function CreateCoursePage() {
       
       {/* Sticky Bottom Action Bar */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0f172a] sticky bottom-0 z-40 flex justify-end gap-3 shadow-[0_-4px_20px_-2px_rgba(0,0,0,0.05)]">
-         <button className="px-6 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white bg-slate-100 dark:bg-[#1e293b] hover:bg-slate-200 dark:hover:bg-[#2e3b4e] rounded-xl transition-all cursor-pointer">
-            Simpan Draf
-          </button>
           <button 
-            onClick={handlePublish}
+            onClick={handleUpdate}
             disabled={isSubmitting}
             className="inline-flex items-center gap-2 px-8 py-2.5 text-sm font-semibold text-white bg-[#4f46e5] hover:bg-[#4338ca] rounded-xl shadow-lg shadow-[#6366f1]/30 transition-all active:scale-95 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isSubmitting ? <Loader2 className="w-[18px] h-[18px] animate-spin" /> : <Rocket className="w-[18px] h-[18px]" />}
-            {isSubmitting ? 'Menerbitkan...' : 'Terbitkan Kursus'}
+            {isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan'}
           </button>
       </div>
       

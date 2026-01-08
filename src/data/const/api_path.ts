@@ -21,3 +21,7 @@ export const COURSE = {
     JOINED: "/v1/courses/joined",
 } as const satisfies UrlGroupType
 
+export const MEDIA = {
+    UPLOAD: "/v1/media",
+} as const satisfies UrlGroupType
+
