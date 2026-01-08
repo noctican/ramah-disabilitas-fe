@@ -74,7 +74,7 @@ function RouteComponent() {
           <Field>
             <Button type="submit" disabled={isMutating}>Login</Button>
           </Field>
-          <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
+          {/* <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
             Atau masuk dengan
           </FieldSeparator>
           <Field className="grid grid-cols-1 gap-4">
@@ -87,7 +87,7 @@ function RouteComponent() {
               </svg>
               <span className="sr-only">Masuk dengan Google</span>
             </Button>
-          </Field>
+          </Field> */}
           <FieldDescription className="text-center">
             Belum punya akun? <Link to="/register">Daftar</Link>
           </FieldDescription>

@@ -22,6 +22,20 @@ export const useLogin = () => {
     })
 }
 
+export const useRegister = () => {
+    const navigate = useNavigate()
+
+    return useSWRMutation(AUTH.REGISTER, postFetcher, {
+        onError: (err) => {
+            console.error("Register failed:", err)
+            toaster(err.response.data.error, 'error')
+        }, onSuccess: (data) => {
+            toaster(data.message, 'success')
+            navigate({ to: '/' })
+        }
+    })
+}
+
 export const useLogout = () => {
     const navigate = useNavigate()
     const { logout } = useAuthStore.getState()
