@@ -5,6 +5,7 @@ import {
   IconChartBar,
   IconDashboard,
   IconListDetails,
+  IconBook,
 } from "@tabler/icons-react";
 
 import {
@@ -40,6 +41,11 @@ const data = {
       title: "Settings",
       url: "/dashboard/settings",
       icon: IconChartBar,
+    },
+    {
+      title: "Courses",
+      url: "/lecturer/course",
+      icon: IconBook,
     },
   ],
 }
