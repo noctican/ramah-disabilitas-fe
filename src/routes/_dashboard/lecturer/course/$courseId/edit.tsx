@@ -35,6 +35,7 @@ function EditCoursePage() {
   const [isModuleExpanded, setIsModuleExpanded] = useState(true)
   const [accessCode, setAccessCode] = useState('')
 
+  const [status, setStatus] = useState<'published' | 'draft'>('published')
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -78,6 +79,7 @@ function EditCoursePage() {
           setDescription(c.description)
           setThumbnail(c.thumbnail)
           setAccessCode(c.class_code)
+          setStatus(c.status || 'published')
           
           if (c.modules) {
               // Map fetched modules to state structure
@@ -140,6 +142,7 @@ function EditCoursePage() {
         formData.append('title', title)
         formData.append('description', description)
         formData.append('class_code', accessCode)
+        formData.append('status', status)
         
         if (thumbnailFile) {
             formData.append('thumbnail', thumbnailFile)
@@ -285,6 +288,7 @@ function EditCoursePage() {
                         placeholder="misal: Masterclass Desain UX" 
                     />
                     {validationErrors.title && <p className="text-red-500 text-xs mt-1">{validationErrors.title}</p>}
+
                   </div>
                   <div>
                     <label htmlFor="course-desc" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
@@ -299,6 +303,27 @@ function EditCoursePage() {
                         placeholder="Apa yang akan dipelajari siswa dalam kursus ini?"
                     ></textarea>
                      {validationErrors.description && <p className="text-red-500 text-xs mt-1">{validationErrors.description}</p>}
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="course-status" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        Status Kursus
+                    </label>
+                    <div className="relative">
+                        <select
+                            id="course-status"
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value as 'published' | 'draft')}
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 focus:border-[#6366f1] focus:ring-[#6366f1]/20 bg-white dark:bg-[#1e293b] text-slate-900 dark:text-white appearance-none focus:ring-2 transition-all outline-none cursor-pointer"
+                        >
+                            <option value="published">Publikasi (Aktif)</option>
+                            <option value="draft">Draf (Disembunyikan)</option>
+                        </select>
+                         <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none w-5 h-5" />
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">
+                        {status === 'published' ? 'Kursus akan terlihat oleh siswa.' : 'Kursus hanya terlihat oleh Anda.'}
+                    </p>
                   </div>
                 </div>
               </div>

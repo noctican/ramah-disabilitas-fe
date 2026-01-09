@@ -103,7 +103,7 @@ function CreateCoursePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
 
-  const handlePublish = async () => {
+  const handleSubmit = async (status: 'published' | 'draft') => {
       try {
         setIsSubmitting(true)
         setValidationErrors({}) // Clear previous errors
@@ -112,6 +112,7 @@ function CreateCoursePage() {
         formData.append('title', title)
         formData.append('description', description)
         formData.append('class_code', accessCode)
+        formData.append('status', status)
         
         if (thumbnailFile) {
             formData.append('thumbnail', thumbnailFile)
@@ -139,7 +140,7 @@ function CreateCoursePage() {
         }
 
         await postFetcher(COURSE.CREATE, { arg: formData })
-        toast.success('Kursus berhasil diterbitkan!')
+        toast.success(status === 'published' ? 'Kursus berhasil diterbitkan!' : 'Draf kursus berhasil disimpan!')
         navigate({ to: '/lecturer/course' })
       } catch (error: any) {
         console.error(error)
@@ -150,7 +151,7 @@ function CreateCoursePage() {
                 description: 'Mohon periksa input Anda kembali.'
             })
         } else {
-            toast.error('Gagal menerbitkan kursus', {
+            toast.error(status === 'published' ? 'Gagal menerbitkan kursus' : 'Gagal menyimpan draf', {
               description: error.response?.data?.message || 'Terjadi kesalahan sistem'
             })
         }
@@ -414,11 +415,16 @@ function CreateCoursePage() {
       
       {/* Sticky Bottom Action Bar */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0f172a] sticky bottom-0 z-40 flex justify-end gap-3 shadow-[0_-4px_20px_-2px_rgba(0,0,0,0.05)]">
-         <button className="px-6 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white bg-slate-100 dark:bg-[#1e293b] hover:bg-slate-200 dark:hover:bg-[#2e3b4e] rounded-xl transition-all cursor-pointer">
+         <button 
+            onClick={() => handleSubmit('draft')}
+            disabled={isSubmitting} // Disable while submitting
+            className="px-6 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white bg-slate-100 dark:bg-[#1e293b] hover:bg-slate-200 dark:hover:bg-[#2e3b4e] rounded-xl transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed flex items-center"
+         >
+            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
             Simpan Draf
           </button>
           <button 
-            onClick={handlePublish}
+            onClick={() => handleSubmit('published')}
             disabled={isSubmitting}
             className="inline-flex items-center gap-2 px-8 py-2.5 text-sm font-semibold text-white bg-[#4f46e5] hover:bg-[#4338ca] rounded-xl shadow-lg shadow-[#6366f1]/30 transition-all active:scale-95 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
           >

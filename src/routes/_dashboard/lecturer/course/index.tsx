@@ -6,12 +6,12 @@ import {
   Grid, 
   CheckCircle, 
   FileEdit, 
-  Archive, 
   MoreHorizontal, 
   ArrowRight, 
   Edit,
   Loader2,
-  Trash2
+  Trash2,
+  Eye
 } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getFetcher, deleteFetcher } from '@/lib/api-client'
@@ -33,13 +33,14 @@ interface Course {
   class_code: string
   created_at: string
   updated_at: string
+  status: 'published' | 'draft'
 }
 
 function CourseManagementPage() {
   const queryClient = useQueryClient()
   
   const [search, setSearch] = useState('')
-  const [status, setStatus] = useState('all') // 'all' | 'published' | 'draft' | 'archived'
+  const [status, setStatus] = useState('all') // 'all' | 'published' | 'draft'
   const [sort, setSort] = useState('newest') // 'newest' | 'oldest' | 'a-z'
 
   const { data: coursesData, isLoading } = useQuery({
@@ -49,14 +50,17 @@ function CourseManagementPage() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteFetcher(COURSE.DELETE.replace('{course_id}', id.toString())),
-    onSuccess: () => {
-        toast.success('Kursus berhasil dihapus')
+    onSuccess: (data: any) => {
+        const message = data?.message || 'Kursus berhasil dihapus'
+        toast.success(message)
         queryClient.invalidateQueries({ queryKey: ['lecturer-courses'] })
     },
     onError: (error: any) => {
-        const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Terjadi kesalahan saat menghapus kursus'
+        const errorMessage = error.response?.data?.error || error.response?.data?.message
+        
         toast.error('Gagal menghapus kursus', {
-            description: errorMessage
+            description: errorMessage || 'Terjadi kesalahan internal server',
+            duration: 5000 // Memberikan waktu lebih lama untuk membaca error
         })
     }
   })
@@ -93,7 +97,7 @@ function CourseManagementPage() {
         </div>
         
         {/* Filters and Search Bar */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="mt-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           
           <div className="flex flex-1 gap-3 w-full lg:max-w-2xl">
             <div className="relative flex-1 group">
@@ -156,7 +160,7 @@ function CourseManagementPage() {
              <div className="col-span-full flex justify-center py-20">
                <Loader2 className="w-10 h-10 animate-spin text-[#6699cc]" />
              </div>
-          ) : courses.length > 0 ? (
+          ) : (
             courses.map((course) => (
               <div key={course.id} className="group bg-white dark:bg-[#1e2126] rounded-xl overflow-hidden hover:-translate-y-1 transition-all duration-300 shadow-[0_4px_20px_#E0E6F0] dark:shadow-[0_4px_20px_#000000] border border-transparent dark:border-gray-800 flex flex-col h-full">
                 <div className="relative h-48 overflow-hidden">
@@ -165,10 +169,17 @@ function CourseManagementPage() {
                     style={{ backgroundImage: `url("${course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60'}")` }}
                   />
                   <div className="absolute top-3 left-3">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-sm text-green-700 dark:text-green-400 text-xs font-bold shadow-sm">
-                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                      Aktif
-                    </span>
+                    {course.status === 'published' ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-sm text-green-700 dark:text-green-400 text-xs font-bold shadow-sm">
+                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            Aktif
+                        </span>
+                    ) : (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-sm text-amber-700 dark:text-amber-400 text-xs font-bold shadow-sm">
+                            <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                            Draf
+                        </span>
+                    )}
                   </div>
                 </div>
                 <div className="p-5 flex flex-col flex-1">
@@ -181,6 +192,14 @@ function CourseManagementPage() {
                        <span className="text-xs text-[#6a7581] font-medium">{course.class_code}</span>
                     </div>
                     <div className="flex items-center gap-2">
+                        <Link 
+                            to="/lecturer/course/$courseId" 
+                            params={{ courseId: course.id.toString() }}
+                            className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/10 hover:bg-blue-100 dark:hover:bg-blue-900/20 text-blue-500 transition-colors cursor-pointer" 
+                            title="Lihat Detail"
+                        >
+                            <Eye className="w-4 h-4" />
+                        </Link>
                         <Link 
                             to="/lecturer/course/$courseId/edit" 
                             params={{ courseId: course.id.toString() }}
@@ -201,10 +220,6 @@ function CourseManagementPage() {
                 </div>
               </div>
             ))
-          ) : (
-            <div className="col-span-full text-center py-20 text-gray-500">
-              Belum ada kursus yang dibuat.
-            </div>
           )}
 
           {/* New Placeholder Card */}
@@ -221,9 +236,6 @@ function CourseManagementPage() {
         </div>
         
         <div className="mt-12 text-center">
-            {courses.length > 0 && (
-                <p className="text-[#6a7581] text-sm">Menampilkan {courses.length} dari {courses.length} kursus</p>
-            )}
         </div>
       </div>
     </div>

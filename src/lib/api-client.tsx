@@ -37,7 +37,6 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
     (res) => (res),
     (err) => {
-        console.error(err)
         if (err.response?.status === 401) removeToken()
         return (Promise.reject(err))
     }
