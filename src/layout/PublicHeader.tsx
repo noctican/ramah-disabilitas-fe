@@ -43,7 +43,7 @@ export default function PublicHeader() {
             width: "100%",
             maxWidth: "100%",
             borderRadius: 0,
-            backgroundColor: "rgba(255, 255, 255, 0)",
+            backgroundColor: "rgba(255, 255, 255, 255)",
             backdropFilter: "blur(0px)",
             border: "1px solid transparent",
             boxShadow: "none",
@@ -56,7 +56,7 @@ export default function PublicHeader() {
 
   return (
     <div ref={containerRef}>
-      <nav ref={navRef} className="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-full py-4 border border-transparent ">
+      <nav ref={navRef} className="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-full py-4 border border-transparent bg-white">
         <div className="w-full h-full px-6 md:px-8 flex items-center justify-between">
           {/* LOGO */}
           <Link to="/" className="flex items-center gap-2 cursor-pointer select-none">
@@ -96,8 +96,6 @@ export default function PublicHeader() {
           </div>
         </div>
       )}
-
-      <div className="h-17"></div>
     </div>
   );
 }
