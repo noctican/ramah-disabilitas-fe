@@ -24,7 +24,11 @@ import {
   Loader2,
   MoreHorizontal
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { CourseCurriculum, type Module } from '@/components/lecturer/CourseCurriculum'
+import { toast } from 'sonner'
+import { putFetcher } from '@/lib/api-client'
+
 
 export const Route = createFileRoute('/_dashboard/lecturer/course/$courseId/')({
   component: CourseDetailPage,
@@ -35,6 +39,9 @@ function CourseDetailPage() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('modules')
+  const [modules, setModules] = useState<Module[]>([])
+  const [isSaving, setIsSaving] = useState(false)
+
 
   // Fetch course details
   const { data: courseData, isLoading } = useQuery({
@@ -42,6 +49,72 @@ function CourseDetailPage() {
       queryFn: () => getFetcher(COURSE.DETAIL.replace('{course_id}', courseId)),
       enabled: !!courseId
   })
+
+  // Populate state when data is fetched
+  useEffect(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (courseData && (courseData as any).data) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const c = (courseData as any).data
+          
+          if (c.modules) {
+              // Map fetched modules to state structure
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const mappedModules = c.modules.map((m: any) => ({
+                  id: m.id,
+                  title: m.title,
+                  order: m.order,
+                  isExpanded: true,
+                  materials: m.materials || []
+              }))
+              setModules(mappedModules)
+          }
+      }
+  }, [courseData])
+
+  const handleSaveCurriculum = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const c = (courseData as any)?.data
+    if (!c) return
+
+    try {
+        setIsSaving(true)
+        const formData = new FormData()
+        // Re-append existing course info to avoid clearing it
+        formData.append('title', c.title)
+        formData.append('description', c.description || '')
+        formData.append('class_code', c.class_code)
+        formData.append('status', c.status)
+        // If we had thumbnail file handling here it would be complex, skipping for now as we only edit modules
+
+        const modulesPayload = modules.map(({ ...rest }) => ({
+            title: rest.title,
+            order: rest.order,
+            materials: rest.materials.map(mat => ({
+                title: mat.title,
+                type: mat.type,
+                raw_content: mat.raw_content,
+                source_url: mat.source_url,
+                duration_min: mat.duration_min,
+                has_captions: mat.has_captions || false
+            }))
+        }))
+        
+        formData.append('modules', JSON.stringify(modulesPayload))
+
+        // Note: Actual file upload for materials would require appending files to formData with specific keys
+        // or handling them in a separate endpoint. For this UI task, we assume the structure is prepared.
+
+        await putFetcher(COURSE.UPDATE.replace('{course_id}', courseId), { arg: formData })
+        toast.success('Kurikulum berhasil diperbarui!')
+    } catch (error) {
+        console.error(error)
+        toast.error('Gagal menyimpan kurikulum')
+    } finally {
+        setIsSaving(false)
+    }
+  }
+
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const course = (courseData as any)?.data
@@ -140,16 +213,6 @@ function CourseDetailPage() {
                     />
                 </div>
                 
-                <div className="pb-3 hidden sm:block">
-                    <Link 
-                        to="/lecturer/course/$courseId/edit" 
-                        params={{ courseId: course.id.toString() }}
-                        className="bg-[#661fad] text-white flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-[#661fad]/20 hover:bg-[#5a1aa0] hover:shadow-[#661fad]/40 hover:-translate-y-0.5 transition-all"
-                    >
-                        <Plus className="w-5 h-5" />
-                        Add New Module
-                    </Link>
-                </div>
             </div>
 
             {/* Grid Content */}
@@ -158,71 +221,21 @@ function CourseDetailPage() {
                 {/* LEFT COLUMN (Content) */}
                 <div style={{ gridColumn: 'span 12' }} className="lg:col-span-8 lg:!col-span-8 col-span-12 space-y-6" css-hack-col-span-8="true">
                     
-                    {/* Dynamic Modules Rendering */}
-                    {course.modules && course.modules.length > 0 ? (
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        course.modules.map((module: any, index: number) => (
-                             <div key={module.id} className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6 hover:-translate-y-0.5 transition-transform duration-200">
-                                <div className="flex justify-between items-start mb-6">
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-[#661fad] bg-[#661fad]/10 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-widest">Module {String(index + 1).padStart(2, '0')}</span>
-                                            <span className="w-1 h-1 bg-zinc-300 rounded-full"></span>
-                                            <span className="text-zinc-400 text-xs font-bold uppercase tracking-widest">{module.materials?.length || 0} Materials</span>
-                                        </div>
-                                        <h3 className="text-xl font-bold text-zinc-900 dark:text-white mt-1">{module.title}</h3>
-                                    </div>
-                                    <div className="flex gap-1">
-                                        <ActionButton icon={<GripVertical size={20} />} />
-                                        <Link to="/lecturer/course/$courseId/edit" params={{ courseId: course.id.toString() }}>
-                                           <ActionButton icon={<Edit size={20} />} />
-                                        </Link>
-                                        <ActionButton icon={<Trash2 size={20} />} isDanger />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                                    {module.materials && module.materials.map((material: any) => (
-                                         <MaterialItem 
-                                            key={material.id}
-                                            icon={material.type === 'youtube' ? <PlayCircle className="text-red-600" size={24} /> : <FileText className="text-blue-600" size={24} />} 
-                                            bgClass={material.type === 'youtube' ? "bg-red-50 dark:bg-red-500/10" : "bg-blue-50 dark:bg-blue-500/10"} 
-                                            title={material.title} 
-                                            meta={`${material.type === 'youtube' ? 'Video' : 'Document'} • ${material.duration_min} min`} 
-                                        />
-                                    ))}
-
-                                    {(!module.materials || module.materials.length === 0) && (
-                                        <div className="text-center py-6 border-2 border-dashed border-zinc-100 dark:border-zinc-800 rounded-xl bg-zinc-50/50 dark:bg-zinc-800/20">
-                                            <p className="text-sm text-zinc-400 font-medium">No materials in this module yet.</p>
-                                        </div>
-                                    )}
-                                    
-                                    <button className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-zinc-100 dark:border-zinc-800 rounded-xl text-zinc-400 hover:text-[#661fad] hover:border-[#661fad]/30 hover:bg-[#661fad]/5 transition-all font-bold text-sm mt-4 group cursor-pointer">
-                                        <Plus className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                                        Add Material
-                                    </button>
-                                </div>
-                             </div>
-                        ))
-                    ) : (
-                         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 p-16 text-center shadow-sm">
-                            <div className="w-20 h-20 bg-zinc-50 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                                <LayoutGrid className="w-10 h-10 text-zinc-300" />
-                            </div>
-                            <h3 className="text-xl font-bold text-zinc-900 dark:text-white">Curriculum is Empty</h3>
-                            <p className="text-zinc-500 mt-2 mb-8 max-w-md mx-auto">Start by creating your first module to structure your course.</p>
-                            <Link 
-                                to="/lecturer/course/$courseId/edit" 
-                                params={{ courseId: course.id.toString() }}
-                                className="inline-flex items-center gap-2 bg-[#661fad] text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-[#661fad]/20 hover:shadow-[#661fad]/40 hover:-translate-y-1 transition-all"
+                    {/* Dynamic Modules Rendering via Editor */}
+                    <div className="space-y-4">
+                        <CourseCurriculum modules={modules} setModules={setModules} />
+                        
+                        <div className="flex justify-end">
+                            <button 
+                                onClick={handleSaveCurriculum}
+                                disabled={isSaving}
+                                className="px-6 py-2.5 bg-[#661fad] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#661fad]/20 hover:bg-[#5a1aa0] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
                             >
-                                <Plus className="w-5 h-5" />
-                                Create First Module
-                            </Link>
+                                {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                                {isSaving ? 'Menyimpan...' : 'Simpan Perubahan Kurikulum'}
+                            </button>
                         </div>
-                    )}
+                    </div>
                 </div>
 
                 {/* RIGHT COLUMN (Stats) */}
