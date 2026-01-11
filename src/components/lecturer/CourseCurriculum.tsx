@@ -11,6 +11,10 @@ import {
   Upload
 } from 'lucide-react'
 import { AddMaterialModal, type MaterialPayload } from './AddMaterialModal'
+import { postFetcher, putFetcher } from '@/lib/api-client'
+import { MODULE, MATERIAL } from '@/data/const/api_path'
+import { toast } from 'sonner'
+import { Edit, Eye } from 'lucide-react'
 
 export interface Material {
   id: number | string
@@ -19,8 +23,8 @@ export interface Material {
   raw_content?: string
   source_url?: string
   duration_min: number
-  has_captions?: boolean // made optional
-  file?: File // Added file property
+  has_captions?: boolean
+  file?: File
 }
 
 export interface Module {
@@ -34,11 +38,14 @@ export interface Module {
 interface CourseCurriculumProps {
   modules: Module[]
   setModules: React.Dispatch<React.SetStateAction<Module[]>>
+  onDeleteModule?: (id: number | string) => Promise<void>
+  onDeleteMaterial?: (moduleId: number | string, materialId: number | string) => Promise<void>
 }
 
-export function CourseCurriculum({ modules, setModules }: CourseCurriculumProps) {
+export function CourseCurriculum({ modules, setModules, onDeleteModule, onDeleteMaterial }: CourseCurriculumProps) {
   const [isAllExpanded, setIsAllExpanded] = useState(true)
   const [activeModuleId, setActiveModuleId] = useState<number | string | null>(null)
+  const [activeMaterialForEdit, setActiveMaterialForEdit] = useState<Material | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleAddModule = () => {
@@ -68,14 +75,28 @@ export function CourseCurriculum({ modules, setModules }: CourseCurriculumProps)
     setModules(prev => prev.map(m => m.id === id ? { ...m, title: newTitle } : m))
   }
 
-  const deleteModule = (id: string | number) => {
+  const deleteModule = async (id: string | number) => {
     if (window.confirm('Yakin ingin menghapus modul ini? Semua materi di dalamnya akan hilang.')) {
-        setModules(prev => prev.filter(m => m.id !== id))
+        try {
+            if (onDeleteModule) {
+                await onDeleteModule(id)
+            }
+            setModules(prev => prev.filter(m => m.id !== id))
+        } catch (error) {
+            console.error("Failed to delete module", error)
+        }
     }
   }
 
   const openAddMaterialModal = (moduleId: number | string) => {
       setActiveModuleId(moduleId)
+      setActiveMaterialForEdit(null) // Reset edit mode
+      setIsModalOpen(true)
+  }
+
+  const openEditMaterialModal = (moduleId: number | string, material: Material) => {
+      setActiveModuleId(moduleId)
+      setActiveMaterialForEdit(material)
       setIsModalOpen(true)
   }
 
@@ -102,16 +123,23 @@ export function CourseCurriculum({ modules, setModules }: CourseCurriculumProps)
       }))
   }
 
-  const deleteMaterial = (moduleId: number | string, materialId: number | string) => {
-      setModules(prev => prev.map(m => {
-          if (m.id === moduleId) {
-              return {
-                  ...m,
-                  materials: m.materials.filter(mat => mat.id !== materialId)
+  const deleteMaterial = async (moduleId: number | string, materialId: number | string) => {
+      try {
+           if (onDeleteMaterial) {
+               await onDeleteMaterial(moduleId, materialId)
+           }
+           setModules(prev => prev.map(m => {
+              if (m.id === moduleId) {
+                  return {
+                      ...m,
+                      materials: m.materials.filter(mat => mat.id !== materialId)
+                  }
               }
-          }
-          return m
-      }))
+              return m
+          }))
+      } catch (error) {
+          console.error("Failed to delete material", error)
+      }
   }
 
   return (
@@ -185,12 +213,40 @@ export function CourseCurriculum({ modules, setModules }: CourseCurriculumProps)
                                     <p className="text-sm font-medium text-slate-700 dark:text-slate-300 line-clamp-1">{mat.title}</p>
                                     <p className="text-xs text-slate-400">{mat.duration_min} Menit • {mat.type}</p>
                                 </div>
-                                <button 
-                                    onClick={() => deleteMaterial(module.id, mat.id)}
-                                    className="p-1.5 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
+                                <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    {/* Preview Button */}
+                                    {mat.source_url && (
+                                        <a 
+                                            href={mat.source_url} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="p-1.5 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
+                                            title="Preview Materi"
+                                            onClick={(e) => {
+                                                // If it's a PDF or we want custom preview logic later
+                                                // e.preventDefault(); 
+                                                // openPreviewModal(mat);
+                                            }}
+                                        >
+                                           <div className="w-4 h-4"><Eye className="w-4 h-4" /></div>
+                                        </a>
+                                    )}
+
+                                    <button 
+                                        onClick={() => openEditMaterialModal(module.id, mat)}
+                                        className="p-1.5 text-slate-400 hover:text-[#6366f1] transition-colors cursor-pointer"
+                                        title="Edit Materi"
+                                    >
+                                        <div className="w-4 h-4"><Edit className="w-4 h-4" /></div> 
+                                    </button>
+                                    <button 
+                                        onClick={() => deleteMaterial(module.id, mat.id)}
+                                        className="p-1.5 text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
+                                        title="Hapus Materi"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </div>
                             </div>
                         ))}
                         {module.materials.length === 0 && (
@@ -223,9 +279,117 @@ export function CourseCurriculum({ modules, setModules }: CourseCurriculumProps)
     <AddMaterialModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        onSave={handleSaveMaterial}
-        moduleId={activeModuleId || ''} 
-    />
+                onSave={async (payload) => {
+                    const isTempModule = typeof activeModuleId === 'number' && activeModuleId > 1000000000000
+                    const isEditMode = !!payload.id && (typeof payload.id !== 'number' || payload.id < 1000000000000); // Check if existing real ID
+                    const isTempMaterial = !!payload.id && typeof payload.id === 'number' && payload.id > 1000000000000;
+
+                    // CASE 1: Updating an Existing Material (On Server)
+                    if (isEditMode && !isTempModule) {
+                         try {
+                             toast.info('Memperbarui materi...')
+                             const formData = new FormData()
+                             formData.append('title', payload.title)
+                             formData.append('type', payload.type)
+                             formData.append('duration_min', payload.duration_min.toString())
+                             if (payload.file) formData.append('file', payload.file)
+                             if (payload.raw_content) formData.append('raw_content', payload.raw_content);
+                             if (payload.source_url && !payload.file) formData.append('source_url', payload.source_url);
+
+                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                             const res = await putFetcher(MATERIAL.UPDATE.replace('{material_id}', String(payload.id)), { arg: formData })
+
+                             setModules(prev => prev.map(m => {
+                                if (m.id === activeModuleId) {
+                                    return {
+                                        ...m,
+                                        materials: m.materials.map(mat => mat.id === payload.id ? {
+                                            ...mat,
+                                            title: res.data.title,
+                                            type: res.data.type,
+                                            raw_content: res.data.raw_content,
+                                            source_url: res.data.source_url, // Updated URL from server
+                                            duration_min: res.data.duration_min,
+                                        } : mat)
+                                    }
+                                }
+                                return m
+                             }))
+                             toast.success('Materi berhasil diperbarui')
+                         } catch (error: any) {
+                             console.error(error)
+                             toast.error(error.response?.data?.message || 'Gagal memperbarui materi')
+                         }
+                         return;
+                    }
+
+                    // CASE 2: Uploading NEW Material with File (On Server)
+                    if (!isTempModule && payload.file && !isEditMode && !isTempMaterial) {
+                        try {
+                             toast.info('Mengunggah materi...')
+                             const formData = new FormData()
+                             formData.append('title', payload.title)
+                             formData.append('type', payload.type)
+                             formData.append('duration_min', payload.duration_min.toString())
+                             if (payload.file) formData.append('file', payload.file)
+                             
+                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                             const res = await postFetcher(MODULE.CREATE_MATERIAL.replace('{module_id}', String(activeModuleId)), { arg: formData })
+                             
+                             setModules(prev => prev.map(m => {
+                                if (m.id === activeModuleId) {
+                                    return {
+                                        ...m,
+                                        materials: [...m.materials, {
+                                            id: res.data.id, 
+                                            title: res.data.title,
+                                            type: res.data.type,
+                                            raw_content: res.data.raw_content,
+                                            source_url: res.data.source_url,
+                                            duration_min: res.data.duration_min,
+                                            has_captions: res.data.has_captions
+                                        }]
+                                    }
+                                }
+                                return m
+                             }))
+                             toast.success('Materi berhasil diunggah')
+                        } catch (error: any) {
+                            console.error(error)
+                            toast.error(error.response?.data?.message || 'Gagal mengunggah materi')
+                        }
+                    } 
+                    
+                    // CASE 3: Local State Update (Temp Module OR Non-File New Material OR Temp Material Edit)
+                    else {
+                        if (payload.id) {
+                            // Update existing temp material
+                            setModules(prev => prev.map(m => {
+                                if (m.id === activeModuleId) {
+                                    return {
+                                        ...m,
+                                        materials: m.materials.map(mat => mat.id === payload.id ? {
+                                            ...mat,
+                                            title: payload.title,
+                                            type: payload.type,
+                                            raw_content: payload.raw_content,
+                                            source_url: payload.file ? URL.createObjectURL(payload.file) : payload.source_url,
+                                            file: payload.file, // Keep file for later batch upload if needed
+                                            duration_min: payload.duration_min
+                                        } : mat)
+                                    }
+                                }
+                                return m
+                            }))
+                        } else {
+                            // Add new temp material
+                            handleSaveMaterial(payload)
+                        }
+                    }
+                }}
+                moduleId={activeModuleId || ''} 
+                initialData={activeMaterialForEdit}
+            />
     </>
   )
 }

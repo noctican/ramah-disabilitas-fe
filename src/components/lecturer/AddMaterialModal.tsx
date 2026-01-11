@@ -17,9 +17,11 @@ interface AddMaterialModalProps {
   onClose: () => void
   onSave: (material: MaterialPayload) => void
   moduleId: number | string
+  initialData?: MaterialPayload | null
 }
 
 export interface MaterialPayload {
+  id?: number | string
   title: string
   type: 'text' | 'youtube' | 'pdf' | 'video'
   raw_content?: string
@@ -28,7 +30,7 @@ export interface MaterialPayload {
   duration_min: number
 }
 
-export function AddMaterialModal({ isOpen, onClose, onSave, moduleId }: AddMaterialModalProps) {
+export function AddMaterialModal({ isOpen, onClose, onSave, moduleId, initialData }: AddMaterialModalProps) {
   const [activeTab, setActiveTab] = useState<'text' | 'youtube' | 'pdf'>('pdf')
   const [title, setTitle] = useState('')
   const [file, setFile] = useState<File | null>(null)
@@ -36,17 +38,33 @@ export function AddMaterialModal({ isOpen, onClose, onSave, moduleId }: AddMater
   const [textContent, setTextContent] = useState('')
   const [duration, setDuration] = useState(10) // Default duration
 
-  // Reset state on open
+  // Reset state on open or when initialData changes
   useEffect(() => {
     if (isOpen) {
-      setTitle('')
-      setFile(null)
-      setVideoUrl('')
-      setTextContent('')
-      setDuration(10)
-      setActiveTab('pdf')
+      if (initialData) {
+          setTitle(initialData.title)
+          setDuration(initialData.duration_min)
+          setActiveTab(initialData.type === 'video' ? 'youtube' : initialData.type as any)
+          
+          if (initialData.type === 'youtube' || initialData.type === 'video') {
+              setVideoUrl(initialData.source_url || '')
+          } else if (initialData.type === 'text') {
+              setTextContent(initialData.raw_content || '')
+          } else if (initialData.type === 'pdf') {
+              // We can't set file object from URL, but we can keep source_url logic if needed?
+              // For now user has to re-upload to change file, or we just keep existing if not changed.
+              setFile(null) 
+          }
+      } else {
+          setTitle('')
+          setFile(null)
+          setVideoUrl('')
+          setTextContent('')
+          setDuration(10)
+          setActiveTab('pdf')
+      }
     }
-  }, [isOpen])
+  }, [isOpen, initialData])
 
   if (!isOpen) return null
 
@@ -58,6 +76,7 @@ export function AddMaterialModal({ isOpen, onClose, onSave, moduleId }: AddMater
     }
 
     let payload: MaterialPayload = {
+      id: initialData?.id,
       title,
       type: activeTab === 'pdf' ? 'pdf' : activeTab === 'youtube' ? 'youtube' : 'text',
       duration_min: duration
@@ -111,7 +130,7 @@ export function AddMaterialModal({ isOpen, onClose, onSave, moduleId }: AddMater
         
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-white dark:bg-[#0f172a] sticky top-0 z-10">
-            <h3 className="font-bold text-lg text-slate-900 dark:text-white">Tambah Materi Baru</h3>
+            <h3 className="font-bold text-lg text-slate-900 dark:text-white">{initialData ? 'Edit Materi' : 'Tambah Materi Baru'}</h3>
             <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
                 <X className="w-5 h-5 text-slate-500" />
             </button>
@@ -167,12 +186,20 @@ export function AddMaterialModal({ isOpen, onClose, onSave, moduleId }: AddMater
                     <TabsContent value="pdf" className="space-y-4 outline-none">
                         <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-[#1e293b]/50 p-6">
                              <FileUpload onChange={(files) => setFile(files[0])} />
-                             {file && (
+                             {file ? (
                                  <div className="mt-4 flex items-center p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                                      <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
                                      <span className="text-sm font-medium text-green-700 dark:text-green-300 truncate">{file.name}</span>
                                  </div>
-                             )}
+                             ) : initialData && initialData.type === 'pdf' && initialData.source_url ? (
+                                <div className="mt-4 flex items-center p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                                    <CheckCircle className="w-5 h-5 text-blue-500 mr-3" />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-blue-700 dark:text-blue-300 truncate">File saat ini terlampir</p>
+                                        <p className="text-xs text-blue-500 truncate">{initialData.source_url}</p>
+                                    </div>
+                                </div>
+                             ) : null}
                         </div>
                         <p className="text-xs text-slate-500">Mendukung format PDF, PPT, DOCX. Maksimal 10MB.</p>
                     </TabsContent>
@@ -249,7 +276,7 @@ export function AddMaterialModal({ isOpen, onClose, onSave, moduleId }: AddMater
                 onClick={handleSave}
                 className="px-5 py-2.5 text-sm font-semibold text-white bg-[#6366f1] hover:bg-[#4f46e5] rounded-xl shadow-lg shadow-[#6366f1]/30 transition-all flex items-center gap-2"
             >
-                Simpan Materi
+                {initialData ? 'Perbarui Materi' : 'Simpan Materi'}
             </button>
         </div>
       </div>

@@ -22,7 +22,8 @@ import {
   CheckCircle, 
   Clock, 
   Loader2,
-  MoreHorizontal
+  MoreHorizontal,
+  Eye
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { CourseCurriculum, type Module } from '@/components/lecturer/CourseCurriculum'
@@ -169,14 +170,24 @@ function CourseDetailPage() {
                     <p className="text-zinc-200 text-base max-w-xl line-clamp-2">{course.description || 'No course description available.'}</p>
                 </div>
                 
-                <Link 
-                    to="/lecturer/course/$courseId/edit" 
-                    params={{ courseId: course.id.toString() }}
-                    className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-5 py-2.5 rounded-xl border border-white/20 font-bold text-sm transition-all shadow-lg hover:shadow-xl whitespace-nowrap"
-                >
-                    <Edit className="w-5 h-5" />
-                    Edit Course Detail
-                </Link>
+                <div className="flex gap-3">
+                    <Link 
+                        to="/lecturer/course/$courseId/preview" 
+                        params={{ courseId: course.id.toString() }}
+                        className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-5 py-2.5 rounded-xl border border-white/20 font-bold text-sm transition-all shadow-lg hover:shadow-xl whitespace-nowrap"
+                    >
+                        <Eye className="w-5 h-5" />
+                        Preview
+                    </Link>
+                    <Link 
+                        to="/lecturer/course/$courseId/edit" 
+                        params={{ courseId: course.id.toString() }}
+                        className="flex items-center gap-2 bg-[#661fad] hover:bg-[#5a1aa0] text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-[#661fad]/30 whitespace-nowrap"
+                    >
+                        <Edit className="w-5 h-5" />
+                        Edit Course
+                    </Link>
+                </div>
             </div>
         </div>
       </div>
@@ -215,10 +226,8 @@ function CourseDetailPage() {
                 
             </div>
 
-            {/* Grid Content */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '1.5rem', paddingBottom: '2.5rem' }}>
                 
-                {/* LEFT COLUMN (Content) */}
                 <div style={{ gridColumn: 'span 12' }} className="lg:col-span-8 lg:!col-span-8 col-span-12 space-y-6" css-hack-col-span-8="true">
                     
                     {/* Dynamic Modules Rendering via Editor */}

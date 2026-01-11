@@ -5,24 +5,19 @@ import {
   FileEdit,
   Image,
   CloudUpload,
-  LayoutGrid,
-  GripVertical,
-  Trash2,
-  PlayCircle,
-  Plus,
   ChevronDown,
-  PlusCircle,
   Key,
   RefreshCw,
   Copy,
   CheckCircle,
   ChevronRight,
-  Loader2
+  Loader2,
+  Eye
 } from 'lucide-react'
-import { getFetcher, postFetcher, putFetcher } from '@/lib/api-client'
+import { getFetcher, putFetcher, deleteFetcher } from '@/lib/api-client'
 import { toast } from 'sonner'
-import { useNavigate } from '@tanstack/react-router'
-import { COURSE } from '@/data/const/api_path'
+import { useNavigate, Link } from '@tanstack/react-router'
+import { COURSE, MODULE, MATERIAL } from '@/data/const/api_path'
 import { useQuery } from '@tanstack/react-query'
 import { CourseCurriculum, type Module } from '@/components/lecturer/CourseCurriculum'
 export const Route = createFileRoute('/_dashboard/lecturer/course/$courseId/edit')({
@@ -104,18 +99,28 @@ function EditCoursePage() {
             formData.append('thumbnail', thumbnailFile)
         }
 
-        const modulesPayload = modules.map(({ ...rest }) => ({
-            title: rest.title,
-            order: rest.order,
-            materials: rest.materials.map(mat => ({
-                title: mat.title,
-                type: mat.type,
-                raw_content: mat.raw_content,
-                source_url: mat.source_url,
-                duration_min: mat.duration_min,
-                has_captions: mat.has_captions || false
-            }))
-        }))
+        const modulesPayload = modules.map((module) => {
+            // Check if ID is a temporary timestamp (newly created)
+            const isTempModuleId = typeof module.id === 'number' && module.id > 1000000000000;
+            
+            return {
+                id: isTempModuleId ? undefined : module.id,
+                title: module.title,
+                order: module.order,
+                materials: module.materials.map(mat => {
+                    const isTempMatId = typeof mat.id === 'number' && mat.id > 1000000000000;
+                    return {
+                        id: isTempMatId ? undefined : mat.id,
+                        title: mat.title,
+                        type: mat.type,
+                        raw_content: mat.raw_content,
+                        source_url: mat.source_url,
+                        duration_min: mat.duration_min,
+                        has_captions: mat.has_captions || false
+                    }
+                })
+            }
+        })
         
         formData.append('modules', JSON.stringify(modulesPayload))
 
@@ -163,10 +168,21 @@ function EditCoursePage() {
       <header className="h-16 flex items-center justify-between px-4 sm:px-8 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
         <div className="flex items-center gap-4">
           <nav className="hidden sm:flex items-center text-sm font-medium text-slate-500 dark:text-slate-400">
-            <a href="/lecturer/course" className="hover:text-slate-900 dark:hover:text-white transition-all">Kursus</a>
+            <Link to="/lecturer/course" className="hover:text-slate-900 dark:hover:text-white transition-all">Kursus</Link>
             <ChevronRight className="mx-2 w-4 h-4 text-slate-300" />
             <span className="text-slate-900 dark:text-white bg-gray-100 dark:bg-[#1e293b] px-2 py-0.5 rounded-md">Edit Kursus</span>
           </nav>
+        </div>
+
+        <div className="flex items-center gap-2">
+             <Link 
+                to="/lecturer/course/$courseId/preview"
+                params={{ courseId }}
+                className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-[#4f46e5] dark:hover:text-[#6366f1] bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 px-3 py-1.5 rounded-lg transition-all shadow-sm hover:shadow hover:border-[#4f46e5]/30 cursor-pointer"
+            >
+                <Eye className="w-4 h-4" />
+                <span className="hidden sm:inline">Preview</span>
+            </Link>
         </div>
       </header>
 
@@ -329,7 +345,37 @@ function EditCoursePage() {
                 </div>
               </div>
 
-              <CourseCurriculum modules={modules} setModules={setModules} />
+              <CourseCurriculum 
+                modules={modules} 
+                setModules={setModules} 
+                onDeleteModule={async (id) => {
+                    // Check if temp ID (timestamp)
+                    const isTemp = typeof id === 'number' && id > 1000000000000
+                    if (isTemp) return
+
+                    try {
+                        await deleteFetcher(MODULE.DELETE.replace('{module_id}', String(id)))
+                        toast.success('Modul berhasil dihapus')
+                    } catch (error: any) {
+                        if (error.response?.status === 404) return
+                        toast.error(error.response?.data?.message || 'Gagal menghapus modul')
+                        throw error
+                    }
+                }}
+                onDeleteMaterial={async (_moduleId, materialId) => {
+                     const isTemp = typeof materialId === 'number' && materialId > 1000000000000
+                     if (isTemp) return
+ 
+                     try {
+                         await deleteFetcher(MATERIAL.DELETE.replace('{material_id}', String(materialId)))
+                         toast.success('Materi berhasil dihapus')
+                     } catch (error: any) {
+                         if (error.response?.status === 404) return
+                         toast.error(error.response?.data?.message || 'Gagal menghapus materi')
+                         throw error
+                     }
+                }}
+              />
           </div>
         </div>
       </div>
