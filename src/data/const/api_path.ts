@@ -34,3 +34,8 @@ export const MATERIAL = {
 export const MEDIA = {
     UPLOAD: "/v1/media",
 } as const satisfies UrlGroupType
+
+export const ASSIGNMENT = {
+    CREATE: "/v1/lecturer/courses/{course_id}/assignments",
+    GET_ALL: "/v1/lecturer/courses/{course_id}/assignments",
+} as const satisfies UrlGroupType

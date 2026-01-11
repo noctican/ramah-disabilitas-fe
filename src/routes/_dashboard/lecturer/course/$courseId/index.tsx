@@ -1,29 +1,26 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { getFetcher } from '@/lib/api-client'
-import { COURSE } from '@/data/const/api_path'
+import { COURSE, MODULE, ASSIGNMENT } from '@/data/const/api_path'
 import { 
-  GraduationCap, 
-  LayoutDashboard, 
-  BookOpen, 
-  Users, 
-  BarChart, 
-  Settings, 
-  Edit, 
-  LayoutGrid, 
-  ClipboardList, 
-  TrendingUp, 
-  Plus, 
-  GripVertical, 
-  Trash2, 
-  PlayCircle, 
-  FileText, 
-  ChevronRight, 
-  CheckCircle, 
-  Clock, 
+  Users,
+  Calendar,
+  Clock,
+  ChevronLeft,
+  Edit,
+  Plus,
+  BookOpen,
+  Star,
+  Eye,
+  FileText,
+  AlertCircle,
   Loader2,
-  MoreHorizontal,
-  Eye
+  LayoutGrid,
+  TrendingUp,
+  ClipboardList,
+  ChevronRight,
+  CheckCircle,
+  MoreHorizontal
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { CourseCurriculum, type Module } from '@/components/lecturer/CourseCurriculum'
@@ -39,17 +36,25 @@ function CourseDetailPage() {
   const { courseId } = Route.useParams()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('modules')
+  const [activeTab, setActiveTab] = useState<'modules' | 'assignments' | 'students'>('modules')
   const [modules, setModules] = useState<Module[]>([])
   const [isSaving, setIsSaving] = useState(false)
 
 
   // Fetch course details
   const { data: courseData, isLoading } = useQuery({
-      queryKey: ['lecturer-course', courseId],
+      queryKey: ['teacher-course', courseId],
       queryFn: () => getFetcher(COURSE.DETAIL.replace('{course_id}', courseId)),
       enabled: !!courseId
   })
+
+  const { data: assignmentData, isLoading: isAssignmentsLoading } = useQuery({
+      queryKey: ['lecturer-assignments', courseId],
+      queryFn: () => getFetcher(ASSIGNMENT.GET_ALL.replace('{course_id}', courseId)),
+      enabled: !!courseId
+  })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const assignments = (assignmentData as any)?.data || []
 
   // Populate state when data is fetched
   useEffect(() => {
@@ -226,102 +231,251 @@ function CourseDetailPage() {
                 
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '1.5rem', paddingBottom: '2.5rem' }}>
-                
-                <div style={{ gridColumn: 'span 12' }} className="lg:col-span-8 lg:!col-span-8 col-span-12 space-y-6" css-hack-col-span-8="true">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '1.5rem', paddingBottom: '2.5rem' }}>
                     
-                    {/* Dynamic Modules Rendering via Editor */}
-                    <div className="space-y-4">
-                        <CourseCurriculum modules={modules} setModules={setModules} />
+                    <div 
+                        style={{ gridColumn: 'span 12' }} 
+                        className={`col-span-12 space-y-6 ${['assignments', 'students'].includes(activeTab) ? 'lg:col-span-12' : 'lg:col-span-8 lg:!col-span-8'}`} 
+                        css-hack-col-span-8={!['assignments', 'students'].includes(activeTab) ? "true" : "false"}
+                    >
                         
-                        <div className="flex justify-end">
-                            <button 
-                                onClick={handleSaveCurriculum}
-                                disabled={isSaving}
-                                className="px-6 py-2.5 bg-[#661fad] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#661fad]/20 hover:bg-[#5a1aa0] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
-                            >
-                                {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                                {isSaving ? 'Menyimpan...' : 'Simpan Perubahan Kurikulum'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* RIGHT COLUMN (Stats) */}
-                <div style={{ gridColumn: 'span 12' }} className="lg:col-span-4 lg:!col-span-4 col-span-12 space-y-6" css-hack-col-span-4="true">
-                    
-                    {/* Progress Card */}
-                    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6">
-                        <h4 className="font-bold text-xs text-zinc-400 uppercase tracking-widest mb-4">Course Progress</h4>
-                        <div className="relative pt-1">
-                            <div className="flex mb-2 items-center justify-between">
-                                <div>
-                                    <span className="text-xs font-bold inline-block py-1 px-2 uppercase rounded-full text-[#661fad] bg-[#661fad]/10 border border-[#661fad]/20">
-                                        Content Completion
-                                    </span>
-                                </div>
-                                <div className="text-right">
-                                    <span className="text-sm font-bold inline-block text-[#661fad]">{(course.modules?.length || 0 ) * 20}%</span>
+                        {/* Dynamic Modules Rendering via Editor */}
+                        {activeTab === 'modules' && (
+                            <div className="space-y-4">
+                                <CourseCurriculum modules={modules} setModules={setModules} />
+                                
+                                <div className="flex justify-end">
+                                    <button 
+                                        onClick={handleSaveCurriculum}
+                                        disabled={isSaving}
+                                        className="px-6 py-2.5 bg-[#661fad] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#661fad]/20 hover:bg-[#5a1aa0] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
+                                    >
+                                        {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                                        {isSaving ? 'Menyimpan...' : 'Simpan Perubahan Kurikulum'}
+                                    </button>
                                 </div>
                             </div>
-                            <div className="overflow-hidden h-2 mb-4 text-xs flex rounded-full bg-zinc-100 dark:bg-zinc-800">
-                                <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-[#661fad]" style={{ width: `${(course.modules?.length || 0) * 20}%` }}></div>
+                        )}
+
+                        {activeTab === 'assignments' && (
+                             <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm p-8 text-center">
+                                <div className="mx-auto w-16 h-16 bg-purple-50 dark:bg-purple-900/20 rounded-full flex items-center justify-center mb-4">
+                                    <ClipboardList className="w-8 h-8 text-[#661fad]" />
+                                </div>
+                                <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Daftar Tugas</h3>
+                                <p className="text-zinc-500 max-w-md mx-auto mb-8">Kelola tugas untuk siswa Anda. Anda bisa membuat tugas baru, melihat pengumpulan, dan memberikan nilai.</p>
+                                
+                                <Link 
+                                    to="/lecturer/course/$courseId/assignment/create"
+                                    params={{ courseId }}
+                                    className="px-6 py-2.5 bg-[#661fad] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#661fad]/20 hover:bg-[#5a1aa0] transition-all flex items-center gap-2 mx-auto inline-flex"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    Buat Tugas Baru
+                                </Link>
+
+                                {/* Assignment List */}
+                                <div className="mt-8 text-left space-y-3">
+                                    {isAssignmentsLoading ? (
+                                        <div className="flex flex-col items-center justify-center py-12 text-zinc-400 animate-pulse">
+                                            <Loader2 className="w-8 h-8 animate-spin mb-2" />
+                                            <p>Memuat daftar tugas...</p>
+                                        </div>
+                                    ) : assignments?.length === 0 ? (
+                                        <div className="text-center py-12 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
+                                            <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <FileText className="w-8 h-8 text-zinc-400" />
+                                            </div>
+                                            <h3 className="text-zinc-900 dark:text-white font-bold mb-1">Belum ada tugas</h3>
+                                            <p className="text-zinc-500 text-sm max-w-xs mx-auto">Buat tugas pertama Anda untuk mulai menguji pemahaman siswa.</p>
+                                        </div>
+                                    ) : (
+                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                        assignments?.map((assignment: any) => (
+                                            <div key={assignment.id} className="group bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 rounded-2xl hover:border-[#661fad] hover:ring-1 hover:ring-[#661fad] transition-all cursor-pointer">
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex gap-4">
+                                                        <div className="w-12 h-12 bg-[#661fad]/10 rounded-xl flex items-center justify-center shrink-0">
+                                                            <FileText className="w-6 h-6 text-[#661fad]" />
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="font-bold text-zinc-900 dark:text-white group-hover:text-[#661fad] transition-colors">
+                                                                {assignment.title}
+                                                            </h4>
+                                                        
+                                                            <div className="flex items-center gap-4 mt-2 text-xs text-zinc-500">
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <Calendar className="w-3.5 h-3.5" />
+                                                                    <span>
+                                                                        Tenggat: {new Date(assignment.deadline).toLocaleDateString('id-ID', { 
+                                                                            weekday: 'long', 
+                                                                            day: 'numeric', 
+                                                                            month: 'long', 
+                                                                            year: 'numeric' 
+                                                                        })}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <Clock className="w-3.5 h-3.5" />
+                                                                    <span>
+                                                                        {new Date(assignment.deadline).toLocaleTimeString('id-ID', { 
+                                                                            hour: '2-digit', 
+                                                                            minute: '2-digit' 
+                                                                        })}
+                                                                        {' '}(WIB)
+                                                                    </span>
+                                                                </div>
+                                                                {assignment.allow_late && (
+                                                                    <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-full">
+                                                                        <AlertCircle className="w-3 h-3" />
+                                                                        <span>Terlambat Diizinkan</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col items-end gap-2">
+                                                        <span className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-bold rounded-lg border border-zinc-200 dark:border-zinc-700">
+                                                            {assignment.max_points} Poin
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                             </div>
+                        )}
+
+                        {activeTab === 'students' && (
+                            <div className="space-y-6">
+                                <div className="flex justify-between items-center">
+                                    <h3 className="font-bold text-lg text-zinc-900 dark:text-white">Siswa Terdaftar (128)</h3>
+                                    <button className="text-sm font-semibold text-[#661fad] hover:underline">Export Data</button>
+                                </div>
+                                
+                                <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm overflow-hidden">
+                                    <table className="w-full text-sm text-left">
+                                        <thead className="bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 uppercase text-xs font-bold border-b border-zinc-100 dark:border-zinc-800">
+                                            <tr>
+                                                <th className="px-6 py-4">Nama Siswa</th>
+                                                <th className="px-6 py-4">Tanggal Bergabung</th>
+                                                <th className="px-6 py-4">Progress</th>
+                                                <th className="px-6 py-4 text-right">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                                            {[1, 2, 3, 4, 5].map((i) => (
+                                                <tr key={i} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/20 transition-colors">
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center font-bold text-zinc-500 text-xs">U{i}</div>
+                                                            <div>
+                                                                <p className="font-bold text-zinc-900 dark:text-zinc-100">User Siswa {i}</p>
+                                                                <p className="text-xs text-zinc-400">siswa{i}@email.com</p>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-zinc-500">10 Jan 2024</td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-20 bg-zinc-100 dark:bg-zinc-700 h-1.5 rounded-full overflow-hidden">
+                                                                <div className="bg-green-500 h-full" style={{ width: `${i * 15}%` }}></div>
+                                                            </div>
+                                                            <span className="text-xs font-medium text-zinc-500">{i * 15}%</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-right">
+                                                        <button className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1">
+                                                            <MoreHorizontal className="w-4 h-4" />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
-                        <p className="text-xs text-zinc-500 leading-relaxed">Status based on module content population.</p>
+                        )}
                     </div>
 
-                    {/* Enrollment Card */}
-                    <div className="bg-[#141217] text-white rounded-2xl shadow-lg p-6 flex flex-col h-auto relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#661fad]/20 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none"></div>
-                        
-                        <div className="flex justify-between items-start mb-6 relative z-10">
-                            <div>
-                                <h4 className="font-bold text-xs opacity-60 uppercase tracking-widest">Enrollment</h4>
-                                <p className="text-4xl font-extrabold mt-2 tracking-tight">128</p>
-                            </div>
-                            <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
-                                <TrendingUp className="text-emerald-400 w-6 h-6" />
-                            </div>
-                        </div>
-                        <div className="mt-auto flex gap-4 items-center justify-between relative z-10 pt-4 border-t border-white/10">
-                            <div className="flex -space-x-3 hover:space-x-1 transition-all">
-                                {[1,2,3].map(i => (
-                                    <div key={i} className="size-8 rounded-full border-2 border-[#141217] bg-zinc-700 flex items-center justify-center">
-                                        <Users className="w-3 h-3 text-zinc-400" />
+                    {/* RIGHT COLUMN (Stats) */}
+                    {!['assignments', 'students'].includes(activeTab) && (
+                        <div style={{ gridColumn: 'span 12' }} className="lg:col-span-4 lg:!col-span-4 col-span-12 space-y-6" css-hack-col-span-4="true">
+                            
+                            {/* Progress Card */}
+                            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6">
+                                <h4 className="font-bold text-xs text-zinc-400 uppercase tracking-widest mb-4">Course Progress</h4>
+                                <div className="relative pt-1">
+                                    <div className="flex mb-2 items-center justify-between">
+                                        <div>
+                                            <span className="text-xs font-bold inline-block py-1 px-2 uppercase rounded-full text-[#661fad] bg-[#661fad]/10 border border-[#661fad]/20">
+                                                Content Completion
+                                            </span>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="text-sm font-bold inline-block text-[#661fad]">{(course.modules?.length || 0 ) * 20}%</span>
+                                        </div>
                                     </div>
-                                ))}
-                                <div className="size-8 rounded-full border-2 border-[#141217] bg-[#661fad] flex items-center justify-center text-[10px] font-bold">+125</div>
+                                    <div className="overflow-hidden h-2 mb-4 text-xs flex rounded-full bg-zinc-100 dark:bg-zinc-800">
+                                        <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-[#661fad]" style={{ width: `${(course.modules?.length || 0) * 20}%` }}></div>
+                                    </div>
+                                </div>
+                                <p className="text-xs text-zinc-500 leading-relaxed">Status based on module content population.</p>
                             </div>
-                            <button className="text-xs font-bold text-[#a586ff] hover:text-white transition-colors flex items-center gap-1">
-                                View All <ChevronRight className="w-3 h-3" />
-                            </button>
-                        </div>
-                    </div>
 
-                    {/* Recent Activity */}
-                    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6">
-                        <h4 className="font-bold text-xs text-zinc-400 uppercase tracking-widest mb-6 border-b border-zinc-100 pb-2">Latest Activity</h4>
-                        <div className="space-y-5">
-                            <ActivityItem 
-                                icon={<CheckCircle className="w-4 h-4" />} 
-                                colorClass="text-emerald-600 bg-emerald-50 border-emerald-100" 
-                                text="Course content updated" 
-                                time="Just now" 
-                            />
-                            <ActivityItem 
-                                icon={<Clock className="w-4 h-4" />} 
-                                colorClass="text-amber-600 bg-amber-50 border-amber-100" 
-                                text="12 tasks pending" 
-                                time="1 hour ago" 
-                            />
-                        </div>
-                    </div>
+                            {/* Enrollment Card */}
+                            <div className="bg-[#141217] text-white rounded-2xl shadow-lg p-6 flex flex-col h-auto relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-[#661fad]/20 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none"></div>
+                                
+                                <div className="flex justify-between items-start mb-6 relative z-10">
+                                    <div>
+                                        <h4 className="font-bold text-xs opacity-60 uppercase tracking-widest">Enrollment</h4>
+                                        <p className="text-4xl font-extrabold mt-2 tracking-tight">128</p>
+                                    </div>
+                                    <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                                        <TrendingUp className="text-emerald-400 w-6 h-6" />
+                                    </div>
+                                </div>
+                                <div className="mt-auto flex gap-4 items-center justify-between relative z-10 pt-4 border-t border-white/10">
+                                    <div className="flex -space-x-3 hover:space-x-1 transition-all">
+                                        {[1,2,3].map(i => (
+                                            <div key={i} className="size-8 rounded-full border-2 border-[#141217] bg-zinc-700 flex items-center justify-center">
+                                                <Users className="w-3 h-3 text-zinc-400" />
+                                            </div>
+                                        ))}
+                                        <div className="size-8 rounded-full border-2 border-[#141217] bg-[#661fad] flex items-center justify-center text-[10px] font-bold">+125</div>
+                                    </div>
+                                    <button className="text-xs font-bold text-[#a586ff] hover:text-white transition-colors flex items-center gap-1">
+                                        View All <ChevronRight className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            </div>
 
+                            {/* Recent Activity */}
+                            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6">
+                                <h4 className="font-bold text-xs text-zinc-400 uppercase tracking-widest mb-6 border-b border-zinc-100 pb-2">Latest Activity</h4>
+                                <div className="space-y-5">
+                                    <ActivityItem 
+                                        icon={<CheckCircle className="w-4 h-4" />} 
+                                        colorClass="text-emerald-600 bg-emerald-50 border-emerald-100" 
+                                        text="Course content updated" 
+                                        time="Just now" 
+                                    />
+                                    <ActivityItem 
+                                        icon={<Clock className="w-4 h-4" />} 
+                                        colorClass="text-amber-600 bg-amber-50 border-amber-100" 
+                                        text="12 tasks pending" 
+                                        time="1 hour ago" 
+                                    />
+                                </div>
+                            </div>
+
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
-      </div>
       <style>{`
         @media (min-width: 1024px) {
             div[css-hack-col-span-8="true"] {
@@ -342,7 +496,7 @@ function TabButton({ active, onClick, icon, label }: { active: boolean, onClick:
   return (
     <button 
       onClick={onClick}
-      className={`pb-4 px-1 font-bold text-sm flex items-center gap-2 transition-all border-b-2 ${
+      className={`pb-4 px-1 font-bold text-sm flex items-center gap-2 transition-all border-b-2 cursor-pointer ${
         active 
           ? 'border-[#661fad] text-[#661fad]' 
           : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
