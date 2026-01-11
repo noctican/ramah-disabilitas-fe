@@ -5,26 +5,21 @@ import {
   FileEdit,
   Image,
   CloudUpload,
-  LayoutGrid,
-  GripVertical,
-  Trash2,
-  PlayCircle,
-  Plus,
   ChevronDown,
-  PlusCircle,
   Key,
   RefreshCw,
   Copy,
   CheckCircle,
   ChevronRight,
-  Loader2
+  Loader2,
+  Eye
 } from 'lucide-react'
-import { getFetcher, postFetcher, putFetcher } from '@/lib/api-client'
+import { getFetcher, putFetcher, deleteFetcher } from '@/lib/api-client'
 import { toast } from 'sonner'
-import { useNavigate } from '@tanstack/react-router'
-import { COURSE } from '@/data/const/api_path'
+import { useNavigate, Link } from '@tanstack/react-router'
+import { COURSE, MODULE, MATERIAL } from '@/data/const/api_path'
 import { useQuery } from '@tanstack/react-query'
-
+import { CourseCurriculum, type Module } from '@/components/lecturer/CourseCurriculum'
 export const Route = createFileRoute('/_dashboard/lecturer/course/$courseId/edit')({
   component: EditCoursePage,
 })
@@ -32,36 +27,16 @@ export const Route = createFileRoute('/_dashboard/lecturer/course/$courseId/edit
 function EditCoursePage() {
   const { courseId } = Route.useParams()
   const [copyFeedback, setCopyFeedback] = useState(false)
-  const [isModuleExpanded, setIsModuleExpanded] = useState(true)
-  const [accessCode, setAccessCode] = useState('')
-
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [thumbnail, setThumbnail] = useState('')
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
-
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
-
-  interface Material {
-    id: number | string
-    title: string
-    type: 'text' | 'youtube' | 'pdf' | 'video'
-    raw_content?: string
-    source_url?: string
-    duration_min: number
-    has_captions: boolean
-  }
-
-  interface Module {
-    id: number | string
-    title: string
-    order: number
-    materials: Material[]
-    isExpanded: boolean // Frontend only state
-  }
 
   const [modules, setModules] = useState<Module[]>([])
+  
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [thumbnail, setThumbnail] = useState('')
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const [accessCode, setAccessCode] = useState('')
+  const [status, setStatus] = useState<'published' | 'draft'>('published')
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
   // Fetch course details
   const { data: courseData, isLoading: isLoadingCourse } = useQuery({
@@ -78,6 +53,7 @@ function EditCoursePage() {
           setDescription(c.description)
           setThumbnail(c.thumbnail)
           setAccessCode(c.class_code)
+          setStatus(c.status || 'published')
           
           if (c.modules) {
               // Map fetched modules to state structure
@@ -103,30 +79,7 @@ function EditCoursePage() {
     setAccessCode(`${part1}${part2}`)
   }
 
-  const handleAddModule = () => {
-    setModules(prev => [
-      ...prev,
-      {
-        id: Date.now(),
-        title: `Bab ${prev.length + 1}: Judul Baru`,
-        order: prev.length + 1,
-        isExpanded: true,
-        materials: []
-      }
-    ])
-  }
 
-  const toggleModule = (id: string | number) => {
-    setModules(prev => prev.map(m => m.id === id ? { ...m, isExpanded: !m.isExpanded } : m))
-  }
-
-  const updateModuleTitle = (id: string | number, newTitle: string) => {
-    setModules(prev => prev.map(m => m.id === id ? { ...m, title: newTitle } : m))
-  }
-
-  const deleteModule = (id: string | number) => {
-      setModules(prev => prev.filter(m => m.id !== id))
-  }
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
@@ -140,23 +93,34 @@ function EditCoursePage() {
         formData.append('title', title)
         formData.append('description', description)
         formData.append('class_code', accessCode)
+        formData.append('status', status)
         
         if (thumbnailFile) {
             formData.append('thumbnail', thumbnailFile)
         }
 
-        const modulesPayload = modules.map(({ ...rest }) => ({
-            title: rest.title,
-            order: rest.order,
-            materials: rest.materials.map(mat => ({
-                title: mat.title,
-                type: mat.type,
-                raw_content: mat.raw_content,
-                source_url: mat.source_url,
-                duration_min: mat.duration_min,
-                has_captions: mat.has_captions || false
-            }))
-        }))
+        const modulesPayload = modules.map((module) => {
+            // Check if ID is a temporary timestamp (newly created)
+            const isTempModuleId = typeof module.id === 'number' && module.id > 1000000000000;
+            
+            return {
+                id: isTempModuleId ? undefined : module.id,
+                title: module.title,
+                order: module.order,
+                materials: module.materials.map(mat => {
+                    const isTempMatId = typeof mat.id === 'number' && mat.id > 1000000000000;
+                    return {
+                        id: isTempMatId ? undefined : mat.id,
+                        title: mat.title,
+                        type: mat.type,
+                        raw_content: mat.raw_content,
+                        source_url: mat.source_url,
+                        duration_min: mat.duration_min,
+                        has_captions: mat.has_captions || false
+                    }
+                })
+            }
+        })
         
         formData.append('modules', JSON.stringify(modulesPayload))
 
@@ -204,10 +168,21 @@ function EditCoursePage() {
       <header className="h-16 flex items-center justify-between px-4 sm:px-8 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
         <div className="flex items-center gap-4">
           <nav className="hidden sm:flex items-center text-sm font-medium text-slate-500 dark:text-slate-400">
-            <a href="/lecturer/course" className="hover:text-slate-900 dark:hover:text-white transition-all">Kursus</a>
+            <Link to="/lecturer/course" className="hover:text-slate-900 dark:hover:text-white transition-all">Kursus</Link>
             <ChevronRight className="mx-2 w-4 h-4 text-slate-300" />
             <span className="text-slate-900 dark:text-white bg-gray-100 dark:bg-[#1e293b] px-2 py-0.5 rounded-md">Edit Kursus</span>
           </nav>
+        </div>
+
+        <div className="flex items-center gap-2">
+             <Link 
+                to="/lecturer/course/$courseId/preview"
+                params={{ courseId }}
+                className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-[#4f46e5] dark:hover:text-[#6366f1] bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 px-3 py-1.5 rounded-lg transition-all shadow-sm hover:shadow hover:border-[#4f46e5]/30 cursor-pointer"
+            >
+                <Eye className="w-4 h-4" />
+                <span className="hidden sm:inline">Preview</span>
+            </Link>
         </div>
       </header>
 
@@ -285,6 +260,7 @@ function EditCoursePage() {
                         placeholder="misal: Masterclass Desain UX" 
                     />
                     {validationErrors.title && <p className="text-red-500 text-xs mt-1">{validationErrors.title}</p>}
+
                   </div>
                   <div>
                     <label htmlFor="course-desc" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
@@ -299,6 +275,27 @@ function EditCoursePage() {
                         placeholder="Apa yang akan dipelajari siswa dalam kursus ini?"
                     ></textarea>
                      {validationErrors.description && <p className="text-red-500 text-xs mt-1">{validationErrors.description}</p>}
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="course-status" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        Status Kursus
+                    </label>
+                    <div className="relative">
+                        <select
+                            id="course-status"
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value as 'published' | 'draft')}
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 focus:border-[#6366f1] focus:ring-[#6366f1]/20 bg-white dark:bg-[#1e293b] text-slate-900 dark:text-white appearance-none focus:ring-2 transition-all outline-none cursor-pointer"
+                        >
+                            <option value="published">Publikasi (Aktif)</option>
+                            <option value="draft">Draf (Disembunyikan)</option>
+                        </select>
+                         <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none w-5 h-5" />
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">
+                        {status === 'published' ? 'Kursus akan terlihat oleh siswa.' : 'Kursus hanya terlihat oleh Anda.'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -348,93 +345,37 @@ function EditCoursePage() {
                 </div>
               </div>
 
-              {/* Card: Curriculum */}
-              <div className="bg-white dark:bg-[#0f172a] rounded-2xl shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-gray-100 dark:border-gray-800 overflow-hidden">
-                <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <div className="p-1.5 bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded-lg">
-                      <LayoutGrid className="w-5 h-5" />
-                    </div>
-                    Kurikulum
-                  </h3>
-                  <button onClick={() => setIsModuleExpanded(prev => !prev)} className="text-sm font-semibold text-[#4f46e5] hover:text-[#4338ca] dark:text-[#6366f1] cursor-pointer">
-                    {isModuleExpanded ? 'Tutup Semua' : 'Buka Semua'}
-                  </button>
-                </div>
+              <CourseCurriculum 
+                modules={modules} 
+                setModules={setModules} 
+                onDeleteModule={async (id) => {
+                    // Check if temp ID (timestamp)
+                    const isTemp = typeof id === 'number' && id > 1000000000000
+                    if (isTemp) return
 
-                <div className="p-6 bg-gray-50/50 dark:bg-[#0f172a]/50 space-y-4">
-                  
-                  {modules.map((module) => (
-                    <div key={module.id} className="bg-white dark:bg-[#1e293b] rounded-xl border border-[#e0e7ff] dark:border-[#1e293b]/50 shadow-sm overflow-hidden ring-1 ring-[#6366f1]/20">
-                      {/* Module Header */}
-                      <div className="p-4 flex items-center gap-3">
-                         <GripVertical className="text-slate-300 cursor-grab hover:text-slate-500 w-5 h-5" />
-                         <div className="flex-1">
-                           {module.isExpanded ? (
-                             <div className="flex justify-between items-start">
-                                <div className="w-full mr-4">
-                                  <input 
-                                    value={module.title}
-                                    onChange={(e) => updateModuleTitle(module.id, e.target.value)}
-                                    type="text" 
-                                    className="w-full font-bold text-slate-900 dark:text-white bg-transparent border-none p-0 focus:ring-0 text-base outline-none" 
-                                  />
-                                  <p className="text-xs text-slate-500 mt-1">{module.materials.length} Pelajaran</p>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <button onClick={() => deleteModule(module.id)} className="p-1 text-slate-400 hover:text-red-500 transition-all cursor-pointer"><Trash2 className="w-4 h-4" /></button>
-                                </div>
-                              </div>
-                           ) : (
-                             <div className="flex items-center justify-between">
-                               <div>
-                                 <h4 className="font-bold text-slate-900 dark:text-white text-sm">{module.title}</h4>
-                                 <p className="text-xs text-slate-500 dark:text-slate-400">{module.materials.length} Pelajaran</p>
-                               </div>
-                             </div>
-                           )}
-                         </div>
-                         <button onClick={() => toggleModule(module.id)} className="p-1.5 text-slate-400 hover:bg-gray-100 dark:hover:bg-[#0f172a] rounded-lg transition-all cursor-pointer">
-                           <ChevronDown className={`w-5 h-5 transition-transform ${module.isExpanded ? 'rotate-180' : ''}`} />
-                         </button>
-                       </div>
-
-                       {/* Module Content */}
-                       {module.isExpanded && (
-                         <div className="px-4 pb-4">
-                            <div className="space-y-2 pl-2 border-l-2 border-gray-100 dark:border-gray-700 ml-2">
-                                {module.materials.map((mat) => (
-                                    <div key={mat.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-[#1e293b]/50 group transition-all cursor-pointer">
-                                        <div className={`w-8 h-8 rounded-lg ${mat.type === 'youtube' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'} flex items-center justify-center shrink-0`}>
-                                            <PlayCircle className="w-5 h-5" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{mat.title}</p>
-                                            <p className="text-xs text-slate-400">{mat.duration_min} Menit • {mat.type}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                                {module.materials.length === 0 && (
-                                    <div className="text-sm text-slate-400 italic p-2">Belum ada materi.</div>
-                                )}
-                            </div>
-                            
-                            <button className="mt-3 ml-2 text-xs font-bold text-[#4f46e5] dark:text-[#6366f1] hover:underline flex items-center gap-1 cursor-pointer">
-                                <Plus className="w-4 h-4" /> Tambah Pelajaran
-                            </button>
-                         </div>
-                       )}
-                    </div>
-                  ))}
-
-                  {/* Add Module Button */}
-                  <button onClick={handleAddModule} className="w-full py-3 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-sm font-semibold text-slate-500 hover:text-[#4f46e5] hover:border-[#6366f1] hover:bg-[#eef2ff] dark:hover:bg-[#0f172a]/10 transition-all flex items-center justify-center gap-2 group cursor-pointer">
-                    <PlusCircle className="group-hover:scale-110 transition-all w-5 h-5" />
-                    Tambah Modul Baru
-                  </button>
-
-                </div>
-              </div>
+                    try {
+                        await deleteFetcher(MODULE.DELETE.replace('{module_id}', String(id)))
+                        toast.success('Modul berhasil dihapus')
+                    } catch (error: any) {
+                        if (error.response?.status === 404) return
+                        toast.error(error.response?.data?.message || 'Gagal menghapus modul')
+                        throw error
+                    }
+                }}
+                onDeleteMaterial={async (_moduleId, materialId) => {
+                     const isTemp = typeof materialId === 'number' && materialId > 1000000000000
+                     if (isTemp) return
+ 
+                     try {
+                         await deleteFetcher(MATERIAL.DELETE.replace('{material_id}', String(materialId)))
+                         toast.success('Materi berhasil dihapus')
+                     } catch (error: any) {
+                         if (error.response?.status === 404) return
+                         toast.error(error.response?.data?.message || 'Gagal menghapus materi')
+                         throw error
+                     }
+                }}
+              />
           </div>
         </div>
       </div>

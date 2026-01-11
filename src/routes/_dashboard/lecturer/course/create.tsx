@@ -25,6 +25,7 @@ import { postFetcher } from '@/lib/api-client'
 import { toast } from 'sonner'
 import { useNavigate } from '@tanstack/react-router'
 import { COURSE } from '@/data/const/api_path'
+import { CourseCurriculum, type Module } from '@/components/lecturer/CourseCurriculum'
 
 export const Route = createFileRoute('/_dashboard/lecturer/course/create')({
   component: CreateCoursePage,
@@ -43,22 +44,9 @@ function CreateCoursePage() {
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
-  interface Material {
-    id: number | string
-    title: string
-    type: 'text' | 'youtube' | 'pdf' | 'video'
-    raw_content?: string
-    source_url?: string
-    duration_min: number
-  }
 
-  interface Module {
-    id: number | string
-    title: string
-    order: number
-    materials: Material[]
-    isExpanded: boolean // Frontend only state
-  }
+
+
 
   const [modules, setModules] = useState<Module[]>([])
 
@@ -75,35 +63,12 @@ function CreateCoursePage() {
     generateCode()
   }, [])
 
-  const handleAddModule = () => {
-    setModules(prev => [
-      ...prev,
-      {
-        id: Date.now(),
-        title: `Bab ${prev.length + 1}: Judul Baru`,
-        order: prev.length + 1,
-        isExpanded: true,
-        materials: []
-      }
-    ])
-  }
 
-  const toggleModule = (id: string | number) => {
-    setModules(prev => prev.map(m => m.id === id ? { ...m, isExpanded: !m.isExpanded } : m))
-  }
-
-  const updateModuleTitle = (id: string | number, newTitle: string) => {
-    setModules(prev => prev.map(m => m.id === id ? { ...m, title: newTitle } : m))
-  }
-
-  const deleteModule = (id: string | number) => {
-      setModules(prev => prev.filter(m => m.id !== id))
-  }
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
 
-  const handlePublish = async () => {
+  const handleSubmit = async (status: 'published' | 'draft') => {
       try {
         setIsSubmitting(true)
         setValidationErrors({}) // Clear previous errors
@@ -112,6 +77,7 @@ function CreateCoursePage() {
         formData.append('title', title)
         formData.append('description', description)
         formData.append('class_code', accessCode)
+        formData.append('status', status)
         
         if (thumbnailFile) {
             formData.append('thumbnail', thumbnailFile)
@@ -139,7 +105,7 @@ function CreateCoursePage() {
         }
 
         await postFetcher(COURSE.CREATE, { arg: formData })
-        toast.success('Kursus berhasil diterbitkan!')
+        toast.success(status === 'published' ? 'Kursus berhasil diterbitkan!' : 'Draf kursus berhasil disimpan!')
         navigate({ to: '/lecturer/course' })
       } catch (error: any) {
         console.error(error)
@@ -150,7 +116,7 @@ function CreateCoursePage() {
                 description: 'Mohon periksa input Anda kembali.'
             })
         } else {
-            toast.error('Gagal menerbitkan kursus', {
+            toast.error(status === 'published' ? 'Gagal menerbitkan kursus' : 'Gagal menyimpan draf', {
               description: error.response?.data?.message || 'Terjadi kesalahan sistem'
             })
         }
@@ -322,103 +288,23 @@ function CreateCoursePage() {
               </div>
 
               {/* Card: Curriculum */}
-              <div className="bg-white dark:bg-[#0f172a] rounded-2xl shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-gray-100 dark:border-gray-800 overflow-hidden">
-                <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <div className="p-1.5 bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded-lg">
-                      <LayoutGrid className="w-5 h-5" />
-                    </div>
-                    Kurikulum
-                  </h3>
-                  <button onClick={() => setIsModuleExpanded(prev => !prev)} className="text-sm font-semibold text-[#4f46e5] hover:text-[#4338ca] dark:text-[#6366f1] cursor-pointer">
-                    {isModuleExpanded ? 'Tutup Semua' : 'Buka Semua'}
-                  </button>
-                </div>
-
-                <div className="p-6 bg-gray-50/50 dark:bg-[#0f172a]/50 space-y-4">
-                  
-                  {modules.map((module) => (
-                    <div key={module.id} className="bg-white dark:bg-[#1e293b] rounded-xl border border-[#e0e7ff] dark:border-[#1e293b]/50 shadow-sm overflow-hidden ring-1 ring-[#6366f1]/20">
-                      {/* Module Header */}
-                      <div className="p-4 flex items-center gap-3">
-                         <GripVertical className="text-slate-300 cursor-grab hover:text-slate-500 w-5 h-5" />
-                         <div className="flex-1">
-                           {module.isExpanded ? (
-                             <div className="flex justify-between items-start">
-                                <div className="w-full mr-4">
-                                  <input 
-                                    value={module.title}
-                                    onChange={(e) => updateModuleTitle(module.id, e.target.value)}
-                                    type="text" 
-                                    className="w-full font-bold text-slate-900 dark:text-white bg-transparent border-none p-0 focus:ring-0 text-base outline-none" 
-                                  />
-                                  <p className="text-xs text-slate-500 mt-1">{module.materials.length} Pelajaran</p>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <button onClick={() => deleteModule(module.id)} className="p-1 text-slate-400 hover:text-red-500 transition-all cursor-pointer"><Trash2 className="w-4 h-4" /></button>
-                                </div>
-                              </div>
-                           ) : (
-                             <div className="flex items-center justify-between">
-                               <div>
-                                 <h4 className="font-bold text-slate-900 dark:text-white text-sm">{module.title}</h4>
-                                 <p className="text-xs text-slate-500 dark:text-slate-400">{module.materials.length} Pelajaran</p>
-                               </div>
-                             </div>
-                           )}
-                         </div>
-                         <button onClick={() => toggleModule(module.id)} className="p-1.5 text-slate-400 hover:bg-gray-100 dark:hover:bg-[#0f172a] rounded-lg transition-all cursor-pointer">
-                           <ChevronDown className={`w-5 h-5 transition-transform ${module.isExpanded ? 'rotate-180' : ''}`} />
-                         </button>
-                       </div>
-
-                       {/* Module Content */}
-                       {module.isExpanded && (
-                         <div className="px-4 pb-4">
-                            <div className="space-y-2 pl-2 border-l-2 border-gray-100 dark:border-gray-700 ml-2">
-                                {module.materials.map((mat) => (
-                                    <div key={mat.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-[#1e293b]/50 group transition-all cursor-pointer">
-                                        <div className={`w-8 h-8 rounded-lg ${mat.type === 'youtube' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'} flex items-center justify-center shrink-0`}>
-                                            <PlayCircle className="w-5 h-5" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{mat.title}</p>
-                                            <p className="text-xs text-slate-400">{mat.duration_min} Menit • {mat.type}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                                {module.materials.length === 0 && (
-                                    <div className="text-sm text-slate-400 italic p-2">Belum ada materi.</div>
-                                )}
-                            </div>
-                            
-                            <button className="mt-3 ml-2 text-xs font-bold text-[#4f46e5] dark:text-[#6366f1] hover:underline flex items-center gap-1 cursor-pointer">
-                                <Plus className="w-4 h-4" /> Tambah Pelajaran
-                            </button>
-                         </div>
-                       )}
-                    </div>
-                  ))}
-
-                  {/* Add Module Button */}
-                  <button onClick={handleAddModule} className="w-full py-3 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-sm font-semibold text-slate-500 hover:text-[#4f46e5] hover:border-[#6366f1] hover:bg-[#eef2ff] dark:hover:bg-[#0f172a]/10 transition-all flex items-center justify-center gap-2 group cursor-pointer">
-                    <PlusCircle className="group-hover:scale-110 transition-all w-5 h-5" />
-                    Tambah Modul Baru
-                  </button>
-
-                </div>
-              </div>
+               <CourseCurriculum modules={modules} setModules={setModules} />
           </div>
         </div>
       </div>
       
       {/* Sticky Bottom Action Bar */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0f172a] sticky bottom-0 z-40 flex justify-end gap-3 shadow-[0_-4px_20px_-2px_rgba(0,0,0,0.05)]">
-         <button className="px-6 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white bg-slate-100 dark:bg-[#1e293b] hover:bg-slate-200 dark:hover:bg-[#2e3b4e] rounded-xl transition-all cursor-pointer">
+         <button 
+            onClick={() => handleSubmit('draft')}
+            disabled={isSubmitting} // Disable while submitting
+            className="px-6 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white bg-slate-100 dark:bg-[#1e293b] hover:bg-slate-200 dark:hover:bg-[#2e3b4e] rounded-xl transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed flex items-center"
+         >
+            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
             Simpan Draf
           </button>
           <button 
-            onClick={handlePublish}
+            onClick={() => handleSubmit('published')}
             disabled={isSubmitting}
             className="inline-flex items-center gap-2 px-8 py-2.5 text-sm font-semibold text-white bg-[#4f46e5] hover:bg-[#4338ca] rounded-xl shadow-lg shadow-[#6366f1]/30 transition-all active:scale-95 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
           >

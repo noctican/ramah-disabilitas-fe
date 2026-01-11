@@ -21,7 +21,21 @@ export const COURSE = {
     JOINED: "/v1/courses/joined",
 } as const satisfies UrlGroupType
 
+export const MODULE = {
+    CREATE_MATERIAL : "/v1/lecturer/modules/{module_id}/materials", // New Endpoint
+    DELETE: "/v1/lecturer/modules/{module_id}",
+} as const satisfies UrlGroupType
+
+export const MATERIAL = {
+    UPDATE: "/v1/lecturer/materials/{material_id}",
+    DELETE: "/v1/lecturer/materials/{material_id}",
+} as const satisfies UrlGroupType
+
 export const MEDIA = {
     UPLOAD: "/v1/media",
 } as const satisfies UrlGroupType
 
+export const ASSIGNMENT = {
+    CREATE: "/v1/lecturer/courses/{course_id}/assignments",
+    GET_ALL: "/v1/lecturer/courses/{course_id}/assignments",
+} as const satisfies UrlGroupType
