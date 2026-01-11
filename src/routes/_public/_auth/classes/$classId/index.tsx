@@ -8,7 +8,7 @@ import { TimelinePane } from './-panes/TimelinePane'
 import { AssignmentsPane } from './-panes/AssignmentsPane'
 import { PeoplePane } from './-panes/PeoplePane'
 
-export const Route = createFileRoute('/_public/classes/$classId/')({
+export const Route = createFileRoute('/_public/_auth/classes/$classId/')({
   component: RouteComponent,
 })
 

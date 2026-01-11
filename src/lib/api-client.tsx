@@ -1,5 +1,6 @@
 import axios from 'axios'
-import { getToken, removeToken } from './token-handler'
+import { getToken } from './token-handler'
+import { useAuthStore } from '@/data/store/auth_store'
 
 export const apiClient = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
@@ -9,26 +10,24 @@ apiClient.interceptors.request.use((config) => {
     const token = getToken()
     if (token) config.headers['Authorization'] = 'Bearer ' + token
 
-    if (config.url && config.params) {
-        const paramsCopy = { ...config.params }
-        let url = config.url
+    const replaceUrl = (sourceData: any) => {
+        if (!config.url || !sourceData) return
 
-        const matches = url.match(/{([^}]+)}/g)
-
+        const matches = config.url.match(/{([^}]+)}/g)
         if (matches) {
             matches.forEach((match) => {
                 const key = match.replace(/[{}]/g, '')
 
-                if (paramsCopy[key] !== undefined) {
-                    url = url.replace(match, paramsCopy[key])
-                    delete paramsCopy[key]
+                if (sourceData[key] !== undefined) {
+                    config.url = config.url!.replace(match, sourceData[key])
+                    delete sourceData[key] 
                 }
             })
-
-            config.url = url
-            config.params = paramsCopy
         }
     }
+
+    if (config.params) replaceUrl(config.params)
+    if (config.data) replaceUrl(config.data)
     return config
 }, (err) => {
     return Promise.reject(err)
@@ -38,10 +37,34 @@ apiClient.interceptors.response.use(
     (res) => (res),
     (err) => {
         console.error(err)
-        if (err.response?.status === 401) removeToken()
+        const logout = useAuthStore.getState().logout
+        if (err.response?.status === 401) logout()
         return (Promise.reject(err))
     }
 )
+
+export const fetcher = {
+    get: async (url: string, params?: any) => {
+        const res = await apiClient.get(url, {params})
+        return res.data
+    },
+    post: async (url: string, {arg}: {arg:any} ) => {
+        const res = await apiClient.post(url, arg)
+        return res.data
+    },
+    put: async (url: string, {arg}: {arg:any} ) => {
+        const res = await apiClient.put(url, arg)
+        return res.data
+    },
+    patch: async (url: string, {arg}: {arg:any} ) => {
+        const res = await apiClient.patch(url, arg)
+        return res.data
+    },
+    delete: async (url: string, {arg}: {arg:any}) => {
+        const res = await apiClient.delete(url, {params: arg})
+        return res.data
+    },
+}
 
 export const postFetcher = async (url: string, {arg}: {arg:any} ) => {
     const res = await apiClient.post(url, arg)

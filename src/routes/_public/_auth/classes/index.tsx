@@ -6,14 +6,23 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
 import { ClassCard } from './-component/ClassCard'
 import { TaskCard } from './-component/TaskCard'
+import { useState } from 'react'
+import { JoinClassDialog } from './-component/JoinClassDialog'
+import { useQueryData } from '@/hooks/api/use-global-fetch'
+import { COURSE } from '@/data/const/api_path'
+import type { ApiResponseType } from '@/data/types/api_response_types'
 
-export const Route = createFileRoute('/_public/classes/')({
+export const Route = createFileRoute('/_public/_auth/classes/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false)
+  const { data } = useQueryData<ApiResponseType<'multiple'>>(COURSE.JOINED)
+
   return (
     <>
+      <JoinClassDialog isOpen={isJoinDialogOpen} setIsOpen={setIsJoinDialogOpen} />
       <PublicHeaderGap />
       <div className='container mx-auto'>
         <div className="grid grid-cols-3 gap-6">
@@ -22,13 +31,18 @@ function RouteComponent() {
               <CardContent>
                 <div className="flex items-center justify-between mb-4">
                   <TitleSection>Daftar Kelas</TitleSection>
-                  <Button><Plus /> Join</Button>
+                  <Button onClick={() => setIsJoinDialogOpen(true)}><Plus /> Join</Button>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  {Array(6).fill(0).map((_, index) => (
-                    <ClassCard key={index} />
-                  ))}
-                </div>
+                {(data?.data?.length ?? 0) > 0
+                  ? <div className="grid grid-cols-3 gap-4">
+                    {data?.data?.map((_, index) => (
+                      <ClassCard key={index} />
+                    ))}
+                  </div>
+                  : <div className='py-6 bg-slate-100 rounded'>
+                    <p className='text-center text-muted-foreground'>Belum ada kelas yang diikuti</p>
+                  </div>
+                }
               </CardContent>
             </Card>
           </div>
