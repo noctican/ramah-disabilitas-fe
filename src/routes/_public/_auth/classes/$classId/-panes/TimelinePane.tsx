@@ -4,8 +4,10 @@ import {
   CheckCircle, 
   Lock
 } from 'lucide-react'
+import { Link, useParams } from '@tanstack/react-router'
 
 export const TimelinePane = () => {
+  const { classId } = useParams({ from: '/_public/_auth/classes/$classId/' })
   return (
     <div className="flex flex-col gap-10">
       <section>
@@ -30,9 +32,13 @@ export const TimelinePane = () => {
               <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-[#2280c3] transition-colors">The Box Model Explained</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">Understanding margins, borders, padding, and content areas.</p>
             </div>
-            <button className="flex-shrink-0 px-6 py-2.5 bg-[#2280c3] hover:bg-blue-600 text-white text-sm font-semibold rounded-lg shadow-[0_0_15px_rgba(34,128,195,0.15)] transition-all active:scale-95 w-full md:w-auto">
+            <Link 
+              to="/learn/$classId" 
+              params={{ classId }}
+              className="flex-shrink-0 px-6 py-2.5 bg-[#2280c3] hover:bg-blue-600 text-white text-sm font-semibold rounded-lg shadow-[0_0_15px_rgba(34,128,195,0.15)] transition-all active:scale-95 w-full md:w-auto text-center"
+            >
               Start Lesson
-            </button>
+            </Link>
           </div>
           
           <div className="group flex flex-col md:flex-row items-center gap-5 p-5 bg-[#F8F8F8] dark:bg-zinc-800/40 border border-slate-100 dark:border-zinc-800 rounded-xl hover:shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] hover:border-[#2280c3]/20 hover:bg-white dark:hover:bg-zinc-800 transition-all duration-300">
@@ -95,9 +101,13 @@ export const TimelinePane = () => {
               <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-[#2280c3] transition-colors">Flexbox Deep Dive</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">Mastering flex containers, axes, and alignment.</p>
             </div>
-            <button className="flex-shrink-0 px-6 py-2.5 bg-[#2280c3]/10 hover:bg-[#2280c3] hover:text-white text-[#2280c3] text-sm font-semibold rounded-lg transition-all active:scale-95 w-full md:w-auto border border-[#2280c3]/10">
+            <Link 
+              to="/learn/$classId" 
+              params={{ classId }} 
+              className="flex-shrink-0 px-6 py-2.5 bg-[#2280c3]/10 hover:bg-[#2280c3] hover:text-white text-[#2280c3] text-sm font-semibold rounded-lg transition-all active:scale-95 w-full md:w-auto border border-[#2280c3]/10 text-center"
+            >
               Start Lesson
-            </button>
+            </Link>
           </div>
 
           <div className="group flex flex-col md:flex-row items-center gap-5 p-5 bg-slate-50 dark:bg-zinc-900/50 border border-slate-100 dark:border-zinc-800 rounded-xl opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300 cursor-not-allowed">
