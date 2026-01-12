@@ -14,7 +14,7 @@ import {
   ArrowLeft 
 } from 'lucide-react'
 
-export const Route = createFileRoute('/_public/classes/$classId/')({
+export const Route = createFileRoute('/_public/_auth/classes/$classId/')({
   component: RouteComponent,
 })
 

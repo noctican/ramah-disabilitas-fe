@@ -36,7 +36,7 @@ function CourseDetailPage() {
   const { courseId } = Route.useParams()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<'modules' | 'assignments' | 'students'>('modules')
+  const [activeTab, setActiveTab] = useState<'modules' | 'assignments' | 'students' | 'grades'>('modules')
   const [modules, setModules] = useState<Module[]>([])
   const [isSaving, setIsSaving] = useState(false)
 

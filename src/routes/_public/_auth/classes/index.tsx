@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import PublicHeaderGap from '@/layout/PublicHeaderGap'
+<<<<<<< HEAD:src/routes/_public/classes/index.tsx
 import { 
   Plus, 
   School, 
@@ -9,13 +10,28 @@ import {
   Lightbulb, 
   Check,
 } from 'lucide-react'
+=======
+import { createFileRoute } from '@tanstack/react-router'
+import { Plus } from 'lucide-react'
+import { ClassCard } from './-component/ClassCard'
+import { TaskCard } from './-component/TaskCard'
+import { useState } from 'react'
+import { JoinClassDialog } from './-component/JoinClassDialog'
+import { useQueryData } from '@/hooks/api/use-global-fetch'
+import { COURSE } from '@/data/const/api_path'
+import type { ApiResponseType } from '@/data/types/api_response_types'
+>>>>>>> 9c8ce04c4ba3b57402eb545c8462571b8bcf7ca4:src/routes/_public/_auth/classes/index.tsx
 
-export const Route = createFileRoute('/_public/classes/')({
+export const Route = createFileRoute('/_public/_auth/classes/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false)
+  const { data } = useQueryData<ApiResponseType<'multiple'>>(COURSE.JOINED)
+
   return (
+<<<<<<< HEAD:src/routes/_public/classes/index.tsx
     <div className="flex flex-col min-h-screen bg-[#f9fafb] dark:bg-[#2a3d50] font-sans text-[#131616] dark:text-white">
       <PublicHeaderGap />
       
@@ -199,6 +215,41 @@ function RouteComponent() {
               <div className="bg-gradient-to-br from-[#2d6a76] to-[#245660] rounded-2xl p-6 text-white relative overflow-hidden shadow-lg">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <Lightbulb className="w-24 h-24 rotate-12" />
+=======
+    <>
+      <JoinClassDialog isOpen={isJoinDialogOpen} setIsOpen={setIsJoinDialogOpen} />
+      <PublicHeaderGap />
+      <div className='container mx-auto'>
+        <div className="grid grid-cols-3 gap-6">
+          <div className="col-span-3 lg:col-span-2">
+            <Card className='ring-0'>
+              <CardContent>
+                <div className="flex items-center justify-between mb-4">
+                  <TitleSection>Daftar Kelas</TitleSection>
+                  <Button onClick={() => setIsJoinDialogOpen(true)}><Plus /> Join</Button>
+                </div>
+                {(data?.data?.length ?? 0) > 0
+                  ? <div className="grid grid-cols-3 gap-4">
+                    {data?.data?.map((_, index) => (
+                      <ClassCard key={index} />
+                    ))}
+                  </div>
+                  : <div className='py-6 bg-slate-100 rounded'>
+                    <p className='text-center text-muted-foreground'>Belum ada kelas yang diikuti</p>
+                  </div>
+                }
+              </CardContent>
+            </Card>
+          </div>
+          <div className="hidden lg:block col-span-1">
+            <Card className='ring-0'>
+              <CardContent>
+                <TitleSection className='mb-4'>Tugas Tersedia</TitleSection>
+                <div className="grid gap-4">
+                  {Array(2).fill(0).map((_, index) => (
+                    <TaskCard key={index} />
+                  ))}
+>>>>>>> 9c8ce04c4ba3b57402eb545c8462571b8bcf7ca4:src/routes/_public/_auth/classes/index.tsx
                 </div>
                 <div className="relative z-10">
                   <div className="bg-white/20 w-fit p-2 rounded-lg mb-3">

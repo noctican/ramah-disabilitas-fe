@@ -17,7 +17,7 @@ export const useLogin = () => {
             login(data, false)
             toaster(data.message, 'success')
             if(data.user.role === 'lecturer') navigate({to: '/lecturer'})
-            else navigate({to: '/student'})
+            else navigate({to: '/classes'})
         }
     })
 }

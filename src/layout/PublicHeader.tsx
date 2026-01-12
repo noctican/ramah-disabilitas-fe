@@ -7,6 +7,12 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { PublicNavItemTypes } from "@/data/types/nav_types";
 import { PUBLIC_NAV_ITEMS } from "@/data/const/public_nav";
+import { useAuthStore } from "@/data/store/auth_store";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { IconLogout, IconNotification, IconUserCircle } from "@tabler/icons-react";
+import { useLogout } from "@/hooks/api/use-auth";
 
 export default function PublicHeader() {
   
@@ -14,6 +20,9 @@ export default function PublicHeader() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isFloating = useRef(false);
+  const { isAuthenticated, user } = useAuthStore()
+  const isMobile = useIsMobile()
+  const { trigger } = useLogout()
 
   useGSAP(() => {
     const handleScroll = () => {
@@ -73,9 +82,54 @@ export default function PublicHeader() {
 
           {/* ACTIONS */}
           <div className="flex items-center gap-4">
-            <div className="hidden md:block">
-              <Link to="/login"><Button className="rounded-full px-6" size="sm">Login</Button></Link>
-            </div>
+            {!isAuthenticated && <div className="hidden md:block">
+              <Link to="/login"><Button className="rounded-full px-6">Login</Button></Link>
+            </div>}
+            {isAuthenticated && <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="h-8 w-8 rounded-full">
+                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarFallback className="rounded-full bg-primary text-white">ID</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            side="bottom"
+            align="end"
+            sideOffset={10}
+          >
+            <DropdownMenuLabel className="p-0 font-normal">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <Avatar className="h-8 w-8 rounded-full">
+                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarFallback className="rounded-full bg-primary text-white">ID</AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">{user.name}</span>
+                  <span className="text-muted-foreground truncate text-xs">
+                    {user.email}
+                  </span>
+                </div>
+              </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <IconUserCircle />
+                  Account
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <IconNotification />
+                  Notifications
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => trigger()}>
+                <IconLogout />
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+              </DropdownMenu>}
             <button className="md:hidden p-1 text-foreground" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
               {isMobileMenuOpen ? <X /> : <Menu />}
             </button>

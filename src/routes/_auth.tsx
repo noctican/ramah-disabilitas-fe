@@ -19,7 +19,7 @@ export const Route = createFileRoute('/_auth')({
       const userData = await apiClient.get(AUTH.ME)
       login(userData.data.data)
       throw redirect({
-        to: userData.data.data.role === ROLE_TEACHER ? '/lecturer' : '/student',
+        to: userData.data.data.role === ROLE_TEACHER ? '/lecturer' : '/classes',
       })
     } catch (error) {
       if(isRedirect(error)) throw error
