@@ -24,13 +24,27 @@ import {
     ChevronRight,
     RotateCw
 } from 'lucide-react'
+
+// Import React PDF Viewer components and styles
+import { Worker, Viewer } from '@react-pdf-viewer/core'
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout'
+import '@react-pdf-viewer/core/lib/styles/index.css'
+import '@react-pdf-viewer/default-layout/lib/styles/index.css'
+
 import { useState } from 'react'
 import { useAuthStore } from '@/data/store/auth_store'
 import { getToken } from '@/lib/token-handler'
 import { apiClient } from '@/lib/api-client'
-import { AUTH } from '@/data/const/api_path'
+import { AUTH, COURSE, MATERIAL } from '@/data/const/api_path'
+import { useQueryData } from '@/hooks/api/use-global-fetch'
+import type { ApiResponseType } from '@/data/types/api_response_types'
+import type { StudentCourseDetail, MaterialDetailType } from '@/data/types/course_type'
+import { z } from 'zod'
 
 export const Route = createFileRoute('/learn/$classId')({
+    validateSearch: z.object({
+        materialId: z.number().optional(),
+    }),
     beforeLoad: async () => {
         const { isAuthenticated, login, logout } = useAuthStore.getState()
         const token = getToken()
@@ -54,9 +68,44 @@ export const Route = createFileRoute('/learn/$classId')({
 
 function ClassLessonView() {
     const { classId } = Route.useParams()
+    const { materialId } = Route.useSearch()
     const navigate = useNavigate()
     const [activeTab, setActiveTab] = useState<'chat' | 'flashcards' | 'quiz' | 'summary'>('summary')
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(false)
+
+    // Create new instance of default layout plugin
+    const defaultLayoutPluginInstance = defaultLayoutPlugin()
+
+    // Fetch Course Detail (for navigation context)
+    const { data: courseData } = useQueryData<ApiResponseType<'single', StudentCourseDetail>>(COURSE.STUDENT_DETAIL, { course_id: classId })
+    const course = courseData?.data
+
+    // Determine active material ID
+    const activeMaterialId = materialId || course?.modules?.[0]?.materials?.[0]?.id
+
+    // Fetch Material Detail
+    const { data: materialData, isLoading: isLoadingMaterial } = useQueryData<ApiResponseType<'single', MaterialDetailType>>(
+        activeMaterialId ? MATERIAL.GET_DETAIL : "", 
+        { material_id: activeMaterialId }
+    )
+    const material = materialData?.data
+
+    // Redirect to first material if no materialId in URL
+    if (course && !materialId && activeMaterialId) {
+        navigate({ 
+            to: '/learn/$classId', 
+            params: { classId }, 
+            search: { materialId: activeMaterialId }, 
+            replace: true 
+        })
+    }
+
+    if (!course || (isLoadingMaterial && !material)) {
+        return <div className="flex h-screen items-center justify-center text-slate-500">Memuat materi...</div>
+    }
+
+    // Determine current module based on active material
+    const currentModule = course.modules.find(m => m.materials.some(mat => mat.id === activeMaterialId))
 
     return (
         <div className="flex h-screen w-full bg-white dark:bg-zinc-950 text-slate-800 dark:text-slate-100 font-sans overflow-hidden">
@@ -72,11 +121,15 @@ function ClassLessonView() {
                             <ArrowLeft className="w-5 h-5" />
                         </Link>
                         <nav className="flex items-center text-sm font-medium text-slate-500">
-                            <span className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer">Web Development 101</span>
+                            <Link to="/classes" className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer text-ellipsis overflow-hidden whitespace-nowrap max-w-[100px] md:max-w-none">{course?.title}</Link>
+                            {currentModule && (
+                                <>
+                                    <span className="mx-2 text-slate-300">/</span>
+                                    <span className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer text-ellipsis overflow-hidden whitespace-nowrap max-w-[100px] md:max-w-none">{currentModule.title}</span>
+                                </>
+                            )}
                             <span className="mx-2 text-slate-300">/</span>
-                            <span className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer">Module 3: CSS Styling</span>
-                            <span className="mx-2 text-slate-300">/</span>
-                            <span className="text-slate-900 dark:text-white font-semibold">CSS Grid Layout Deep Dive</span>
+                            <span className="text-slate-900 dark:text-white font-semibold text-ellipsis overflow-hidden whitespace-nowrap max-w-[150px] md:max-w-none">{material?.title}</span>
                         </nav>
                     </div>
                     <div className="flex items-center gap-3">
@@ -95,55 +148,75 @@ function ClassLessonView() {
                 <div className="flex-1 flex overflow-hidden">
                     <main className="flex-1 overflow-y-auto bg-[#F8F8F8] dark:bg-black/20 p-6 lg:p-10 flex flex-col">
                         <div className="max-w-5xl mx-auto w-full flex flex-col gap-6 flex-1">
-                            {/* Video Player Placeholder */}
-                            <div className="aspect-video w-full bg-black rounded-2xl shadow-lg overflow-hidden relative group">
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform z-20 group-hover:bg-[#2280c3] group-hover:text-white active:scale-95">
-                                        <Play className="w-8 h-8 text-white ml-1 fill-current" />
-                                    </div>
+                            {/* Video Player or Content */}
+                            {material?.type === 'video' ? (
+                                <div className="aspect-video w-full bg-black rounded-2xl shadow-lg overflow-hidden relative group">
+                                     {/* Simple Video Implementation without custom controls for now, using standard HTML5 video if source_url is valid */}
+                                     {material.source_url ? (
+                                        <video 
+                                            src={material.source_url} 
+                                            controls 
+                                            className="w-full h-full object-contain"
+                                            poster="https://lh3.googleusercontent.com/aida-public/AB6AXuCys9uc_SI6Ykm2IqM4qQhr-V6AjeCWT-RwSkvEqiwajRcUG-_z-jNsdNbLO4fdZ4a9WY-Ywf2vNHLahMdyqcfk2F9QRIhw3yI2Mr5r1xTOY91BoaeaO1qiity45p7OcgtPWCUL_yHLo2Lep3lS7ntqnNHW8xE3DV6EtgGIh-gHDTczmCfBgmKSjaOZhNUvaOP-ffEJNXECAsA374YM7bHp8tzgqyKdYA-HWNsdo5HwzWKx4H_cz17x02EQyHHORMdoESHaDhdWOjzX" // Fallback placeholder
+                                        />
+                                     ) : (
+                                        <div className="absolute inset-0 flex items-center justify-center text-white">Video Source Unavailable</div>
+                                     )}
                                 </div>
-                                {/* Background Image Overlay */}
-                                <div 
-                                    className="absolute inset-0 bg-cover bg-center opacity-60" 
-                                    style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCys9uc_SI6Ykm2IqM4qQhr-V6AjeCWT-RwSkvEqiwajRcUG-_z-jNsdNbLO4fdZ4a9WY-Ywf2vNHLahMdyqcfk2F9QRIhw3yI2Mr5r1xTOY91BoaeaO1qiity45p7OcgtPWCUL_yHLo2Lep3lS7ntqnNHW8xE3DV6EtgGIh-gHDTczmCfBgmKSjaOZhNUvaOP-ffEJNXECAsA374YM7bHp8tzgqyKdYA-HWNsdo5HwzWKx4H_cz17x02EQyHHORMdoESHaDhdWOjzX')" }}
-                                ></div>
-                                
-                                {/* Video Controls Overlay */}
-                                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/80 to-transparent flex items-end px-6 pb-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <div className="w-full flex items-center gap-4 text-white">
-                                        <Play className="w-5 h-5 cursor-pointer hover:text-[#2280c3] transition-colors" />
-                                        <div className="flex-1 h-1 bg-white/30 rounded-full cursor-pointer relative group/timeline">
-                                            <div className="absolute left-0 top-0 h-full w-1/3 bg-[#2280c3] rounded-full"></div>
-                                            <div className="absolute left-1/3 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-sm scale-0 group-hover/timeline:scale-100 transition-transform"></div>
+                            ) : (
+                                <div className="w-full bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-slate-100 dark:border-zinc-800 lg:p-4 min-h-[600px] flex flex-col">
+                                    {(material?.type === 'pdf' || material?.source_url?.toLowerCase().includes('.pdf')) && material.source_url ? (
+                                        <div className="h-[800px] border border-slate-200 dark:border-zinc-700 rounded-lg overflow-hidden relative">
+                                            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+                                                <div className="h-full w-full">
+                                                    <Viewer
+                                                        fileUrl={material.source_url}
+                                                        plugins={[defaultLayoutPluginInstance]}
+                                                        theme={{
+                                                             theme: 'auto',
+                                                        }}
+                                                    />
+                                                </div>
+                                            </Worker>
                                         </div>
-                                        <span className="text-xs font-medium">04:20 / 12:45</span>
-                                        <Volume2 className="w-5 h-5 cursor-pointer hover:text-slate-300 transition-colors" />
-                                        <Settings className="w-5 h-5 cursor-pointer hover:text-slate-300 transition-colors" />
-                                        <Maximize className="w-5 h-5 cursor-pointer hover:text-slate-300 transition-colors" />
-                                    </div>
+                                    ) : (
+                                        <div className="prose dark:prose-invert max-w-none p-4">
+                                            {material?.raw_content ? (
+                                                <div dangerouslySetInnerHTML={{ __html: material.raw_content }} />
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center h-full py-20 text-center">
+                                                    <FileText className="w-16 h-16 text-slate-300 mb-4" />
+                                                    <p className="text-slate-500 mb-4">Materi ini berupa file eksternal.</p>
+                                                    {material?.source_url && (
+                                                        <a href={material.source_url} target="_blank" rel="noopener noreferrer" className="px-6 py-2.5 bg-[#2280c3] text-white rounded-lg hover:bg-blue-600 transition-colors cursor-pointer">
+                                                            Buka Materi
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
+                            )}
 
                             <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 pb-8 border-b border-slate-200 dark:border-zinc-800">
                                 <div className="flex-1">
-                                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">CSS Grid Layout Deep Dive</h1>
+                                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{material?.title}</h1>
                                     <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
-                                        Learn how to create complex, two-dimensional layouts using CSS Grid. This lesson covers grid containers, tracks, lines, and areas, giving you full control over your web designs.
+                                        {material?.smart_feature?.summary || "Tidak ada ringkasan tersedia."}
                                     </p>
                                     <div className="flex items-center gap-4 mt-4 text-sm text-slate-500">
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="material-symbols-outlined text-[18px]">visibility</span>
-                                            <span>1.2k views</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="material-symbols-outlined text-[18px]">update</span>
-                                            <span>Last updated 2 days ago</span>
-                                        </div>
+                                        {material?.duration_min && (
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="material-symbols-outlined text-[18px]">schedule</span>
+                                                <span>{material.duration_min} min</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                                <button className="flex-shrink-0 flex items-center gap-2 px-6 py-3 bg-[#2280c3] hover:bg-[#1a659e] text-white font-semibold rounded-xl shadow-[0_0_15px_rgba(34,128,195,0.15)] transition-all active:scale-95 cursor-pointer">
+                                <button className={`flex-shrink-0 flex items-center gap-2 px-6 py-3 font-semibold rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer ${material?.is_completed ? 'bg-green-100 text-green-700 shadow-none' : 'bg-[#2280c3] hover:bg-[#1a659e] text-white shadow-[0_0_15px_rgba(34,128,195,0.15)]'}`}>
                                     <CheckCircle className="w-5 h-5" />
-                                    Mark as Complete
+                                    {material?.is_completed ? 'Selesai' : 'Tandai Selesai'}
                                 </button>
                             </div>
 

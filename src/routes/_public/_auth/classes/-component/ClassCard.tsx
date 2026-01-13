@@ -1,17 +1,55 @@
-import { Card, CardContent } from "@/components/ui/card"
+import type { JoinedCourse } from "@/data/types/course_type"
 import { Link } from "@tanstack/react-router"
+import { School } from "lucide-react"
 
-export const ClassCard = () => {
+type Props = {
+    data: JoinedCourse
+}
+
+export const ClassCard = ({ data }: Props) => {
     return (
-        <Link to="/classes/$classId" params={{ classId: '1' }} className="group">
-            <Card className="p-0 gap-0 group-hover:drop-shadow-[10px_10px_0px] group-hover:drop-shadow-primary-700/15 transition-all duration-300">
-                <img src="https://picsum.photos/200/300" className="w-full object-cover aspect-4/3" />
-                <CardContent className="p-4">
-                    <h5 className="mb-1 font-semibold">Pemrograman Dasar</h5>
-                    <p className="text-sm text-muted-foreground">oleh <span className="text-black">Dr. John Doe</span></p>
-                    <p className="text-sm text-muted-foreground">0 tugas aktif</p>
-                </CardContent>
-            </Card>
+        <Link 
+            to="/classes/$classId" 
+            params={{ classId: data.id.toString() }} 
+            className="bg-white dark:bg-[#1e2d3b] rounded-2xl border border-[#f1f3f3] dark:border-gray-800 p-4 shadow-sm hover:shadow-md transition-shadow group flex flex-col cursor-pointer h-full"
+        >
+            <div
+                className="aspect-video w-full rounded-xl bg-gray-100 bg-cover bg-center relative overflow-hidden"
+                style={{ backgroundImage: `url("${data.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60'}")` }}
+            >
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-lg text-xs font-bold text-[#2d6a76] shadow-sm">
+                    {data.class_code}
+                </div>
+            </div>
+            <div className="pt-4 flex-1 flex flex-col">
+                <div className="flex justify-between items-start mb-2 gap-3">
+                    <h4 className="text-[#131616] dark:text-white text-lg font-bold leading-tight group-hover:text-[#2d6a76] transition-colors line-clamp-2">
+                        {data.title}
+                    </h4>
+                    {/* Circular Progress */}
+                    <div className="relative w-10 h-10 shrink-0">
+                        <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                            <path className="text-[#f1f3f3] dark:text-gray-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3"></path>
+                            <path className="text-[#2d6a76] drop-shadow-sm transition-all duration-1000 ease-out" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeDasharray={`${data.progress || 0}, 100`} strokeLinecap="round" strokeWidth="3"></path>
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-[#2d6a76]">
+                            {Math.round(data.progress || 0)}%
+                        </div>
+                    </div>
+                </div>
+                {data.description && (
+                    <p className="text-[#6b7c80] dark:text-gray-400 text-sm mb-4 line-clamp-2">
+                        {data.description}
+                    </p>
+                )}
+                
+                <div className="mt-auto pt-2">
+                     <button className="w-full py-2.5 rounded-xl bg-[#f1f3f3] dark:bg-gray-700 text-[#131616] dark:text-white text-sm font-bold hover:bg-[#2d6a76] hover:text-white transition-all">
+                        Lanjutkan Belajar
+                    </button>
+                </div>
+            </div>
         </Link>
     )
 }

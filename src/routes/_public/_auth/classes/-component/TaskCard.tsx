@@ -1,20 +1,75 @@
-import { Avatar } from "@/components/ui/avatar"
-import { Card, CardContent } from "@/components/ui/card"
-import { IconList } from "@tabler/icons-react"
-import { Link } from "@tanstack/react-router"
+import type { AssignmentType } from "@/data/types/assignment_type"
+import { Calculator, School, History, CalendarClock } from "lucide-react"
 
-export const TaskCard = () => {
+type Props = {
+    data: AssignmentType
+}
+
+export const TaskCard = ({ data }: Props) => {
+    const deadlineDate = new Date(data.deadline)
+    const now = new Date()
+    const isOverdue = deadlineDate < now
+    const isUrgent = !isOverdue && (deadlineDate.getTime() - now.getTime() < 24 * 60 * 60 * 1000) // < 24 hours
+
+    const month = deadlineDate.toLocaleString('id-ID', { month: 'short' })
+    const date = deadlineDate.getDate()
+    
+    // Determine styles based on status
+    let statusConfig = {
+        bg: "bg-[#f1f3f3] dark:bg-gray-700",
+        text: "text-gray-600 dark:text-gray-300",
+        badgeBg: "bg-gray-100 dark:bg-gray-700",
+        badgeText: "text-gray-600 dark:text-gray-300",
+        label: "Kerjakan"
+    }
+
+    if (isOverdue) {
+        statusConfig = {
+            bg: "bg-red-50 dark:bg-red-500/10",
+            text: "text-red-600 dark:text-red-400",
+            badgeBg: "bg-red-100 dark:bg-red-900/30",
+            badgeText: "text-red-700 dark:text-red-300",
+            label: "Terlewat"
+        }
+    } else if (isUrgent) {
+         statusConfig = {
+            bg: "bg-orange-50 dark:bg-orange-500/10",
+            text: "text-orange-600 dark:text-orange-400",
+            badgeBg: "bg-orange-100 dark:bg-orange-900/30",
+            badgeText: "text-orange-700 dark:text-orange-300",
+            label: "Penting"
+        }
+    }
+
+    const formattedDeadline = deadlineDate.toLocaleString('id-ID', { 
+        weekday: 'long', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    })
+
     return (
-        <Link to="." className="group">
-            <Card className="gap-0 p-0 rounded-full group-hover:drop-shadow-[6px_6px_0px] group-hover:drop-shadow-primary-700/15 transition-all duration-300">
-                <CardContent className="p-2 flex gap-4 items-center">
-                    <Avatar className="p-5 grid place-content-center bg-primary text-white"><IconList /></Avatar>
-                    <div>
-                        <div>Judul Task</div>
-                        <div className="text-sm text-muted-foreground">24 Jan 2025 - 15:00</div>
-                    </div>
-                </CardContent>
-            </Card>
-        </Link>
+        <div className="flex gap-4 group">
+            <div className={`flex flex-col items-center justify-center h-14 w-14 rounded-xl shrink-0 ${statusConfig.bg} ${statusConfig.text}`}>
+                <span className="text-xs font-bold uppercase">{month}</span>
+                <span className="text-lg font-black leading-none">{date}</span>
+            </div>
+            <div className="flex flex-col flex-1">
+                <div className="flex justify-between items-start">
+                    <p className="text-[#131616] dark:text-white font-bold text-sm line-clamp-1 group-hover:text-[#2d6a76] transition-colors">
+                        {data.title}
+                    </p>
+                    <span className={`${statusConfig.badgeBg} ${statusConfig.badgeText} text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap`}>
+                        {statusConfig.label}
+                    </span>
+                </div>
+                <p className="text-[#6b7c80] dark:text-gray-400 text-xs mt-1">
+                    Tenggat: {formattedDeadline}
+                </p>
+                <div className="flex items-center gap-1 mt-2">
+                    <CalendarClock className="text-gray-400 w-3.5 h-3.5" />
+                    <p className="text-xs text-gray-500 font-medium">Course {data.course_id}</p>
+                </div>
+            </div>
+        </div>
     )
 }

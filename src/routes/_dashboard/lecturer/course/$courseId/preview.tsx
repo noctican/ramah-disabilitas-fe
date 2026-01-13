@@ -16,6 +16,12 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+// Import React PDF Viewer components and styles
+import { Worker, Viewer } from '@react-pdf-viewer/core'
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout'
+import '@react-pdf-viewer/core/lib/styles/index.css'
+import '@react-pdf-viewer/default-layout/lib/styles/index.css'
+
 export const Route = createFileRoute('/_dashboard/lecturer/course/$courseId/preview')({
   component: CoursePreviewPage,
 })
@@ -24,6 +30,9 @@ function CoursePreviewPage() {
   const { courseId } = Route.useParams()
   const [activeMaterialId, setActiveMaterialId] = useState<string | number | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(true)
+
+  // Create new instance of default layout plugin
+  const defaultLayoutPluginInstance = defaultLayoutPlugin()
 
   // 1. Fetch Data (Reusing Existing API)
   const { data: courseData, isLoading } = useQuery({
@@ -105,14 +114,22 @@ function CoursePreviewPage() {
                                 )}
 
                                 {/* 2. PDF / FILE */}
-                                {activeMaterial.type === 'pdf' && (
+                                {(activeMaterial.type === 'pdf' || activeMaterial.source_url?.toLowerCase().includes('.pdf')) && (
                                     <>
                                         {activeMaterial.source_url ? (
-                                           <iframe
-                                                src={activeMaterial.source_url} // Browser uses built-in PDF viewer
-                                                className="w-full h-full bg-white"
-                                                title={activeMaterial.title}
-                                           />
+                                           <div className="w-full h-full bg-white overflow-y-auto">
+                                                <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+                                                    <div className="h-full w-full">
+                                                        <Viewer
+                                                            fileUrl={activeMaterial.source_url}
+                                                            plugins={[defaultLayoutPluginInstance]}
+                                                            theme={{
+                                                                 theme: 'auto',
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </Worker>
+                                           </div>
                                         ) : (
                                             <div className="text-center text-gray-400">
                                                 <FileText className="w-16 h-16 mb-4 opacity-50 mx-auto" />

@@ -19,6 +19,7 @@ export const COURSE = {
 
     JOIN: "/v1/courses/join",
     JOINED: "/v1/courses/joined",
+    STUDENT_DETAIL: "/v1/courses/{course_id}", // Student Access
 } as const satisfies UrlGroupType
 
 export const MODULE = {
@@ -27,6 +28,7 @@ export const MODULE = {
 } as const satisfies UrlGroupType
 
 export const MATERIAL = {
+    GET_DETAIL: "/v1/materials/{material_id}",
     UPDATE: "/v1/lecturer/materials/{material_id}",
     DELETE: "/v1/lecturer/materials/{material_id}",
 } as const satisfies UrlGroupType
@@ -38,4 +40,5 @@ export const MEDIA = {
 export const ASSIGNMENT = {
     CREATE: "/v1/lecturer/courses/{course_id}/assignments",
     GET_ALL: "/v1/lecturer/courses/{course_id}/assignments",
+    MY_ASSIGNMENTS: "/v1/courses/assignments",
 } as const satisfies UrlGroupType

@@ -25,11 +25,14 @@ export const JoinClassDialog = ({ isOpen, setIsOpen }: Props) => {
         defaultValues
     })
 
-    const onSubmit = (data: JoinClassType) => {
-        console.log("a")
-        trigger(data)
-        form.reset(defaultValues)
-        setIsOpen(false)
+    const onSubmit = async (data: JoinClassType) => {
+        try {
+            await trigger(data)
+            form.reset(defaultValues)
+            setIsOpen(false)
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     return (
