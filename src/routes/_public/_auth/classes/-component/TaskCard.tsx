@@ -5,6 +5,8 @@ type Props = {
     data: AssignmentType
 }
 
+import { Link } from "@tanstack/react-router"
+
 export const TaskCard = ({ data }: Props) => {
     const deadlineDate = new Date(data.deadline)
     const now = new Date()
@@ -48,7 +50,11 @@ export const TaskCard = ({ data }: Props) => {
     })
 
     return (
-        <div className="flex gap-4 group">
+        <Link 
+            to="/assignments/$assignmentId" 
+            params={{ assignmentId: data.id.toString() }}
+            className="flex gap-4 group cursor-pointer block"
+        >
             <div className={`flex flex-col items-center justify-center h-14 w-14 rounded-xl shrink-0 ${statusConfig.bg} ${statusConfig.text}`}>
                 <span className="text-xs font-bold uppercase">{month}</span>
                 <span className="text-lg font-black leading-none">{date}</span>
@@ -70,6 +76,6 @@ export const TaskCard = ({ data }: Props) => {
                     <p className="text-xs text-gray-500 font-medium">Course {data.course_id}</p>
                 </div>
             </div>
-        </div>
+        </Link>
     )
 }

@@ -1,0 +1,112 @@
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { useState } from 'react'
+import { Plus, Filter, SortAsc, Search } from 'lucide-react'
+import { useQueryData } from '@/hooks/api/use-global-fetch'
+import { ASSIGNMENT } from '@/data/const/api_path'
+import type { ApiResponseType } from '@/data/types/api_response_types'
+import type { AssignmentType } from '@/data/types/assignment_type'
+import { TaskCard } from '../classes/-component/TaskCard'
+import PublicHeaderGap from '@/layout/PublicHeaderGap'
+
+export const Route = createFileRoute('/_public/_auth/assignments/')({
+  component: RouteComponent,
+})
+
+function RouteComponent() {
+  const [filter, setFilter] = useState<'upcoming' | 'overdue' | ''>('')
+  const [search, setSearch] = useState('')
+
+  const { data: assignmentsData, isLoading } = useQueryData<ApiResponseType<'multiple', AssignmentType>>(
+    ASSIGNMENT.MY_ASSIGNMENTS, 
+    { filter }
+  )
+
+  const filteredAssignments = assignmentsData?.data?.filter(assignment => 
+    assignment.title.toLowerCase().includes(search.toLowerCase()) ||
+    assignment.course_id.toString().includes(search.toLowerCase())
+  )
+
+  return (
+    <div className="flex flex-col min-h-screen bg-[#f9fafb] dark:bg-[#2a3d50] font-sans text-[#131616] dark:text-white">
+        <PublicHeaderGap />
+      
+        <div className="container mx-auto px-4 py-8 max-w-5xl">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Daftar Tugas</h1>
+                    <p className="text-gray-500 dark:text-gray-400 mt-1">Kelola dan kerjakan tugas-tugas Anda tepat waktu.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="relative">
+                        <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input 
+                            type="text" 
+                            placeholder="Cari tugas..." 
+                            className="pl-10 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#2d6a76]"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Sidebar Filters */}
+                <div className="lg:col-span-3 space-y-6">
+                    <div className="bg-white dark:bg-[#1e2d3b] rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 sticky top-24">
+                        <h3 className="font-bold mb-4 flex items-center gap-2">
+                            <Filter className="w-4 h-4" />
+                            Filter Status
+                        </h3>
+                        <div className="flex flex-col gap-2">
+                             <button 
+                                onClick={() => setFilter('')}
+                                className={`text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex justify-between items-center cursor-pointer ${filter === '' ? 'bg-[#2d6a76] text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                            >
+                                Semua Tugas
+                            </button>
+                            <button 
+                                onClick={() => setFilter('upcoming')}
+                                className={`text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex justify-between items-center cursor-pointer ${filter === 'upcoming' ? 'bg-[#2d6a76] text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                            >
+                                Aktif (Belum Dikerjakan)
+                            </button>
+                            <button 
+                                onClick={() => setFilter('overdue')}
+                                className={`text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex justify-between items-center cursor-pointer ${filter === 'overdue' ? 'bg-red-500 text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                            >
+                                Terlewat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Assignments List */}
+                <div className="lg:col-span-9">
+                    {isLoading ? (
+                        <div className="text-center py-20 text-gray-500">Memuat tugas...</div>
+                    ) : (
+                        <div className="space-y-4">
+                             {filteredAssignments && filteredAssignments.length > 0 ? (
+                                filteredAssignments.map((assignment) => (
+                                    <div key={assignment.id} className="bg-white dark:bg-[#1e2d3b] rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow">
+                                        <TaskCard data={assignment} />
+                                    </div>
+                                ))
+                             ) : (
+                                 <div className="text-center py-20 bg-white dark:bg-[#1e2d3b] rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                                    <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Filter className="w-8 h-8 text-gray-300" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Tidak ada tugas ditemukan</h3>
+                                    <p className="text-gray-500 text-sm mt-1">Coba ubah filter atau kata kunci pencarian Anda.</p>
+                                 </div>
+                             )}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    </div>
+  )
+}

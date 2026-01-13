@@ -41,4 +41,6 @@ export const ASSIGNMENT = {
     CREATE: "/v1/lecturer/courses/{course_id}/assignments",
     GET_ALL: "/v1/lecturer/courses/{course_id}/assignments",
     MY_ASSIGNMENTS: "/v1/courses/assignments",
+    GET_COURSE_ASSIGNMENTS: "/v1/courses/{course_id}/assignments",
+    GET_DETAIL: "/v1/assignments/{assignment_id}",
 } as const satisfies UrlGroupType
