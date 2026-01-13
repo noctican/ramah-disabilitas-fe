@@ -3,7 +3,7 @@ import { Plus, PlayCircle, MoreVertical, ChevronLeft, ChevronRight, HelpCircle }
 import { useAuthStore } from '@/data/store/auth_store'
 import PublicHeaderGap from '@/layout/PublicHeaderGap'
 
-export const Route = createFileRoute('/_public/_auth/dashboard/')({
+export const Route = createFileRoute('/_public/_auth/')({
   component: Dashboard,
 })
 
