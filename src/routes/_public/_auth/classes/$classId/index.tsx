@@ -17,19 +17,41 @@ import { COURSE } from '@/data/const/api_path'
 import { useQueryData } from '@/hooks/api/use-global-fetch'
 import type { ApiResponseType } from '@/data/types/api_response_types'
 import type { StudentCourseDetail } from '@/data/types/course_type'
+import { useRegisterCommands } from '@/hooks/use-register-command'
+import { useVoiceStore } from '@/data/store/voice_store'
 
 export const Route = createFileRoute('/_public/_auth/classes/$classId/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  const panelList = {
+    materials: 'materi',
+    assignments: 'tugas',
+    people: 'anggota'
+  } as const
+
   const { classId } = Route.useParams()
   const { data } = useQueryData<ApiResponseType<'single', StudentCourseDetail>>(COURSE.STUDENT_DETAIL, { course_id: classId })
   const course = data?.data
+  const speak = useVoiceStore(state => state.speak)
 
   const totalMaterials = course?.modules?.reduce((acc, m) => acc + m.materials.length, 0) || 0
   const completedMaterials = course?.modules?.reduce((acc, m) => acc + m.materials.filter(mat => mat.is_completed).length, 0) || 0
   const progress = totalMaterials > 0 ? (completedMaterials / totalMaterials) * 100 : 0
+
+  useRegisterCommands([
+    {
+      pattern: /^panel\s+(.+)$/i, 
+      description: "Panel nama panel untuk berpindah teb.",
+      action: ([target]) => {
+        const targetTab = target.toLowerCase().trim()
+        if(Object.values(panelList).some(v => v == targetTab)) {
+          speak(`teb ${target} dibuka`)
+        }
+      }
+    }
+  ])
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-[#18181b] text-slate-800 dark:text-slate-100 font-sans">
@@ -111,7 +133,7 @@ function RouteComponent() {
                   {/* Navigation Tabs */}
                   <div className="mt-8">
                     <TabsList className="flex w-full border-b border-slate-200 dark:border-zinc-800 bg-transparent p-0">
-                       <TabsTrigger 
+                       <TabsTrigger
                         value="materials" 
                         className="cursor-pointer pb-3 px-4 text-sm font-medium rounded-none shadow-none bg-transparent border-0 border-b-2 border-transparent data-[state=active]:border-[#2280c3] data-[state=active]:text-[#2280c3] data-[state=active]:bg-transparent data-[state=active]:shadow-none text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 transition-all focus-visible:ring-0 focus-visible:ring-offset-0"
                       >

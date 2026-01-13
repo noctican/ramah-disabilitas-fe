@@ -1,7 +1,7 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { Link } from "@tanstack/react-router"; // 1. Import TanStack Router
+import { Link, useNavigate } from "@tanstack/react-router"; // 1. Import TanStack Router
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { useIsMobile } from "@/hooks/use-mobile";
 import { IconLogout, IconNotification, IconUserCircle } from "@tabler/icons-react";
 import { useLogout } from "@/hooks/api/use-auth";
+import { speak } from "@/lib/speech";
+import { ROLE_STUDENT, ROLE_TEACHER } from "@/data/enums/roles";
+import { useRegisterCommands } from "@/hooks/use-register-command";
 
 export default function PublicHeader() {
   
@@ -20,9 +23,57 @@ export default function PublicHeader() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isFloating = useRef(false);
-  const { isAuthenticated, user } = useAuthStore()
+  const { isAuthenticated, user, role } = useAuthStore()
   const isMobile = useIsMobile()
   const { trigger } = useLogout()
+  const navigate = useNavigate()
+
+  const filteredNavItems = useMemo(() => {
+    return PUBLIC_NAV_ITEMS.filter(i => !i.hasAccess || i.hasAccess.some(r => r === role))
+  }, [role])
+
+  const dynamicCommands = useMemo(() => {
+    const cmds = []
+
+    if(!isAuthenticated) cmds.push({
+      pattern: /^buka login$/i,
+      description: "Masuk ke halaman login",
+      action: () => {
+        speak("Membuka halaman login");
+        navigate({ to: '/login' });
+      }
+    })
+    else if(role === ROLE_STUDENT) {
+      cmds.push({
+        pattern: /^buka kelas$/i,
+        description: "Membuka daftar kelas",
+        action: () => {
+          speak("Membuka halaman kelas Anda");
+          navigate({ to: '/classes' });
+        }
+      })
+      cmds.push({
+        pattern: /^buka tugas$/i,
+        description: "Membuka daftar tugas",
+        action: () => {
+          speak("Membuka halaman tugas Anda");
+          navigate({ to: '/assignments' });
+        }
+      })
+    }
+    else if(role === ROLE_TEACHER) cmds.push({
+      pattern: /^buka dashboard$/i,
+      description: "Membuka dashboard",
+      action: () => {
+        speak("Membuka halaman dashboard");
+        navigate({ to: '/teacher' });
+      }
+    })
+
+    return cmds
+  }, [isAuthenticated, user, navigate, speak, trigger])
+
+  useRegisterCommands(dynamicCommands)
 
   useGSAP(() => {
     const handleScroll = () => {
@@ -75,7 +126,7 @@ export default function PublicHeader() {
 
           {/* DESKTOP NAV */}
           <div className="hidden md:flex items-center gap-8">
-            {PUBLIC_NAV_ITEMS.map((item) => (
+            {filteredNavItems.map((item) => (
               <UnifiedNavItem key={item.name} item={item} />
             ))}
           </div>
@@ -141,7 +192,7 @@ export default function PublicHeader() {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 bg-background/95 backdrop-blur-md pt-28 px-6 animate-in fade-in slide-in-from-top-5 duration-300">
           <div className="flex flex-col gap-4">
-            {PUBLIC_NAV_ITEMS.map((item) => (
+            {filteredNavItems.map((item) => (
               <UnifiedNavItem key={item.name} item={item} isMobile />
             ))}
             <div className="pt-4 mt-4 border-t">
@@ -191,9 +242,9 @@ function UnifiedNavItem({
         className={cn(
           "flex items-center justify-between font-medium transition-colors select-none",
           isMobile && "text-lg py-2 w-full",
-          !isMobile && "text-sm text-muted-foreground hover:text-teal-600",
+          !isMobile && "text-sm text-muted-foreground hover:text-primary-600",
           !isMobile && hasChild && "cursor-default hover:text-foreground",
-          hasChild && isOpen && isMobile && "text-teal-600"
+          hasChild && isOpen && isMobile && "text-primary-600"
         )}
       >
         {item.name}
@@ -227,7 +278,7 @@ function UnifiedNavItem({
           <div
             className={cn(
               !isMobile && "bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl border border-border rounded-xl shadow-xl p-2 flex flex-col gap-1",
-              isMobile && "flex flex-col gap-3 pl-4 border-l-2 border-teal-500/20"
+              isMobile && "flex flex-col gap-3 pl-4 border-l-2 border-primary-500/20"
             )}
           >
             {item.children!.map((child) => (
@@ -236,8 +287,8 @@ function UnifiedNavItem({
                 to={child.to}
                 className={cn(
                   "block transition-colors",
-                  !isMobile && "px-4 py-2 text-sm text-center rounded-lg hover:bg-teal-50 dark:hover:bg-white/10 text-foreground",
-                  isMobile && "text-muted-foreground hover:text-teal-600"
+                  !isMobile && "px-4 py-2 text-sm text-center rounded-lg hover:bg-primary-50 dark:hover:bg-white/10 text-foreground",
+                  isMobile && "text-muted-foreground hover:text-primary-600"
                 )}
               >
                 {child.name}

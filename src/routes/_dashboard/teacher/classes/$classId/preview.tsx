@@ -16,19 +16,19 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export const Route = createFileRoute('/_dashboard/lecturer/course/$courseId/preview')({
+export const Route = createFileRoute('/_dashboard/teacher/classes/$classId/preview')({
   component: CoursePreviewPage,
 })
 
 function CoursePreviewPage() {
-  const { courseId } = Route.useParams()
+  const { classId } = Route.useParams()
   const [activeMaterialId, setActiveMaterialId] = useState<string | number | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
   // 1. Fetch Data (Reusing Existing API)
   const { data: courseData, isLoading } = useQuery({
-      queryKey: ['lecturer-course', courseId],
-      queryFn: () => getFetcher(COURSE.DETAIL.replace('{course_id}', courseId)),
+      queryKey: ['lecturer-course', classId],
+      queryFn: () => getFetcher(COURSE.DETAIL.replace('{course_id}', classId)),
   })
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -61,7 +61,7 @@ function CoursePreviewPage() {
         
         {/* Top Navigation Bar */}
         <div className="h-16 border-b border-gray-100 dark:border-gray-800 flex items-center px-4 bg-white dark:bg-[#0f172a] shrink-0 z-20">
-            <Link to="/lecturer/course/$courseId" params={{ courseId }} className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+            <Link to="/teacher/classes/$classId" params={{ classId }} className="mr-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
                 <ChevronLeft className="w-5 h-5 text-gray-500" />
             </Link>
             <h1 className="font-bold text-gray-900 dark:text-white line-clamp-1 flex-1">

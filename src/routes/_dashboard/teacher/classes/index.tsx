@@ -20,7 +20,7 @@ import { toast } from 'sonner'
 import { useState } from 'react'
 
 
-export const Route = createFileRoute('/_dashboard/lecturer/course/')({
+export const Route = createFileRoute('/_dashboard/teacher/classes/')({
     component: CourseManagementPage,
 })
 
@@ -88,7 +88,7 @@ function CourseManagementPage() {
 
           {/* Primary Action */}
           <Link 
-            to="/lecturer/course/create"
+            to="/teacher/classes/create"
             className="flex items-center gap-2 bg-[#6699cc] hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-[#6699cc]/30 transition-all active:scale-95 group cursor-pointer"
           >
             <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
@@ -193,16 +193,16 @@ function CourseManagementPage() {
                     </div>
                     <div className="flex items-center gap-2">
                         <Link 
-                            to="/lecturer/course/$courseId" 
-                            params={{ courseId: course.id.toString() }}
+                            to="/teacher/classes/$classId" 
+                            params={{ classId: course.id.toString() }}
                             className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/10 hover:bg-blue-100 dark:hover:bg-blue-900/20 text-blue-500 transition-colors cursor-pointer" 
                             title="Lihat Detail"
                         >
                             <Eye className="w-4 h-4" />
                         </Link>
                         <Link 
-                            to="/lecturer/course/$courseId/edit" 
-                            params={{ courseId: course.id.toString() }}
+                            to="/teacher/classes/$classId/edit" 
+                            params={{ classId: course.id.toString() }}
                             className="p-2 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-[#6a7581] dark:text-gray-300 transition-colors cursor-pointer" 
                             title="Edit Kursus"
                         >
@@ -224,7 +224,7 @@ function CourseManagementPage() {
 
           {/* New Placeholder Card */}
           {!isLoading && (
-              <Link to="/lecturer/course/create" className="group border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center h-full min-h-[360px] cursor-pointer hover:border-[#6699cc]/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all">
+              <Link to="/teacher/classes/create" className="group border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center h-full min-h-[360px] cursor-pointer hover:border-[#6699cc]/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all">
                 <div className="w-16 h-16 rounded-full bg-gray-50 dark:bg-white/5 group-hover:bg-[#6699cc]/10 flex items-center justify-center mb-4 transition-colors">
                   <Plus className="w-8 h-8 text-gray-400 group-hover:text-[#6699cc] transition-colors" />
                 </div>

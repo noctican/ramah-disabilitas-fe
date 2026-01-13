@@ -120,7 +120,7 @@ function RouteComponent() {
                                 {submission.grade > 0 ? (
                                     <div className="bg-[#2280c3]/10 dark:bg-[#2280c3]/20 border border-[#2280c3]/20 rounded-xl p-4 text-center">
                                         <p className="text-xs font-bold text-[#2280c3] uppercase tracking-wider mb-1">Nilai Anda</p>
-                                        <p className="text-3xl font-black text-[#2d6a76] dark:text-white">{submission.grade}<span className="text-base font-medium text-slate-400">/100</span></p>
+                                        <p className="text-3xl font-black text-primary dark:text-white">{submission.grade}<span className="text-base font-medium text-slate-400">/100</span></p>
                                     </div>
                                 ) : (
                                     <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800 rounded-xl p-4">

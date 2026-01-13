@@ -26,18 +26,12 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { useLogout } from "@/hooks/api/use-auth"
+import { useAuthStore } from "@/data/store/auth_store"
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}) {
+export function NavUser() {
   const { isMobile } = useSidebar()
   const { trigger } = useLogout()
+  const { user } = useAuthStore()
 
   return (
     <SidebarMenu>
@@ -50,7 +44,7 @@ export function NavUser({
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">{user.name.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>

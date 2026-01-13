@@ -9,37 +9,30 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { Link } from "@tanstack/react-router"
+import { useMemo } from "react"
+import { useAuthStore } from "@/data/store/auth_store"
+import { DASHBOARD_NAV_ITEMS } from "@/data/const/dashboard_nav"
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string
-    url: string
-    icon?: Icon
-  }[]
-}) {
+export function NavMain() {
+  const { role } = useAuthStore()
+  const filteredNavItems = useMemo(() => {
+    return DASHBOARD_NAV_ITEMS.filter(i => !i.hasAccess || i.hasAccess.some(r => r === role))
+  }, [role])
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
-          <SidebarMenuItem className="flex items-center gap-2">
-            <SidebarMenuButton
-              tooltip="Quick Create"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
-            >
-              <IconCirclePlusFilled />
-              <span>Contoh Aktif</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title} asChild>
-                <Link to={item.url}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
+          {filteredNavItems.map((item) => (
+            <SidebarMenuItem key={item.name}>
+              <SidebarMenuButton tooltip={item.name} asChild>
+                <Link
+                  to={item.to}
+                  activeProps={{
+                    className: "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear min-h-10"
+                  }}
+                >
+                  <item.icon />
+                  <span className="text-[.9rem]">{item.name}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
