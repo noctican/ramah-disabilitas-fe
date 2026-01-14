@@ -31,6 +31,11 @@ export const MATERIAL = {
     GET_DETAIL: "/v1/materials/{material_id}",
     UPDATE: "/v1/lecturer/materials/{material_id}",
     DELETE: "/v1/lecturer/materials/{material_id}",
+    GENERATE_SUMMARY: "/v1/materials/{material_id}/summary",
+    SAVE_SUMMARY: "/v1/materials/{material_id}/summary/save",
+    CHAT: "/v1/materials/{material_id}/chat",
+    QUIZ: "/v1/materials/{material_id}/quiz",
+    FLASHCARDS: "/v1/materials/{material_id}/flashcards",
 } as const satisfies UrlGroupType
 
 export const MEDIA = {
