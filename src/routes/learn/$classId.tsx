@@ -1,428 +1,720 @@
-
-import { createFileRoute, Link, redirect, useNavigate } from '@tanstack/react-router'
-import { 
-    ArrowLeft, 
-    Bookmark, 
-    Share2, 
-    Play, 
-    Volume2, 
-    Settings, 
-    Maximize, 
-    CheckCircle, 
-    Lightbulb, 
-    Sparkles, 
-    FileText, 
-    Maximize2, 
-    Minimize2,
-    Download, 
-    Copy,
-    MessageSquare,
-    BrainCircuit,
-    HelpCircle,
-    Send,
-    ChevronLeft,
-    ChevronRight,
-    RotateCw
-} from 'lucide-react'
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useNavigate,
+} from "@tanstack/react-router";
+import {
+  ArrowLeft,
+  Bookmark,
+  Share2,
+  Play,
+  Volume2,
+  Settings,
+  Maximize,
+  CheckCircle,
+  Lightbulb,
+  Sparkles,
+  FileText,
+  Maximize2,
+  Minimize2,
+  Download,
+  Copy,
+  MessageSquare,
+  BrainCircuit,
+  HelpCircle,
+  Send,
+  ChevronLeft,
+  ChevronRight,
+  RotateCw,
+  Save,
+} from "lucide-react";
 
 // Import React PDF Viewer components and styles
-import { Worker, Viewer } from '@react-pdf-viewer/core'
-import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout'
-import '@react-pdf-viewer/core/lib/styles/index.css'
-import '@react-pdf-viewer/default-layout/lib/styles/index.css'
+import { Worker, Viewer } from "@react-pdf-viewer/core";
+import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+import "@react-pdf-viewer/core/lib/styles/index.css";
+import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 
-import { useState } from 'react'
-import { useAuthStore } from '@/data/store/auth_store'
-import { getToken } from '@/lib/token-handler'
-import { apiClient } from '@/lib/api-client'
-import { AUTH, COURSE, MATERIAL } from '@/data/const/api_path'
-import { useQueryData } from '@/hooks/api/use-global-fetch'
-import type { ApiResponseType } from '@/data/types/api_response_types'
-import type { StudentCourseDetail, MaterialDetailType } from '@/data/types/course_type'
-import { z } from 'zod'
+import ReactMarkdown from "react-markdown";
+import { useState, useEffect, useRef } from "react";
+import { useAuthStore } from "@/data/store/auth_store";
+import { getToken } from "@/lib/token-handler";
+import { apiClient } from "@/lib/api-client";
+import { AUTH, COURSE, MATERIAL } from "@/data/const/api_path";
+import { useQueryData, useMutationAction } from "@/hooks/api/use-global-fetch";
+import type { ApiResponseType } from "@/data/types/api_response_types";
+import type {
+  StudentCourseDetail,
+  MaterialDetailType,
+} from "@/data/types/course_type";
+import { z } from "zod";
 
-export const Route = createFileRoute('/learn/$classId')({
-    validateSearch: z.object({
-        materialId: z.number().optional(),
-    }),
-    beforeLoad: async () => {
-        const { isAuthenticated, login, logout } = useAuthStore.getState()
-        const token = getToken()
-        
-        if (!isAuthenticated) {
-            if (token) {
-                try {
-                    const userData = await apiClient.get(AUTH.ME)
-                    login(userData)
-                    return 
-                } catch (error) {
-                    console.error("Session timeout", error)
-                }
-            }
-            logout()
-            throw redirect({ to: '/login' })
+export const Route = createFileRoute("/learn/$classId")({
+  validateSearch: z.object({
+    materialId: z.number().optional(),
+  }),
+  beforeLoad: async () => {
+    const { isAuthenticated, login, logout } = useAuthStore.getState();
+    const token = getToken();
+
+    if (!isAuthenticated) {
+      if (token) {
+        try {
+          const userData = await apiClient.get(AUTH.ME);
+          login(userData);
+          return;
+        } catch (error) {
+          console.error("Session timeout", error);
         }
-    },
-    component: ClassLessonView,
-})
+      }
+      logout();
+      throw redirect({ to: "/login" });
+    }
+  },
+  component: ClassLessonView,
+});
 
 function ClassLessonView() {
-    const { classId } = Route.useParams()
-    const { materialId } = Route.useSearch()
-    const navigate = useNavigate()
-    const [activeTab, setActiveTab] = useState<'chat' | 'flashcards' | 'quiz' | 'summary'>('summary')
-    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false)
+  const { classId } = Route.useParams();
+  const { materialId } = Route.useSearch();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<
+    "chat" | "flashcards" | "quiz" | "summary"
+  >("summary");
+  const [sidebarWidth, setSidebarWidth] = useState(384); // Default w-96 (24rem = 384px)
+  const [isResizing, setIsResizing] = useState(false);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
-    // Create new instance of default layout plugin
-    const defaultLayoutPluginInstance = defaultLayoutPlugin()
+  // Handlers for resizing
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
 
-    // Fetch Course Detail (for navigation context)
-    const { data: courseData } = useQueryData<ApiResponseType<'single', StudentCourseDetail>>(COURSE.STUDENT_DETAIL, { course_id: classId })
-    const course = courseData?.data
+      // Calculate new width relative to the right side of the screen
+      const newWidth = window.innerWidth - e.clientX;
 
-    // Determine active material ID
-    const activeMaterialId = materialId || course?.modules?.[0]?.materials?.[0]?.id
+      // Set limits (min 300px, max 900px)
+      if (newWidth >= 300 && newWidth <= 900) {
+        setSidebarWidth(newWidth);
+        setIsSidebarExpanded(newWidth > 500);
+      }
+    };
 
-    // Fetch Material Detail
-    const { data: materialData, isLoading: isLoadingMaterial } = useQueryData<ApiResponseType<'single', MaterialDetailType>>(
-        activeMaterialId ? MATERIAL.GET_DETAIL : "", 
-        { material_id: activeMaterialId }
-    )
-    const material = materialData?.data
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.body.style.cursor = "default";
+      document.body.style.userSelect = "auto";
+    };
 
-    // Redirect to first material if no materialId in URL
-    if (course && !materialId && activeMaterialId) {
-        navigate({ 
-            to: '/learn/$classId', 
-            params: { classId }, 
-            search: { materialId: activeMaterialId }, 
-            replace: true 
-        })
+    if (isResizing) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "ew-resize";
+      document.body.style.userSelect = "none";
     }
 
-    if (!course || (isLoadingMaterial && !material)) {
-        return <div className="flex h-screen items-center justify-center text-slate-500">Memuat materi...</div>
-    }
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing]);
 
-    // Determine current module based on active material
-    const currentModule = course.modules.find(m => m.materials.some(mat => mat.id === activeMaterialId))
+  // Create new instance of default layout plugin
+  const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
+  // Fetch Course Detail (for navigation context)
+  const { data: courseData } = useQueryData<
+    ApiResponseType<"single", StudentCourseDetail>
+  >(COURSE.STUDENT_DETAIL, { course_id: classId });
+  const course = courseData?.data;
+
+  // Determine active material ID
+  const activeMaterialId =
+    materialId || course?.modules?.[0]?.materials?.[0]?.id;
+
+  // Fetch Material Detail
+  const { data: materialData, isLoading: isLoadingMaterial } = useQueryData<
+    ApiResponseType<"single", MaterialDetailType>
+  >(activeMaterialId ? MATERIAL.GET_DETAIL : "", {
+    material_id: activeMaterialId,
+  });
+  const material = materialData?.data;
+
+  // Redirect to first material if no materialId in URL
+  if (course && !materialId && activeMaterialId) {
+    navigate({
+      to: "/learn/$classId",
+      params: { classId },
+      search: { materialId: activeMaterialId },
+      replace: true,
+    });
+  }
+
+  if (!course || (isLoadingMaterial && !material)) {
     return (
-        <div className="flex h-screen w-full bg-white dark:bg-zinc-950 text-slate-800 dark:text-slate-100 font-sans overflow-hidden">
-            <div className="flex-1 flex flex-col h-full overflow-hidden">
-                {/* Header */}
-                <header className="flex-shrink-0 h-16 border-b border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center px-6 justify-between z-10">
-                    <div className="flex items-center gap-4">
-                        <Link 
-                            to="/classes/$classId" 
-                            params={{ classId }}
-                            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-500 transition-colors"
-                        >
-                            <ArrowLeft className="w-5 h-5" />
-                        </Link>
-                        <nav className="flex items-center text-sm font-medium text-slate-500">
-                            <Link to="/classes" className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer text-ellipsis overflow-hidden whitespace-nowrap max-w-[100px] md:max-w-none">{course?.title}</Link>
-                            {currentModule && (
-                                <>
-                                    <span className="mx-2 text-slate-300">/</span>
-                                    <span className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer text-ellipsis overflow-hidden whitespace-nowrap max-w-[100px] md:max-w-none">{currentModule.title}</span>
-                                </>
-                            )}
-                            <span className="mx-2 text-slate-300">/</span>
-                            <span className="text-slate-900 dark:text-white font-semibold text-ellipsis overflow-hidden whitespace-nowrap max-w-[150px] md:max-w-none">{material?.title}</span>
-                        </nav>
+      <div className="flex h-screen items-center justify-center text-slate-500">
+        Memuat materi...
+      </div>
+    );
+  }
+
+  // Determine current module based on active material
+  const currentModule = course.modules.find((m) =>
+    m.materials.some((mat) => mat.id === activeMaterialId)
+  );
+
+  return (
+    <div className="flex h-screen w-full bg-white dark:bg-zinc-950 text-slate-800 dark:text-slate-100 font-sans overflow-hidden">
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        {/* Header */}
+        <header className="flex-shrink-0 h-16 border-b border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center px-6 justify-between z-10">
+          <div className="flex items-center gap-4">
+            <Link
+              to="/classes/$classId"
+              params={{ classId }}
+              className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-500 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <nav className="flex items-center text-sm font-medium text-slate-500">
+              <Link
+                to="/classes"
+                className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer text-ellipsis overflow-hidden whitespace-nowrap max-w-[100px] md:max-w-none"
+              >
+                {course?.title}
+              </Link>
+              {currentModule && (
+                <>
+                  <span className="mx-2 text-slate-300">/</span>
+                  <span className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer text-ellipsis overflow-hidden whitespace-nowrap max-w-[100px] md:max-w-none">
+                    {currentModule.title}
+                  </span>
+                </>
+              )}
+              <span className="mx-2 text-slate-300">/</span>
+              <span className="text-slate-900 dark:text-white font-semibold text-ellipsis overflow-hidden whitespace-nowrap max-w-[150px] md:max-w-none">
+                {material?.title}
+              </span>
+            </nav>
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer">
+              <Bookmark className="w-5 h-5" />
+              Save
+            </button>
+            <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer">
+              <Share2 className="w-5 h-5" />
+              Share
+            </button>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <div className="flex-1 flex overflow-hidden">
+          <main className="flex-1 overflow-y-auto bg-[#F8F8F8] dark:bg-black/20 p-6 lg:p-10 flex flex-col">
+            <div className="max-w-5xl mx-auto w-full flex flex-col gap-6 flex-1">
+              {/* Video Player or Content */}
+              {material?.type === "video" ? (
+                <div className="aspect-video w-full bg-black rounded-2xl shadow-lg overflow-hidden relative group">
+                  {/* Simple Video Implementation without custom controls for now, using standard HTML5 video if source_url is valid */}
+                  {material.source_url ? (
+                    <video
+                      src={material.source_url}
+                      controls
+                      className="w-full h-full object-contain"
+                      poster="https://lh3.googleusercontent.com/aida-public/AB6AXuCys9uc_SI6Ykm2IqM4qQhr-V6AjeCWT-RwSkvEqiwajRcUG-_z-jNsdNbLO4fdZ4a9WY-Ywf2vNHLahMdyqcfk2F9QRIhw3yI2Mr5r1xTOY91BoaeaO1qiity45p7OcgtPWCUL_yHLo2Lep3lS7ntqnNHW8xE3DV6EtgGIh-gHDTczmCfBgmKSjaOZhNUvaOP-ffEJNXECAsA374YM7bHp8tzgqyKdYA-HWNsdo5HwzWKx4H_cz17x02EQyHHORMdoESHaDhdWOjzX" // Fallback placeholder
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-white">
+                      Video Source Unavailable
                     </div>
-                    <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer">
-                            <Bookmark className="w-5 h-5" />
-                            Save
-                        </button>
-                        <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer">
-                            <Share2 className="w-5 h-5" />
-                            Share
-                        </button>
-                    </div>
-                </header>
-
-                {/* Main Content */}
-                <div className="flex-1 flex overflow-hidden">
-                    <main className="flex-1 overflow-y-auto bg-[#F8F8F8] dark:bg-black/20 p-6 lg:p-10 flex flex-col">
-                        <div className="max-w-5xl mx-auto w-full flex flex-col gap-6 flex-1">
-                            {/* Video Player or Content */}
-                            {material?.type === 'video' ? (
-                                <div className="aspect-video w-full bg-black rounded-2xl shadow-lg overflow-hidden relative group">
-                                     {/* Simple Video Implementation without custom controls for now, using standard HTML5 video if source_url is valid */}
-                                     {material.source_url ? (
-                                        <video 
-                                            src={material.source_url} 
-                                            controls 
-                                            className="w-full h-full object-contain"
-                                            poster="https://lh3.googleusercontent.com/aida-public/AB6AXuCys9uc_SI6Ykm2IqM4qQhr-V6AjeCWT-RwSkvEqiwajRcUG-_z-jNsdNbLO4fdZ4a9WY-Ywf2vNHLahMdyqcfk2F9QRIhw3yI2Mr5r1xTOY91BoaeaO1qiity45p7OcgtPWCUL_yHLo2Lep3lS7ntqnNHW8xE3DV6EtgGIh-gHDTczmCfBgmKSjaOZhNUvaOP-ffEJNXECAsA374YM7bHp8tzgqyKdYA-HWNsdo5HwzWKx4H_cz17x02EQyHHORMdoESHaDhdWOjzX" // Fallback placeholder
-                                        />
-                                     ) : (
-                                        <div className="absolute inset-0 flex items-center justify-center text-white">Video Source Unavailable</div>
-                                     )}
-                                </div>
-                            ) : (
-                                <div className="w-full bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-slate-100 dark:border-zinc-800 lg:p-4 min-h-[600px] flex flex-col">
-                                    {(material?.type === 'pdf' || material?.source_url?.toLowerCase().includes('.pdf')) && material.source_url ? (
-                                        <div className="h-[800px] border border-slate-200 dark:border-zinc-700 rounded-lg overflow-hidden relative">
-                                            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-                                                <div className="h-full w-full">
-                                                    <Viewer
-                                                        fileUrl={material.source_url}
-                                                        plugins={[defaultLayoutPluginInstance]}
-                                                        theme={{
-                                                             theme: 'auto',
-                                                        }}
-                                                    />
-                                                </div>
-                                            </Worker>
-                                        </div>
-                                    ) : (
-                                        <div className="prose dark:prose-invert max-w-none p-4">
-                                            {material?.raw_content ? (
-                                                <div dangerouslySetInnerHTML={{ __html: material.raw_content }} />
-                                            ) : (
-                                                <div className="flex flex-col items-center justify-center h-full py-20 text-center">
-                                                    <FileText className="w-16 h-16 text-slate-300 mb-4" />
-                                                    <p className="text-slate-500 mb-4">Materi ini berupa file eksternal.</p>
-                                                    {material?.source_url && (
-                                                        <a href={material.source_url} target="_blank" rel="noopener noreferrer" className="px-6 py-2.5 bg-[#2280c3] text-white rounded-lg hover:bg-blue-600 transition-colors cursor-pointer">
-                                                            Buka Materi
-                                                        </a>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 pb-8 border-b border-slate-200 dark:border-zinc-800">
-                                <div className="flex-1">
-                                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{material?.title}</h1>
-                                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
-                                        {material?.smart_feature?.summary || "Tidak ada ringkasan tersedia."}
-                                    </p>
-                                    <div className="flex items-center gap-4 mt-4 text-sm text-slate-500">
-                                        {material?.duration_min && (
-                                            <div className="flex items-center gap-1.5">
-                                                <span className="material-symbols-outlined text-[18px]">schedule</span>
-                                                <span>{material.duration_min} min</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                                <button className={`flex-shrink-0 flex items-center gap-2 px-6 py-3 font-semibold rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer ${material?.is_completed ? 'bg-green-100 text-green-700 shadow-none' : 'bg-[#2280c3] hover:bg-[#1a659e] text-white shadow-[0_0_15px_rgba(34,128,195,0.15)]'}`}>
-                                    <CheckCircle className="w-5 h-5" />
-                                    {material?.is_completed ? 'Selesai' : 'Tandai Selesai'}
-                                </button>
-                            </div>
-
-                            <div className="flex gap-4 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-slate-100 dark:border-zinc-800 shadow-sm">
-                                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center flex-shrink-0">
-                                    <Lightbulb className="w-5 h-5 text-slate-500" />
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1">Instructor's Note</h3>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400">Pay special attention to the `grid-template-areas` section at 08:30. It's a game-changer for responsive design!</p>
-                                </div>
-                            </div>
-                        </div>
-                    </main>
-
-                    {/* Sidebar */}
-                    <aside className={`bg-white dark:bg-zinc-900 border-l border-slate-100 dark:border-zinc-800 flex flex-col z-20 shadow-xl hidden xl:flex transition-all duration-300 ${isSidebarExpanded ? 'w-[600px]' : 'w-96'}`}>
-                        <div className="p-5 border-b border-slate-100 dark:border-zinc-800 bg-gradient-to-r from-white to-purple-50 dark:from-zinc-900 dark:to-purple-900/10 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#8B5CF6] to-indigo-600 flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.15)]">
-                                    <Sparkles className="w-4 h-4 text-white" />
-                                </div>
-                                <div>
-                                    <h2 className="text-base font-bold text-slate-900 dark:text-white leading-tight">Learning Assistant</h2>
-                                    <p className="text-xs text-[#8B5CF6] font-medium">Powered by EduAI</p>
-                                </div>
-                            </div>
-                            <button 
-                                onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-[#8B5CF6] hover:bg-white dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                                title={isSidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
-                            >
-                                {isSidebarExpanded ? (
-                                    <Minimize2 className="w-4 h-4" />
-                                ) : (
-                                    <Maximize2 className="w-4 h-4" />
-                                )}
-                            </button>
-                        </div>
-                        <div className="flex border-b border-slate-100 dark:border-zinc-800 overflow-x-auto scrollbar-hide">
-                            <button 
-                                onClick={() => setActiveTab('chat')}
-                                className={`flex-1 py-3 px-2 text-sm font-medium transition-colors whitespace-nowrap border-b-2 cursor-pointer
-                                    ${activeTab === 'chat' 
-                                        ? 'text-[#8B5CF6] border-[#8B5CF6] bg-purple-50/50 dark:bg-purple-900/10' 
-                                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50'
-                                    }`}
-                            >
-                                AI Chat
-                            </button>
-                            <button 
-                                onClick={() => setActiveTab('flashcards')}
-                                className={`flex-1 py-3 px-2 text-sm font-medium transition-colors whitespace-nowrap border-b-2 cursor-pointer
-                                    ${activeTab === 'flashcards' 
-                                        ? 'text-[#8B5CF6] border-[#8B5CF6] bg-purple-50/50 dark:bg-purple-900/10' 
-                                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50'
-                                    }`}
-                            >
-                                Flashcards
-                            </button>
-                            <button 
-                                onClick={() => setActiveTab('quiz')}
-                                className={`flex-1 py-3 px-2 text-sm font-medium transition-colors whitespace-nowrap border-b-2 cursor-pointer
-                                    ${activeTab === 'quiz' 
-                                        ? 'text-[#8B5CF6] border-[#8B5CF6] bg-purple-50/50 dark:bg-purple-900/10' 
-                                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50'
-                                    }`}
-                            >
-                                Quiz
-                            </button>
-                            <button 
-                                onClick={() => setActiveTab('summary')}
-                                className={`flex-1 py-3 px-2 text-sm font-medium transition-colors whitespace-nowrap border-b-2 cursor-pointer
-                                    ${activeTab === 'summary' 
-                                        ? 'text-[#8B5CF6] border-[#8B5CF6] bg-purple-50/50 dark:bg-purple-900/10' 
-                                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50'
-                                    }`}
-                            >
-                                Summary
-                            </button>
-                        </div>
-                        <div className="flex-1 flex flex-col overflow-hidden bg-slate-50/30 dark:bg-black/20">
-                            {activeTab === 'summary' && <SummaryView />}
-                            {activeTab === 'chat' && <ChatView />}
-                            {activeTab === 'flashcards' && <FlashcardsView />}
-                            {activeTab === 'quiz' && <QuizView />}
-                        </div>
-                    </aside>
+                  )}
                 </div>
+              ) : (
+                <div className="w-full bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-slate-100 dark:border-zinc-800 lg:p-4 min-h-[600px] flex flex-col">
+                  {(material?.type === "pdf" ||
+                    material?.source_url?.toLowerCase().includes(".pdf")) &&
+                  material.source_url ? (
+                    <div className="h-[800px] border border-slate-200 dark:border-zinc-700 rounded-lg overflow-hidden relative">
+                      <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+                        <div className="h-full w-full">
+                          <Viewer
+                            fileUrl={material.source_url}
+                            plugins={[defaultLayoutPluginInstance]}
+                            theme={{
+                              theme: "auto",
+                            }}
+                          />
+                        </div>
+                      </Worker>
+                    </div>
+                  ) : (
+                    <div className="prose dark:prose-invert max-w-none p-4">
+                      {material?.raw_content ? (
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: material.raw_content,
+                          }}
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center h-full py-20 text-center">
+                          <FileText className="w-16 h-16 text-slate-300 mb-4" />
+                          <p className="text-slate-500 mb-4">
+                            Materi ini berupa file eksternal.
+                          </p>
+                          {material?.source_url && (
+                            <a
+                              href={material.source_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-6 py-2.5 bg-[#2280c3] text-white rounded-lg hover:bg-blue-600 transition-colors cursor-pointer"
+                            >
+                              Buka Materi
+                            </a>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 pb-8 border-b border-slate-200 dark:border-zinc-800">
+                <div className="flex-1">
+                  <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                    {material?.title}
+                  </h1>
+                  <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
+                    {material?.smart_feature?.summary ||
+                      "Tidak ada ringkasan tersedia."}
+                  </p>
+                  <div className="flex items-center gap-4 mt-4 text-sm text-slate-500">
+                    {material?.duration_min && (
+                      <div className="flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-[18px]">
+                          schedule
+                        </span>
+                        <span>{material.duration_min} min</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <button
+                  className={`flex-shrink-0 flex items-center gap-2 px-6 py-3 font-semibold rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer ${material?.is_completed ? "bg-green-100 text-green-700 shadow-none" : "bg-[#2280c3] hover:bg-[#1a659e] text-white shadow-[0_0_15px_rgba(34,128,195,0.15)]"}`}
+                >
+                  <CheckCircle className="w-5 h-5" />
+                  {material?.is_completed ? "Selesai" : "Tandai Selesai"}
+                </button>
+              </div>
+
+              <div className="flex gap-4 p-4 bg-white dark:bg-zinc-900 rounded-xl border border-slate-100 dark:border-zinc-800 shadow-sm">
+                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                  <Lightbulb className="w-5 h-5 text-slate-500" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1">
+                    Instructor's Note
+                  </h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Pay special attention to the `grid-template-areas` section
+                    at 08:30. It's a game-changer for responsive design!
+                  </p>
+                </div>
+              </div>
             </div>
+          </main>
+
+          {/* Sidebar */}
+          <aside
+            className="bg-white dark:bg-zinc-900 border-l border-slate-100 dark:border-zinc-800 flex flex-col z-20 shadow-xl hidden xl:flex relative"
+            style={{
+              width: sidebarWidth,
+              transition: isResizing ? "none" : "width 300ms ease-in-out",
+            }}
+          >
+            {/* Drag Handle */}
+            <div
+              className="absolute left-0 top-0 bottom-0 w-1.5 hover:bg-purple-400 cursor-ew-resize z-50 transition-colors group"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setIsResizing(true);
+              }}
+            >
+              <div className="absolute inset-y-0 left-[-2px] right-[-2px] group-hover:bg-purple-500/10"></div>
+            </div>
+
+            <div className="p-5 border-b border-slate-100 dark:border-zinc-800 bg-gradient-to-r from-white to-purple-50 dark:from-zinc-900 dark:to-purple-900/10 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#8B5CF6] to-indigo-600 flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.15)]">
+                  <Sparkles className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-slate-900 dark:text-white leading-tight">
+                    Learning Assistant
+                  </h2>
+                  <p className="text-xs text-[#8B5CF6] font-medium">
+                    Powered by EduAI
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  if (isSidebarExpanded) {
+                    setSidebarWidth(384);
+                    setIsSidebarExpanded(false);
+                  } else {
+                    setSidebarWidth(600);
+                    setIsSidebarExpanded(true);
+                  }
+                }}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-[#8B5CF6] hover:bg-white dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                title={
+                  isSidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar"
+                }
+              >
+                {isSidebarExpanded ? (
+                  <Minimize2 className="w-4 h-4" />
+                ) : (
+                  <Maximize2 className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+            <div className="flex border-b border-slate-100 dark:border-zinc-800 overflow-x-auto scrollbar-hide">
+              <button
+                onClick={() => setActiveTab("chat")}
+                className={`flex-1 py-3 px-2 text-sm font-medium transition-colors whitespace-nowrap border-b-2 cursor-pointer
+                                    ${
+                                      activeTab === "chat"
+                                        ? "text-[#8B5CF6] border-[#8B5CF6] bg-purple-50/50 dark:bg-purple-900/10"
+                                        : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50"
+                                    }`}
+              >
+                AI Chat
+              </button>
+              <button
+                onClick={() => setActiveTab("flashcards")}
+                className={`flex-1 py-3 px-2 text-sm font-medium transition-colors whitespace-nowrap border-b-2 cursor-pointer
+                                    ${
+                                      activeTab === "flashcards"
+                                        ? "text-[#8B5CF6] border-[#8B5CF6] bg-purple-50/50 dark:bg-purple-900/10"
+                                        : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50"
+                                    }`}
+              >
+                Flashcards
+              </button>
+              <button
+                onClick={() => setActiveTab("quiz")}
+                className={`flex-1 py-3 px-2 text-sm font-medium transition-colors whitespace-nowrap border-b-2 cursor-pointer
+                                    ${
+                                      activeTab === "quiz"
+                                        ? "text-[#8B5CF6] border-[#8B5CF6] bg-purple-50/50 dark:bg-purple-900/10"
+                                        : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50"
+                                    }`}
+              >
+                Quiz
+              </button>
+              <button
+                onClick={() => setActiveTab("summary")}
+                className={`flex-1 py-3 px-2 text-sm font-medium transition-colors whitespace-nowrap border-b-2 cursor-pointer
+                                    ${
+                                      activeTab === "summary"
+                                        ? "text-[#8B5CF6] border-[#8B5CF6] bg-purple-50/50 dark:bg-purple-900/10"
+                                        : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50"
+                                    }`}
+              >
+                Summary
+              </button>
+            </div>
+            <div className="flex-1 flex flex-col overflow-hidden bg-slate-50/30 dark:bg-black/20">
+              {activeTab === "summary" && <SummaryView material={material} />}
+              {activeTab === "chat" && <ChatView material={material} />}
+              {activeTab === "flashcards" && <FlashcardsView material={material} />}
+              {activeTab === "quiz" && <QuizView material={material} />}
+            </div>
+          </aside>
         </div>
-    )
+      </div>
+    </div>
+  );
 }
 
-function SummaryView() {
-    return (
-        <>
-            <div className="flex-1 overflow-y-auto p-5 space-y-6">
-                <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <FileText className="w-5 h-5 text-[#8B5CF6]" />
-                        Topic Summary
-                    </h3>
-                </div>
-                <div className="prose prose-sm dark:prose-invert max-w-none">
-                    <div className="space-y-4">
-                        <section>
-                            <h4 className="text-[13px] uppercase tracking-wider font-bold text-[#8B5CF6] mb-2">Core Concept</h4>
-                            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                                CSS Grid Layout is a highly powerful 2-dimensional system for the web. Unlike Flexbox, which is primarily 1-dimensional, Grid handles both <strong>columns</strong> and <strong>rows</strong> simultaneously.
-                            </p>
-                        </section>
-                        <section>
-                            <h4 className="text-[13px] uppercase tracking-wider font-bold text-[#8B5CF6] mb-2">Key Terminology</h4>
-                            <ul className="space-y-2 list-none p-0">
-                                <li className="flex gap-2">
-                                    <span className="text-[#8B5CF6] font-bold">•</span>
-                                    <span className="text-sm text-slate-700 dark:text-slate-300"><strong>Grid Container:</strong> The parent element where <code>display: grid</code> is applied.</span>
-                                </li>
-                                <li className="flex gap-2">
-                                    <span className="text-[#8B5CF6] font-bold">•</span>
-                                    <span className="text-sm text-slate-700 dark:text-slate-300"><strong>Grid Tracks:</strong> The space between two adjacent grid lines (columns or rows).</span>
-                                </li>
-                                <li className="flex gap-2">
-                                    <span className="text-[#8B5CF6] font-bold">•</span>
-                                    <span className="text-sm text-slate-700 dark:text-slate-300"><strong>Grid Cell:</strong> The smallest unit on a grid, where a row and column intersect.</span>
-                                </li>
-                                <li className="flex gap-2">
-                                    <span className="text-[#8B5CF6] font-bold">•</span>
-                                    <span className="text-sm text-slate-700 dark:text-slate-300"><strong>Fractional Units (fr):</strong> A flexible unit that represents a fraction of the available space.</span>
-                                </li>
-                            </ul>
-                        </section>
-                        <section className="bg-[#8B5CF6]/5 dark:bg-[#8B5CF6]/10 p-4 rounded-xl border border-[#8B5CF6]/10">
-                            <h4 className="text-[13px] uppercase tracking-wider font-bold text-[#8B5CF6] mb-2">Why use Grid?</h4>
-                            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed italic">
-                                "Grid allows you to define complex layouts that previously required hacky floats or heavy frameworks, making your code cleaner and more maintainable."
-                            </p>
-                        </section>
-                        <section>
-                            <h4 className="text-[13px] uppercase tracking-wider font-bold text-[#8B5CF6] mb-2">The 'Magic' Feature</h4>
-                            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                                <code>grid-template-areas</code> provides a visual way to describe your layout structure directly in your CSS, making it incredibly intuitive for responsive design.
-                            </p>
-                        </section>
-                    </div>
-                </div>
+function SummaryView({ material }: { material?: MaterialDetailType }) {
+  const [previewSummary, setPreviewSummary] = useState<string | null>(null);
+
+  const { trigger: generateSummary, isMutating: isGenerating } =
+    useMutationAction(MATERIAL.GENERATE_SUMMARY, "post");
+
+  const { trigger: saveSummary, isMutating: isSaving } = useMutationAction(
+    MATERIAL.SAVE_SUMMARY,
+    "post",
+    { refreshKey: MATERIAL.GET_DETAIL }
+  );
+
+  const handleGenerate = async () => {
+    if (!material?.id) return;
+    try {
+      const res = await generateSummary({ material_id: material.id });
+      if (res?.data?.summary) {
+        setPreviewSummary(res.data.summary);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!material?.id || !previewSummary) return;
+    try {
+      await saveSummary({ material_id: material.id, summary: previewSummary });
+      setPreviewSummary(null);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const displaySummary = previewSummary || material?.smart_feature?.summary;
+
+  return (
+    <div className="flex flex-col h-full relative">
+      <div className="flex-1 overflow-y-auto p-5 space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <FileText className="w-5 h-5 text-[#8B5CF6]" />
+            Topic Summary
+          </h3>
+        </div>
+
+        {displaySummary ? (
+          <div className="prose prose-sm dark:prose-invert max-w-none">
+            <ReactMarkdown>{displaySummary}</ReactMarkdown>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center p-8 text-center border-2 border-dashed border-slate-200 dark:border-zinc-700 rounded-xl mt-10">
+            <div className="w-16 h-16 bg-purple-50 dark:bg-purple-900/10 rounded-full flex items-center justify-center mb-4">
+              <Sparkles className="w-8 h-8 text-[#8B5CF6]" />
             </div>
-            <div className="p-4 bg-white dark:bg-zinc-900 border-t border-slate-100 dark:border-zinc-800">
-                <div className="flex gap-2">
-                    <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 transition-colors cursor-pointer">
-                        <Download className="w-5 h-5 text-[18px]" />
-                        Download PDF
-                    </button>
-                    <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 transition-colors cursor-pointer">
-                        <Copy className="w-5 h-5 text-[18px]" />
-                        Copy
-                    </button>
-                </div>
-            </div>
-        </>
-    )
+            <h4 className="text-base font-bold text-slate-900 dark:text-white mb-2">
+              Belum ada ringkasan
+            </h4>
+            <p className="text-sm text-slate-500 mb-6 max-w-xs mx-auto">
+              Generate ringkasan otomatis menggunakan AI untuk materi ini.
+            </p>
+            <button
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#8B5CF6] text-white font-medium rounded-xl hover:bg-[#7c4dff] transition-colors disabled:opacity-50 shadow-lg shadow-purple-500/20 cursor-pointer"
+            >
+              {isGenerating ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Generate Summary
+                </>
+              )}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Save Preview Bar */}
+      {previewSummary && (
+        <div className="p-4 bg-white dark:bg-zinc-900 border-t border-slate-100 dark:border-zinc-800 flex justify-end gap-3 animate-in slide-in-from-bottom duration-300">
+          <button
+            onClick={() => setPreviewSummary(null)}
+            className="px-4 py-2 text-slate-500 hover:text-slate-800 transition-colors font-medium text-sm cursor-pointer"
+          >
+            Batal
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="flex items-center gap-2 px-6 py-2 bg-[#2280c3] text-white rounded-lg hover:bg-[#1a659e] transition-colors disabled:opacity-50 font-medium text-sm cursor-pointer"
+          >
+            {isSaving ? (
+              "Menyimpan..."
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                Simpan Summary
+              </>
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* Existing buttons (Download/Copy) - Show only if not previewing and summary exists */}
+      {displaySummary && !previewSummary && (
+        <div className="p-4 bg-white dark:bg-zinc-900 border-t border-slate-100 dark:border-zinc-800">
+          <div className="flex gap-2">
+            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 transition-colors cursor-pointer">
+              <Download className="w-5 h-5 text-[18px]" />
+              Download PDF
+            </button>
+            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 transition-colors cursor-pointer">
+              <Copy className="w-5 h-5 text-[18px]" />
+              Copy
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
-function ChatView() {
+interface Message {
+    id: string
+    role: 'user' | 'assistant'
+    content: string
+    timestamp: string
+}
+
+function ChatView({ material }: { material?: MaterialDetailType }) {
+    const [messages, setMessages] = useState<Message[]>([])
+    const [input, setInput] = useState("")
+    const messagesEndRef = useRef<HTMLDivElement>(null)
+
+    const { trigger: sendChat, isMutating: isLoading } = useMutationAction(
+        MATERIAL.CHAT,
+        'post'
+    )
+
+    // Initial greeting
+    useEffect(() => {
+        if (messages.length === 0) {
+            setMessages([
+                {
+                    id: 'init',
+                    role: 'assistant',
+                    content: "Halo! Saya asisten belajar Anda. Tanyakan apa saja mengenai materi ini, saya siap membantu!",
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }
+            ])
+        }
+    }, [])
+
+    // Auto-scroll to bottom
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+
+    useEffect(() => {
+        scrollToBottom()
+    }, [messages])
+
+    const handleSendMessage = async () => {
+        if (!input.trim() || !material?.id) return
+
+        const userMessage: Message = {
+            id: Date.now().toString(),
+            role: 'user',
+            content: input.trim(),
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+
+        setMessages(prev => [...prev, userMessage])
+        setInput("")
+
+        try {
+            const res = await sendChat({ 
+                material_id: material.id,
+                question: userMessage.content 
+            })
+
+            const answer = res?.data?.answer || "Maaf, saya tidak dapat menemukan jawaban saat ini."
+            
+            const aiMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                content: answer,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+            
+            setMessages(prev => [...prev, aiMessage])
+
+        } catch (error) {
+            console.error(error)
+             const errorMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                content: "Maaf, terjadi kesalahan saat memproses pertanyaan Anda. Silakan coba lagi.",
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+            setMessages(prev => [...prev, errorMessage])
+        }
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault()
+            handleSendMessage()
+        }
+    }
+
     return (
         <div className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#8B5CF6] to-indigo-600 flex items-center justify-center shrink-0">
-                        <Sparkles className="w-4 h-4 text-white" />
+                {messages.map((msg) => (
+                    <div key={msg.id} className={`flex flex-col gap-2 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                        <div className="flex gap-3 max-w-[85%]">
+                            {msg.role === 'assistant' && (
+                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#8B5CF6] to-indigo-600 flex items-center justify-center shrink-0 mt-1">
+                                    <Sparkles className="w-4 h-4 text-white" />
+                                </div>
+                            )}
+                            
+                            <div 
+                                className={`p-3 rounded-2xl text-sm shadow-sm
+                                ${msg.role === 'assistant' 
+                                    ? 'bg-white dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700 text-slate-700 dark:text-slate-300 rounded-tl-none' 
+                                    : 'bg-[#8B5CF6] text-white rounded-tr-none'
+                                }`}
+                            >
+                                <div className="markdown-body">
+                                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                </div>
+                            </div>
+                        </div>
+                        <span className="text-[10px] text-slate-400 px-1">{msg.timestamp}</span>
                     </div>
-                    <div className="bg-white dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700 p-3 rounded-2xl rounded-tl-none text-sm text-slate-700 dark:text-slate-300 shadow-sm max-w-[85%]">
-                        Hello! I'm your learning assistant. I can help you understand CSS Grid better. Feel free to ask me anything about the video!
+                ))}
+                 {isLoading && (
+                    <div className="flex gap-3 max-w-[85%]">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#8B5CF6] to-indigo-600 flex items-center justify-center shrink-0 mt-1">
+                            <Sparkles className="w-4 h-4 text-white" />
+                        </div>
+                         <div className="bg-white dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700 p-4 rounded-2xl rounded-tl-none shadow-sm">
+                            <div className="flex gap-1">
+                                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
+                                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-.3s]"></span>
+                                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-.5s]"></span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                
-                <div className="flex flex-col gap-2 items-end">
-                    <div className="bg-[#8B5CF6] text-white p-3 rounded-2xl rounded-tr-none text-sm shadow-sm max-w-[85%]">
-                        What is the difference between grid-template-rows and grid-auto-rows?
-                    </div>
-                    <span className="text-[10px] text-slate-400">10:42 AM</span>
-                </div>
-
-                <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#8B5CF6] to-indigo-600 flex items-center justify-center shrink-0">
-                        <Sparkles className="w-4 h-4 text-white" />
-                    </div>
-                    <div className="bg-white dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700 p-3 rounded-2xl rounded-tl-none text-sm text-slate-700 dark:text-slate-300 shadow-sm max-w-[85%]">
-                        Great question! 
-                        <br/><br/>
-                        <strong>grid-template-rows</strong> defines the explicit rows in your grid. You set the exact height for specific rows.
-                        <br/><br/>
-                        <strong>grid-auto-rows</strong> specifies the size of any <em>implicit</em> rows—rows that are automatically created when you have more content than fits in your defined grid.
-                    </div>
-                </div>
+                )}
+                <div ref={messagesEndRef} />
             </div>
             
             <div className="p-4 bg-white dark:bg-zinc-900 border-t border-slate-100 dark:border-zinc-800">
                 <div className="relative">
                     <input 
                         type="text" 
-                        placeholder="Ask a question..."
-                        className="w-full pl-4 pr-10 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/20 focus:border-[#8B5CF6]"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        disabled={isLoading}
+                        placeholder="Tanyakan sesuatu tentang materi ini..."
+                        className="w-full pl-4 pr-12 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/20 focus:border-[#8B5CF6] disabled:opacity-60"
                     />
-                    <button className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-[#8B5CF6] text-white rounded-lg hover:bg-[#7c4dff] transition-colors cursor-pointer">
+                    <button 
+                        onClick={handleSendMessage}
+                        disabled={isLoading || !input.trim()}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-[#8B5CF6] text-white rounded-lg hover:bg-[#7c4dff] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
                         <Send className="w-4 h-4" />
                     </button>
                 </div>
@@ -431,15 +723,36 @@ function ChatView() {
     )
 }
 
-function FlashcardsView() {
+interface Flashcard {
+    front: string
+    back: string
+}
+
+function FlashcardsView({ material }: { material?: MaterialDetailType }) {
+    const [cards, setCards] = useState<Flashcard[]>([])
     const [currentCard, setCurrentCard] = useState(0)
     const [isFlipped, setIsFlipped] = useState(false)
-    
-    const cards = [
-        { q: "What is 'fr' unit?", a: "A fractional unit that represents a fraction of the available space in the grid container." },
-        { q: "What does 'grid-gap' do?", a: "It sets the size of the gap (gutter) between rows and columns. It's strictly for spacing, not content." },
-        { q: "justify-items vs align-items?", a: "justify-items aligns content horizontally (row axis), while align-items aligns content vertically (column axis)." }
-    ]
+    const [hasGenerated, setHasGenerated] = useState(false)
+
+    const { trigger: generateFlashcards, isMutating: isLoading } = useMutationAction(
+        MATERIAL.FLASHCARDS,
+        'post'
+    )
+
+    const handleGenerate = async () => {
+        if (!material?.id) return
+        try {
+            const res = await generateFlashcards({ material_id: material.id })
+            if (res?.data && Array.isArray(res.data)) {
+                setCards(res.data)
+                setHasGenerated(true)
+                setCurrentCard(0)
+                setIsFlipped(false)
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
 
     const handleNext = () => {
         setIsFlipped(false)
@@ -451,10 +764,43 @@ function FlashcardsView() {
         setTimeout(() => setCurrentCard((prev) => (prev - 1 + cards.length) % cards.length), 300)
     }
 
+    if (!hasGenerated && cards.length === 0) {
+         return (
+            <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+                 <div className="w-20 h-20 bg-purple-50 dark:bg-purple-900/10 rounded-full flex items-center justify-center mb-6">
+                    <BrainCircuit className="w-10 h-10 text-[#8B5CF6]" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                    Review Materi Cepat
+                </h3>
+                <p className="text-slate-500 mb-8 max-w-sm">
+                    Buat kartu flashcard otomatis dari materi ini untuk membantu mengingat poin-poin penting.
+                </p>
+                <button
+                    onClick={handleGenerate}
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-8 py-3 bg-[#8B5CF6] text-white font-bold rounded-xl hover:bg-[#7c4dff] transition-all shadow-[0_0_20px_rgba(139,92,246,0.25)] active:scale-95 cursor-pointer disabled:opacity-70"
+                >
+                    {isLoading ? (
+                        <>
+                             <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                             Generating...
+                        </>
+                    ) : (
+                        <>
+                            <Sparkles className="w-5 h-5 fill-current" />
+                            Buat Flashcards
+                        </>
+                    )}
+                </button>
+            </div>
+        )
+    }
+
     return (
         <div className="flex flex-col h-full p-4 pb-6 relative overflow-hidden">
-            {/* Inject styles for 3D flip since standard Tailwind might miss these utilities */}
-            <style>
+             {/* Inject styles for 3D flip since standard Tailwind might miss these utilities */}
+             <style>
                 {`
                 .perspective-1000 { perspective: 1000px; }
                 .transform-style-3d { transform-style: preserve-3d; }
@@ -463,7 +809,7 @@ function FlashcardsView() {
                 `}
             </style>
 
-             <div className="flex items-center justify-between mb-4 flex-shrink-0">
+            <div className="flex items-center justify-between mb-4 flex-shrink-0">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <BrainCircuit className="w-5 h-5 text-[#8B5CF6]" />
                     Review Concepts
@@ -483,8 +829,8 @@ function FlashcardsView() {
                         <div className="w-10 h-10 bg-purple-50 dark:bg-zinc-700/50 rounded-full flex items-center justify-center mb-3 text-[#8B5CF6]">
                             <HelpCircle className="w-5 h-5" />
                         </div>
-                        <h4 className="text-base font-bold text-slate-900 dark:text-white line-clamp-4">
-                            {cards[currentCard].q}
+                        <h4 className="text-base font-bold text-slate-900 dark:text-white line-clamp-6">
+                            {cards[currentCard]?.front}
                         </h4>
                         <p className="text-[10px] text-slate-400 mt-auto pt-4">Tap to flip</p>
                     </div>
@@ -497,7 +843,7 @@ function FlashcardsView() {
                             <Lightbulb className="w-5 h-5" />
                         </div>
                         <p className="text-sm font-medium leading-relaxed overflow-y-auto max-h-full scrollbar-hide">
-                             {cards[currentCard].a}
+                            {cards[currentCard]?.back}
                         </p>
                     </div>
                 </div>
@@ -530,7 +876,165 @@ function FlashcardsView() {
     )
 }
 
-function QuizView() {
+interface QuizQuestion {
+    question_text: string
+    option_a: string
+    option_b: string
+    option_c: string
+    option_d: string
+    option_e: string
+    correct_answer: string
+    explanation: string
+    difficulty: string
+}
+
+function QuizView({ material }: { material?: MaterialDetailType }) {
+    const [questions, setQuestions] = useState<QuizQuestion[]>([])
+    const [currentIndex, setCurrentIndex] = useState(0)
+    const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
+    const [showResult, setShowResult] = useState(false)
+    const [score, setScore] = useState(0)
+    const [quizState, setQuizState] = useState<'idle' | 'loading' | 'active' | 'finished'>('idle')
+
+    const { trigger: generateQuiz, isMutating: isLoading } = useMutationAction(
+        MATERIAL.QUIZ,
+        'post'
+    )
+
+    const handleStartQuiz = async () => {
+        if (!material?.id) return
+        setQuizState('loading')
+        try {
+            const res = await generateQuiz({ 
+                material_id: material.id,
+                count: 5 
+            })
+            if (res?.data && Array.isArray(res.data)) {
+                setQuestions(res.data)
+                setQuizState('active')
+                setCurrentIndex(0)
+                setScore(0)
+                setShowResult(false)
+                setSelectedAnswer(null)
+            }
+        } catch (error) {
+            console.error(error)
+            setQuizState('idle')
+        }
+    }
+
+    const handleAnswer = (option: string) => {
+        if (showResult) return
+        setSelectedAnswer(option)
+    }
+
+    const handleCheckAnswer = () => {
+        if (!selectedAnswer) return
+        
+        const currentQuestion = questions[currentIndex]
+        const isCorrect = selectedAnswer === currentQuestion.correct_answer
+        
+        if (isCorrect) {
+            setScore(prev => prev + 1)
+        }
+        
+        setShowResult(true)
+    }
+
+    const handleNext = () => {
+        if (currentIndex < questions.length - 1) {
+            setCurrentIndex(prev => prev + 1)
+            setSelectedAnswer(null)
+            setShowResult(false)
+        } else {
+            setQuizState('finished')
+        }
+    }
+
+    if (quizState === 'idle') {
+        return (
+            <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+                 <div className="w-20 h-20 bg-purple-50 dark:bg-purple-900/10 rounded-full flex items-center justify-center mb-6">
+                    <CheckCircle className="w-10 h-10 text-[#8B5CF6]" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                    Uji Pemahamanmu
+                </h3>
+                <p className="text-slate-500 mb-8 max-w-sm">
+                    Generate kuis interaktif dari materi ini untuk menguji seberapa jauh pemahaman kamu.
+                </p>
+                <button
+                    onClick={handleStartQuiz}
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-8 py-3 bg-[#8B5CF6] text-white font-bold rounded-xl hover:bg-[#7c4dff] transition-all shadow-[0_0_20px_rgba(139,92,246,0.25)] active:scale-95 cursor-pointer disabled:opacity-70"
+                >
+                    {isLoading ? (
+                        <>
+                             <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                             Generating Quiz...
+                        </>
+                    ) : (
+                        <>
+                            <Play className="w-5 h-5 fill-current" />
+                            Mulai Kuis
+                        </>
+                    )}
+                </button>
+            </div>
+        )
+    }
+
+    if (quizState === 'loading') {
+         return (
+            <div className="flex flex-col items-center justify-center h-full">
+                <span className="w-10 h-10 border-4 border-[#8B5CF6]/30 border-t-[#8B5CF6] rounded-full animate-spin mb-4"></span>
+                <p className="text-slate-500 font-medium">Sedang membuat soal kuis...</p>
+            </div>
+        )
+    }
+
+    if (quizState === 'finished') {
+        return (
+             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+                 <div className="w-20 h-20 bg-green-50 dark:bg-green-900/10 rounded-full flex items-center justify-center mb-6">
+                    <Sparkles className="w-10 h-10 text-green-500" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                    Kuis Selesai!
+                </h3>
+                <p className="text-slate-500 mb-2">Skor Kamu</p>
+                <div className="text-5xl font-black text-[#8B5CF6] mb-8">
+                    {Math.round((score / questions.length) * 100)}
+                </div>
+                <div className="flex gap-4">
+                     <button
+                        onClick={handleStartQuiz}
+                        className="px-6 py-2.5 bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-slate-200 font-semibold rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
+                    >
+                        Coba Lagi
+                    </button>
+                     <button
+                        onClick={() => setQuizState('idle')}
+                        className="px-6 py-2.5 bg-[#8B5CF6] text-white font-semibold rounded-xl hover:bg-[#7c4dff] transition-colors cursor-pointer"
+                    >
+                        Selesai
+                    </button>
+                </div>
+            </div>
+        )
+    }
+
+    const currentQuestion = questions[currentIndex]
+    
+    // Map API options to easier format
+    const options = [
+        { key: 'a', text: currentQuestion.option_a },
+        { key: 'b', text: currentQuestion.option_b },
+        { key: 'c', text: currentQuestion.option_c },
+        { key: 'd', text: currentQuestion.option_d },
+        { key: 'e', text: currentQuestion.option_e },
+    ].filter(opt => opt.text) // Filter out empty options if any
+
     return (
         <div className="flex flex-col h-full p-6">
             <div className="flex items-center justify-between mb-6">
@@ -538,51 +1042,86 @@ function QuizView() {
                     <CheckCircle className="w-5 h-5 text-[#8B5CF6]" />
                     Safe-Check Quiz
                 </h3>
+                <span className="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-zinc-800 px-2 py-1 rounded-md">
+                    {currentIndex + 1} / {questions.length}
+                </span>
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-6">
                 <div className="space-y-3">
-                    <span className="text-xs font-bold text-[#8B5CF6] uppercase tracking-wider">Question 1 of 5</span>
+                    <span className="text-xs font-bold text-[#8B5CF6] uppercase tracking-wider">
+                        Question {currentIndex + 1}
+                    </span>
                     <h4 className="text-base font-bold text-slate-900 dark:text-white leading-snug">
-                        Which property is used to define the size of columns in a grid container?
+                        {currentQuestion.question_text}
                     </h4>
                 </div>
 
                 <div className="space-y-3">
-                    <label className="flex items-start gap-3 p-4 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl cursor-pointer hover:border-[#8B5CF6] hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-all group">
-                        <div className="relative flex items-center justify-center w-5 h-5 mt-0.5 rounded-full border border-slate-300 dark:border-zinc-600 group-hover:border-[#8B5CF6]">
-                            <div className="w-2.5 h-2.5 bg-[#8B5CF6] rounded-full scale-0 group-hover:scale-100 transition-transform"></div>
-                        </div>
-                        <span className="text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">grid-template-rows</span>
-                    </label>
+                    {options.map((option) => {
+                        const isSelected = selectedAnswer === option.key
+                        const isCorrect = option.key === currentQuestion.correct_answer
+                        
+                        let borderClass = "border-slate-200 dark:border-zinc-700 hover:border-[#8B5CF6]"
+                        let bgClass = "bg-white dark:bg-zinc-800"
+                        
+                        if (showResult) {
+                            if (isCorrect) {
+                                borderClass = "border-green-500"
+                                bgClass = "bg-green-50 dark:bg-green-900/20"
+                            } else if (isSelected && !isCorrect) {
+                                borderClass = "border-red-500"
+                                bgClass = "bg-red-50 dark:bg-red-900/20"
+                            }
+                        } else if (isSelected) {
+                             borderClass = "border-[#8B5CF6]"
+                             bgClass = "bg-purple-50 dark:bg-purple-900/10"
+                        }
 
-                    <label className="flex items-start gap-3 p-4 bg-purple-50 dark:bg-purple-900/10 border border-[#8B5CF6] rounded-xl cursor-pointer transition-all">
-                        <div className="relative flex items-center justify-center w-5 h-5 mt-0.5 rounded-full border border-[#8B5CF6]">
-                            <div className="w-2.5 h-2.5 bg-[#8B5CF6] rounded-full"></div>
-                        </div>
-                        <span className="text-sm font-semibold text-slate-900 dark:text-white">grid-template-columns</span>
-                    </label>
-
-                    <label className="flex items-start gap-3 p-4 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl cursor-pointer hover:border-[#8B5CF6] hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-all group">
-                         <div className="relative flex items-center justify-center w-5 h-5 mt-0.5 rounded-full border border-slate-300 dark:border-zinc-600 group-hover:border-[#8B5CF6]">
-                            <div className="w-2.5 h-2.5 bg-[#8B5CF6] rounded-full scale-0 group-hover:scale-100 transition-transform"></div>
-                        </div>
-                        <span className="text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">grid-size</span>
-                    </label>
-
-                     <label className="flex items-start gap-3 p-4 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl cursor-pointer hover:border-[#8B5CF6] hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-all group">
-                         <div className="relative flex items-center justify-center w-5 h-5 mt-0.5 rounded-full border border-slate-300 dark:border-zinc-600 group-hover:border-[#8B5CF6]">
-                            <div className="w-2.5 h-2.5 bg-[#8B5CF6] rounded-full scale-0 group-hover:scale-100 transition-transform"></div>
-                        </div>
-                        <span className="text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">grid-gap</span>
-                    </label>
+                        return (
+                             <button
+                                key={option.key}
+                                onClick={() => handleAnswer(option.key)}
+                                disabled={showResult}
+                                className={`w-full flex items-start gap-3 p-4 border rounded-xl text-left transition-all group ${borderClass} ${bgClass} ${showResult ? '' : 'cursor-pointer'}`}
+                            >
+                                <div className={`relative flex items-center justify-center w-5 h-5 mt-0.5 rounded-full border border-slate-300 dark:border-zinc-600 ${isSelected || (showResult && isCorrect) ? 'border-[#8B5CF6]' : ''}`}>
+                                    {(isSelected || (showResult && isCorrect)) && (
+                                         <div className={`w-2.5 h-2.5 rounded-full ${showResult && isCorrect ? 'bg-green-500' : (showResult && isSelected ? 'bg-red-500' : 'bg-[#8B5CF6]')}`}></div>
+                                    )}
+                                </div>
+                                <span className={`text-sm ${isSelected ? 'text-slate-900 dark:text-white font-medium' : 'text-slate-600 dark:text-slate-300'}`}>
+                                    {option.text}
+                                </span>
+                            </button>
+                        )
+                    })}
                 </div>
+                
+                {showResult && (
+                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded-xl text-sm leading-relaxed border border-blue-100 dark:border-blue-900/30 animate-in fade-in slide-in-from-top-2">
+                        <strong>Explanation:</strong> {currentQuestion.explanation}
+                    </div>
+                )}
             </div>
 
             <div className="mt-4 pt-4 border-t border-slate-100 dark:border-zinc-800">
-                <button className="w-full py-3 bg-[#8B5CF6] hover:bg-[#7c4dff] text-white font-bold rounded-xl shadow-[0_0_20px_rgba(139,92,246,0.25)] transition-all transform active:scale-95 cursor-pointer">
-                    Check Answer
-                </button>
+                {!showResult ? (
+                    <button 
+                        onClick={handleCheckAnswer}
+                        disabled={!selectedAnswer}
+                        className="w-full py-3 bg-[#8B5CF6] hover:bg-[#7c4dff] text-white font-bold rounded-xl shadow-[0_0_20px_rgba(139,92,246,0.25)] transition-all transform active:scale-95 cursor-pointer disabled:opacity-50 disabled:shadow-none disabled:active:scale-100"
+                    >
+                        Check Answer
+                    </button>
+                ) : (
+                    <button 
+                        onClick={handleNext}
+                        className="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl shadow-lg transition-all transform active:scale-95 cursor-pointer"
+                    >
+                        {currentIndex < questions.length - 1 ? 'Next Question' : 'Finish Quiz'}
+                    </button>
+                )}
             </div>
         </div>
     )
