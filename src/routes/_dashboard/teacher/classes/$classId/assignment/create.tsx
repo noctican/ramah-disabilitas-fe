@@ -17,12 +17,12 @@ import { useQuery } from '@tanstack/react-query'
 import { getFetcher, postFetcher } from '@/lib/api-client'
 import { ASSIGNMENT, COURSE } from '@/data/const/api_path'
 
-export const Route = createFileRoute('/_dashboard/lecturer/course/$courseId/assignment/create')({
+export const Route = createFileRoute('/_dashboard/teacher/classes/$classId/assignment/create')({
   component: CreateAssignmentPage,
 })
 
 function CreateAssignmentPage() {
-  const { courseId } = Route.useParams()
+  const { classId } = Route.useParams()
   const [loading, setLoading] = useState(false)
   
   const [formData, setFormData] = useState({
@@ -39,8 +39,8 @@ function CreateAssignmentPage() {
 
   // Fetch course modules for the dropdown
   const { data: courseData } = useQuery({
-      queryKey: ['lecturer-course', courseId],
-      queryFn: () => getFetcher(COURSE.DETAIL.replace('{course_id}', courseId)),
+      queryKey: ['lecturer-course', classId],
+      queryFn: () => getFetcher(COURSE.DETAIL.replace('{course_id}', classId)),
   })
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const modules = (courseData as any)?.data?.modules || []
@@ -73,7 +73,7 @@ function CreateAssignmentPage() {
             allow_late: formData.allowLate
           }
           
-          await postFetcher(ASSIGNMENT.CREATE.replace('{course_id}', courseId), { arg: payload })
+          await postFetcher(ASSIGNMENT.CREATE.replace('{course_id}', classId), { arg: payload })
           
           toast.success('Tugas berhasil dibuat')
           history.back()
@@ -91,9 +91,9 @@ function CreateAssignmentPage() {
         {/* Header */}
         <header className="h-16 border-b border-[#f1f3f4] dark:border-gray-700 bg-white dark:bg-[#22262a] px-4 sm:px-8 flex items-center justify-between sticky top-0 z-10 shrink-0">
             <div className="flex items-center gap-2 text-sm">
-                <Link to="/lecturer/course" className="text-[#677c83] hover:text-[#2e95b8] transition-colors">Kursus</Link>
+                <Link to="/teacher/classes" className="text-[#677c83] hover:text-[#2e95b8] transition-colors">Kelas</Link>
                 <span className="text-[#677c83]">/</span>
-                <Link to="/lecturer/course/$courseId" params={{ courseId }} className="text-[#677c83] hover:text-[#2e95b8] transition-colors">{courseId}</Link>
+                <Link to="/teacher/classes/$classId" params={{ classId }} className="text-[#677c83] hover:text-[#2e95b8] transition-colors">{classId}</Link>
                 <span className="text-[#677c83]">/</span>
                 <span className="font-semibold text-[#121617] dark:text-white">Buat Tugas Baru</span>
             </div>

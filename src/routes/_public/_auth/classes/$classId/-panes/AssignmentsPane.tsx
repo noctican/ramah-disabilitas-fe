@@ -1,10 +1,12 @@
 import { useQueryData } from '@/hooks/api/use-global-fetch'
 import { ASSIGNMENT } from '@/data/const/api_path'
-import { useParams } from '@tanstack/react-router'
+import { useNavigate, useParams } from '@tanstack/react-router'
 import type { ApiResponseType } from '@/data/types/api_response_types'
 import type { AssignmentType } from '@/data/types/assignment_type'
 import { TaskCard } from '../../-component/TaskCard'
 import { Filter } from 'lucide-react'
+import { useRegisterCommands } from '@/hooks/use-register-command'
+import { useVoiceStore } from '@/data/store/voice_store'
 
 export const AssignmentsPane = () => {
   const { classId } = useParams({ from: '/_public/_auth/classes/$classId/' }) // Ensure correct route ID
@@ -12,6 +14,8 @@ export const AssignmentsPane = () => {
     ASSIGNMENT.GET_COURSE_ASSIGNMENTS, 
     { course_id: classId }
   )
+  const navigate = useNavigate()
+  const speak = useVoiceStore(state => state.speak)
 
   const assignments = assignmentsData?.data || []
   
@@ -19,6 +23,54 @@ export const AssignmentsPane = () => {
   const now = new Date()
   const upcoming = assignments.filter(a => new Date(a.deadline) > now).sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
   const overdue = assignments.filter(a => new Date(a.deadline) <= now).sort((a, b) => new Date(b.deadline).getTime() - new Date(a.deadline).getTime()) // Most recent overdue first
+
+  useRegisterCommands([
+    {
+      pattern: /^daftar\s+tugas\s+(.+)$/i,
+      description: "daftar tugas untuk membacakan daftar tugas",
+      action: ([type]) => {
+        const jenis = type.toLowerCase().trim()
+        if (jenis.includes('terlambat')) {
+          if(overdue.length == 0) {
+            speak('tidak ada tugas terlambat')
+            return
+          }
+          speak(`Anda memiliki ${overdue.length} tugas terlambat.`)
+        
+          const taskList = overdue.map((c, i) => `Tugas ke-${i+1}: ${c.title}`).join('. ')
+          speak(`Yaitu: ${taskList}`)
+        } else if(jenis.includes('mendatang')) {
+          if(upcoming.length == 0) {
+            speak('tidak ada tugas mendatang')
+            return
+          }
+          speak(`Anda memiliki ${upcoming.length} tugas mendatang.`)
+        
+          const taskList = upcoming.map((c, i) => `Tugas ke-${i+1}: ${c.title}`).join('. ')
+          speak(`Yaitu: ${taskList}`)
+        } else {
+          if(assignments.length == 0) {
+            speak('tidak ada tugas')
+            return
+          }
+          speak(`Anda memiliki ${assignments.length} tugas.`)
+        
+          const taskList = assignments.map((c, i) => `Tugas ke-${i+1}: ${c.title}`).join('. ')
+          speak(`Yaitu: ${taskList}`)
+        }
+      }
+    },
+    {
+      pattern: /^tugas\s+(.+)$/i,
+      description: "tugas nama tugas untuk menampilkan detail tugas",
+      action: ([target]) => {
+        const targetTask = target.toLowerCase().trim()
+        const assignment = assignments.find(a => a.title.toLowerCase() == targetTask)
+        if(assignment) navigate({ to: `/assignments/$assignmentId`, params: { assignmentId: assignment.id.toString() } })
+        else speak(`tugas ${targetTask} tidak ditemukan`)
+      }
+    }
+  ])
 
   if (isLoading) {
       return <div className="text-center py-10 text-slate-500">Memuat daftar tugas...</div>

@@ -23,17 +23,17 @@ import {
   MoreHorizontal
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { CourseCurriculum, type Module } from '@/components/lecturer/CourseCurriculum'
+import { CourseCurriculum, type Module } from '@/routes/_dashboard/teacher/classes/-components/CourseCurriculum'
 import { toast } from 'sonner'
 import { putFetcher } from '@/lib/api-client'
 
 
-export const Route = createFileRoute('/_dashboard/lecturer/course/$courseId/')({
+export const Route = createFileRoute('/_dashboard/teacher/classes/$classId/')({
   component: CourseDetailPage,
 })
 
 function CourseDetailPage() {
-  const { courseId } = Route.useParams()
+  const { classId } = Route.useParams()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<'modules' | 'assignments' | 'students' | 'grades'>('modules')
@@ -43,15 +43,15 @@ function CourseDetailPage() {
 
   // Fetch course details
   const { data: courseData, isLoading } = useQuery({
-      queryKey: ['teacher-course', courseId],
-      queryFn: () => getFetcher(COURSE.DETAIL.replace('{course_id}', courseId)),
-      enabled: !!courseId
+      queryKey: ['teacher-course', classId],
+      queryFn: () => getFetcher(COURSE.DETAIL.replace('{course_id}', classId)),
+      enabled: !!classId
   })
 
   const { data: assignmentData, isLoading: isAssignmentsLoading } = useQuery({
-      queryKey: ['lecturer-assignments', courseId],
-      queryFn: () => getFetcher(ASSIGNMENT.GET_ALL.replace('{course_id}', courseId)),
-      enabled: !!courseId
+      queryKey: ['lecturer-assignments', classId],
+      queryFn: () => getFetcher(ASSIGNMENT.GET_ALL.replace('{course_id}', classId)),
+      enabled: !!classId
   })
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const assignments = (assignmentData as any)?.data || []
@@ -111,7 +111,7 @@ function CourseDetailPage() {
         // Note: Actual file upload for materials would require appending files to formData with specific keys
         // or handling them in a separate endpoint. For this UI task, we assume the structure is prepared.
 
-        await putFetcher(COURSE.UPDATE.replace('{course_id}', courseId), { arg: formData })
+        await putFetcher(COURSE.UPDATE.replace('{course_id}', classId), { arg: formData })
         toast.success('Kurikulum berhasil diperbarui!')
     } catch (error) {
         console.error(error)
@@ -138,7 +138,7 @@ function CourseDetailPage() {
           <div className="flex-1 flex flex-col justify-center items-center h-full min-h-[400px] text-center p-8">
              <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Kursus Tidak Ditemukan</h2>
              <p className="text-zinc-500 mb-6">Kursus yang Anda cari mungkin telah dihapus atau Anda tidak memiliki akses.</p>
-             <Link to="/lecturer/course" className="text-[#661fad] hover:underline font-semibold">Kembali ke Daftar Kursus</Link>
+             <Link to="/teacher/classes" className="text-[#661fad] hover:underline font-semibold">Kembali ke Daftar Kursus</Link>
           </div>
       )
   }
@@ -156,7 +156,7 @@ function CourseDetailPage() {
         
         <div className="relative h-full px-8 sm:px-12 pb-10 flex flex-col justify-end">
             <div className="flex items-center gap-2 mb-4 text-sm font-medium">
-                <Link to="/lecturer/course" className="text-zinc-300 hover:text-white transition-colors">Courses</Link>
+                <Link to="/teacher/classes" className="text-zinc-300 hover:text-white transition-colors">Courses</Link>
                 <span className="text-zinc-500">/</span>
                 <span className="text-white">{course.class_code}</span>
             </div>
@@ -177,16 +177,16 @@ function CourseDetailPage() {
                 
                 <div className="flex gap-3">
                     <Link 
-                        to="/lecturer/course/$courseId/preview" 
-                        params={{ courseId: course.id.toString() }}
+                        to="/teacher/classes/$classId/preview" 
+                        params={{ classId: course.id.toString() }}
                         className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-5 py-2.5 rounded-xl border border-white/20 font-bold text-sm transition-all shadow-lg hover:shadow-xl whitespace-nowrap"
                     >
                         <Eye className="w-5 h-5" />
                         Preview
                     </Link>
                     <Link 
-                        to="/lecturer/course/$courseId/edit" 
-                        params={{ courseId: course.id.toString() }}
+                        to="/teacher/classes/$classId/edit" 
+                        params={{ classId: course.id.toString() }}
                         className="flex items-center gap-2 bg-[#661fad] hover:bg-[#5a1aa0] text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-[#661fad]/30 whitespace-nowrap"
                     >
                         <Edit className="w-5 h-5" />
@@ -266,8 +266,8 @@ function CourseDetailPage() {
                                 <p className="text-zinc-500 max-w-md mx-auto mb-8">Kelola tugas untuk siswa Anda. Anda bisa membuat tugas baru, melihat pengumpulan, dan memberikan nilai.</p>
                                 
                                 <Link 
-                                    to="/lecturer/course/$courseId/assignment/create"
-                                    params={{ courseId }}
+                                    to="/teacher/classes/$classId/assignment/create"
+                                    params={{ classId }}
                                     className="px-6 py-2.5 bg-[#661fad] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#661fad]/20 hover:bg-[#5a1aa0] transition-all flex items-center gap-2 mx-auto inline-flex"
                                 >
                                     <Plus className="w-4 h-4" />

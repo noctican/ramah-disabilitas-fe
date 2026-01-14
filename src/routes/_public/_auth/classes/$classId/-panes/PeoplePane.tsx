@@ -1,3 +1,4 @@
+import { useRegisterCommands } from '@/hooks/use-register-command'
 import { 
   Presentation, 
   Check, 
@@ -12,6 +13,15 @@ import {
 } from 'lucide-react'
 
 export const PeoplePane = () => {
+  useRegisterCommands([
+    {
+      pattern: /^daftar\s+(.+)$/i,
+      description: "daftar nama daftar untuk membacakan daftar yang ada. bisa berupa daftar orang, pengajar, pelajar",
+      action: ([type]) => {
+                
+      }
+    }
+  ])
   return (
     <div className="flex flex-col gap-10">
       <section>

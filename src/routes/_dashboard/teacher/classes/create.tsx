@@ -25,9 +25,9 @@ import { postFetcher } from '@/lib/api-client'
 import { toast } from 'sonner'
 import { useNavigate } from '@tanstack/react-router'
 import { COURSE } from '@/data/const/api_path'
-import { CourseCurriculum, type Module } from '@/components/lecturer/CourseCurriculum'
+import { CourseCurriculum, type Module } from '@/routes/_dashboard/teacher/classes/-components/CourseCurriculum'
 
-export const Route = createFileRoute('/_dashboard/lecturer/course/create')({
+export const Route = createFileRoute('/_dashboard/teacher/classes/create')({
   component: CreateCoursePage,
 })
 
@@ -106,7 +106,7 @@ function CreateCoursePage() {
 
         await postFetcher(COURSE.CREATE, { arg: formData })
         toast.success(status === 'published' ? 'Kursus berhasil diterbitkan!' : 'Draf kursus berhasil disimpan!')
-        navigate({ to: '/lecturer/course' })
+        navigate({ to: '/teacher/classes' })
       } catch (error: any) {
         console.error(error)
         

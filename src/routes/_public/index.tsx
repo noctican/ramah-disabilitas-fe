@@ -1,15 +1,12 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Plus, PlayCircle, MoreVertical, ChevronLeft, ChevronRight, HelpCircle } from 'lucide-react'
-import { useAuthStore } from '@/data/store/auth_store'
 import PublicHeaderGap from '@/layout/PublicHeaderGap'
 
-export const Route = createFileRoute('/_public/_auth/')({
+export const Route = createFileRoute('/_public/')({
   component: Dashboard,
 })
 
 function Dashboard() {
-  const { user } = useAuthStore()
-
   return (
     <div className="min-h-screen bg-[#f6f6f8] dark:bg-[#14141e] font-sans text-[#303338] dark:text-gray-200">
       <PublicHeaderGap />
@@ -17,7 +14,7 @@ function Dashboard() {
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <div>
-                <h1 className="text-3xl font-extrabold text-[#131316] dark:text-white mb-1">Halo, {user?.name || 'Mahasiswa'} 👋</h1>
+                <h1 className="text-3xl font-extrabold text-[#131316] dark:text-white mb-1">Halo,  👋</h1>
                 <p className="text-gray-500 dark:text-gray-400">Selamat datang kembali! Berikut aktifitas belajarmu hari ini.</p>
             </div>
             <div className="flex gap-3">
@@ -162,7 +159,7 @@ function Dashboard() {
                         <div className="py-1 dark:text-gray-200">5</div><div className="py-1 dark:text-gray-200">6</div><div className="py-1 dark:text-gray-200 relative">7<div className="absolute bottom-0 left-1/2 -translate-x-1/2 size-1 bg-[#F28D7B] rounded-full"></div></div>
                         <div className="py-1 dark:text-gray-200">8</div><div className="py-1 dark:text-gray-200">9</div><div className="py-1 dark:text-gray-200">10</div><div className="py-1 dark:text-gray-200">11</div>
                         <div className="py-1 bg-[#9696d9] text-white rounded-lg font-bold">12</div><div className="py-1 dark:text-gray-200">13</div>
-                        <div className="py-1 dark:text-gray-200 relative">14<div class="absolute bottom-0 left-1/2 -translate-x-1/2 size-1 bg-[#9696d9] rounded-full"></div></div>
+                        <div className="py-1 dark:text-gray-200 relative">14<div className="absolute bottom-0 left-1/2 -translate-x-1/2 size-1 bg-[#9696d9] rounded-full"></div></div>
                         <div className="py-1 dark:text-gray-200">15</div><div className="py-1 dark:text-gray-200">16</div>
                     </div>
                 </div>

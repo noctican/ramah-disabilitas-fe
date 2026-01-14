@@ -3,11 +3,16 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { COURSE } from "@/data/const/api_path";
+import { HEARING_DISABILITY } from "@/data/const/disability";
+import { useAuthStore } from "@/data/store/auth_store";
+import { useVoiceStore } from "@/data/store/voice_store";
 import { joinClassSchema, type JoinClassType } from "@/data/validations/classes_schema";
 import { useMutationAction } from "@/hooks/api/use-global-fetch";
+import { useRegisterCommands, type CommandInput } from "@/hooks/use-register-command";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Dispatch, SetStateAction } from "react";
+import { type Dispatch, type SetStateAction, useMemo, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { isDataView } from "util/types";
 
 type Props = {
     isOpen: boolean;
@@ -16,14 +21,20 @@ type Props = {
 
 export const JoinClassDialog = ({ isOpen, setIsOpen }: Props) => {
 
+    const { user, disability } = useAuthStore()
     const { trigger, isMutating } = useMutationAction(COURSE.JOIN, 'post', {refreshKey: COURSE.JOINED})
     const defaultValues: JoinClassType = {class_code: ''}
+    const { speak } = useVoiceStore()
 
     const form = useForm({
         mode: 'onChange',
         resolver: zodResolver(joinClassSchema),
         defaultValues
     })
+
+    const fieldMapping: {[key: string]: keyof JoinClassType} = {
+        "kode kelas": "class_code"
+    }
 
     const onSubmit = async (data: JoinClassType) => {
         try {
@@ -34,6 +45,38 @@ export const JoinClassDialog = ({ isOpen, setIsOpen }: Props) => {
             console.error(error)
         }
     }
+
+    const dynamicCommands = useMemo(() => {
+        const cmds: CommandInput[] = []
+        if(disability?.some(v => v == HEARING_DISABILITY) && isOpen) {
+            cmds.push({
+                pattern: /^daftar masukan$/i,
+                description: "Daftar masukan untuk membacakan seluruh kolom yang bisa diisi",
+                action: () => speak("Terdapat kolom " + Object.keys(fieldMapping).join(", ") + " yang bisa diisi")
+            })
+            cmds.push({
+                pattern: /^isi\s+kolom\s+(.+)\s+dengan\s+(.+)$/i,
+                description: "Isi kolom nama kolom dengan nilai",
+                action: ([kolom, nilai]) => {
+                    const targetKey = kolom.toLowerCase().trim();
+                    const actualFieldName = fieldMapping[targetKey];
+                    if (actualFieldName) {
+                        form.setValue(actualFieldName, nilai, { shouldValidate: true, shouldDirty: true });
+                        speak(`Mengisi ${targetKey} dengan ${nilai}`);
+                    } else {
+                        speak(`maaf, kolom ${targetKey} tidak dikenali. Coba katakan ${Object.keys(fieldMapping).join(', ')}.`);
+                    }
+                }
+            })
+        }
+        return cmds
+    }, [disability, isOpen])
+
+    useRegisterCommands(dynamicCommands)
+
+    useEffect(() => {
+        if(isOpen) speak('Form telah terbuka, anda dapat mengisi kolom "' + Object.keys(fieldMapping).join('", "') + '" dengan menggunakan perintah "isi kolom nama kolom dengan nilai"')
+    }, [isOpen])
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>

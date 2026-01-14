@@ -19,6 +19,8 @@ import type { JoinedCourse } from '@/data/types/course_type'
 import { TaskCard } from './-component/TaskCard'
 import { ASSIGNMENT } from '@/data/const/api_path'
 import type { AssignmentType } from '@/data/types/assignment_type'
+import { useRegisterCommands } from '@/hooks/use-register-command'
+import { useVoiceStore } from '@/data/store/voice_store'
 
 export const Route = createFileRoute('/_public/_auth/classes/')({
   component: RouteComponent,
@@ -26,10 +28,55 @@ export const Route = createFileRoute('/_public/_auth/classes/')({
 
 function RouteComponent() {
   const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false)
-  const [assignmentFilter, setAssignmentFilter] = useState<'upcoming' | 'overdue' | ''>('')
   
   const { data } = useQueryData<ApiResponseType<'multiple', JoinedCourse>>(COURSE.JOINED)
-  const { data: assignmentsData } = useQueryData<ApiResponseType<'multiple', AssignmentType>>(ASSIGNMENT.MY_ASSIGNMENTS, { filter: assignmentFilter })
+  const { data: assignmentsData } = useQueryData<ApiResponseType<'multiple', AssignmentType>>(ASSIGNMENT.MY_ASSIGNMENTS, { filter: 'upcoming' })
+  const speak = useVoiceStore(state => state.speak)
+
+  useRegisterCommands([
+    {
+      pattern:  /^ikut kelas$/i,
+      description: 'Ikut kelas untuk mengikuti kelas baru',
+      action: () => setIsJoinDialogOpen(true)
+    },
+    {
+      pattern: /^daftar\s+(.+)$/i, 
+      description: "Dafter nama daftar untuk membacakan daftar yang ada. Nama daftar dapat berupa kelas atau tugas.",
+      action: ([target]) => {
+        const jenis = target.toLowerCase().trim()
+        if (jenis.includes('kelas') || jenis.includes('course') || jenis.includes('pelajaran')) {
+          const classes = data?.data
+
+          if (!classes || classes.length === 0) {
+            speak("Anda belum bergabung dengan kelas manapun.")
+            return
+          }
+          speak(`Anda memiliki ${classes.length} kelas.`)
+        
+          const classNames = classes.map((c, i) => `Kelas ke-${i+1}: ${c.title}`).join('. ')
+          speak(`Yaitu: ${classNames}`)
+        } 
+        
+        else if (jenis.includes('tugas') || jenis.includes('assignment') || jenis.includes('pr')) {
+          const tasks = assignmentsData?.data
+
+          if (!tasks || tasks.length === 0) {
+            speak("Tidak ada tugas aktif yang harus dikumpulkan.")
+            return
+          }
+
+          speak(`Ada ${tasks.length} tugas aktif.`)
+          
+          const taskTitles = tasks.map((t, i) => `Tugas ${i+1}: ${t.title}`).join('. ')
+          speak(`yaitu: ${taskTitles}`)
+        } 
+        
+        else {
+          speak(`Maaf, saya tidak bisa membacakan daftar ${jenis}. Coba katakan 'Daftar kelas' atau 'Daftar tugas'.`)
+        }
+      }
+    }
+  ])
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f9fafb] dark:bg-[#2a3d50] font-sans text-[#131616] dark:text-white">
@@ -44,11 +91,11 @@ function RouteComponent() {
           <section className="bg-white dark:bg-[#1e2d3b] rounded-2xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[#f1f3f3] dark:border-gray-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div className="flex flex-col gap-2">
               <h2 className="text-[#131616] dark:text-white text-3xl font-black leading-tight tracking-[-0.03em]">Selamat datang kembali, Jane! 👋</h2>
-              <p className="text-[#6b7c80] dark:text-gray-400 text-base font-normal">Anda memiliki <span className="font-bold text-[#2d6a76]">3 tugas</span> yang harus dikumpulkan minggu ini.</p>
+              <p className="text-[#6b7c80] dark:text-gray-400 text-base font-normal">Anda memiliki <span className="font-bold text-primary">3 tugas</span> yang harus dikumpulkan minggu ini.</p>
             </div>
             <button 
               onClick={() => setIsJoinDialogOpen(true)}
-              className="flex items-center justify-center gap-2 bg-[#2d6a76] hover:bg-[#245660] text-white px-6 py-3 rounded-xl font-bold text-sm shadow-[0_4px_10px_rgba(45,106,118,0.3)] hover:shadow-[0_6px_15px_rgba(45,106,118,0.4)] transition-all transform hover:-translate-y-0.5 cursor-pointer"
+              className="flex items-center justify-center gap-2 bg-primary hover:bg-primary-300 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-[0_4px_10px_rgba(45,106,118,0.3)] hover:shadow-[0_6px_15px_rgba(45,106,118,0.4)] transition-all transform hover:-translate-y-0.5 cursor-pointer"
             >
               <Plus className="w-5 h-5" />
               <span>Gabung Kelas</span>
@@ -60,7 +107,7 @@ function RouteComponent() {
             <div className="lg:col-span-8 space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-[#131616] dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">Kelas Saya</h3>
-                <Link to="/classes" className="text-sm font-bold text-[#2d6a76] hover:text-[#1e4a52] transition-colors">Lihat Semua</Link>
+                <Link to="/classes" className="text-sm font-bold text-primary hover:text-[#1e4a52] transition-colors">Lihat Semua</Link>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -76,7 +123,7 @@ function RouteComponent() {
                 {/* Empty State / Join New Class Hint */}
                 <div 
                     onClick={() => setIsJoinDialogOpen(true)}
-                    className="bg-[#f1f3f3] dark:bg-white/5 rounded-2xl border-2 border-dashed border-[#d1d5db] dark:border-gray-700 p-4 flex flex-col items-center justify-center min-h-[250px] group cursor-pointer hover:border-[#2d6a76]/50 transition-colors"
+                    className="bg-[#f1f3f3] dark:bg-white/5 rounded-2xl border-2 border-dashed border-[#d1d5db] dark:border-gray-700 p-4 flex flex-col items-center justify-center min-h-[250px] group cursor-pointer hover:border-primary/50 transition-colors"
                 >
                   <div className="bg-white dark:bg-white/10 p-4 rounded-full mb-3 group-hover:scale-110 transition-transform">
                     <Plus className="text-gray-400 w-8 h-8" />
@@ -90,12 +137,7 @@ function RouteComponent() {
             {/* Assignments Panel (Right - 4 cols) */}
             <div className="lg:col-span-4 space-y-6">
               <div className="flex items-center justify-between">
-                 <h3 className="text-[#131616] dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">Tugas Terbaru</h3>
-                 <div className="flex gap-2 text-xs">
-                    <button onClick={() => setAssignmentFilter('')} className={`px-2 py-1 rounded-lg transition-colors cursor-pointer ${assignmentFilter === '' ? 'bg-[#2d6a76] text-white' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Semua</button>
-                    <button onClick={() => setAssignmentFilter('upcoming')} className={`px-2 py-1 rounded-lg transition-colors cursor-pointer ${assignmentFilter === 'upcoming' ? 'bg-[#2d6a76] text-white' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Aktif</button>
-                    <button onClick={() => setAssignmentFilter('overdue')} className={`px-2 py-1 rounded-lg transition-colors cursor-pointer ${assignmentFilter === 'overdue' ? 'bg-red-500 text-white' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>Terlewat</button>
-                 </div>
+                 <h3 className="text-[#131616] dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">Tugas Aktif Terbaru</h3>
               </div>
 
               <div className="bg-white dark:bg-[#1e2d3b] rounded-2xl shadow-sm border border-[#f1f3f3] dark:border-gray-800 p-6">
@@ -118,7 +160,7 @@ function RouteComponent() {
               </div>
 
               {/* Study Tip Card */}
-              <div className="bg-gradient-to-br from-[#2d6a76] to-[#245660] rounded-2xl p-6 text-white relative overflow-hidden shadow-lg">
+              <div className="bg-gradient-to-br from-primary to-primary-300 rounded-2xl p-6 text-white relative overflow-hidden shadow-lg">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <Lightbulb className="w-24 h-24 rotate-12" />
                 </div>
@@ -128,7 +170,7 @@ function RouteComponent() {
                   </div>
                   <h4 className="font-bold text-lg mb-1">Tips Belajar Hari Ini</h4>
                   <p className="text-blue-50 text-sm leading-relaxed mb-4">Bagilah sesi belajar Anda menjadi sesi 25 menit dengan istirahat 5 menit untuk menjaga fokus.</p>
-                  <button className="bg-white text-[#2d6a76] px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors cursor-pointer">Baca Selengkapnya</button>
+                  <button className="bg-white text-primary px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors cursor-pointer">Baca Selengkapnya</button>
                 </div>
               </div>
             </div>

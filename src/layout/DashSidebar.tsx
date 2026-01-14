@@ -21,36 +21,6 @@ import { NavMain } from "@/components/custom/NavMain";
 import { NavUser } from "@/components/custom/NavUser";
 import { Link } from "@tanstack/react-router";
 
-const data = {
-  user: {
-    name: "Dosen",
-    email: "dosen@example.com",
-    avatar: "https://www.tobybelhome.com/toby-belhome.png",
-  },
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: IconDashboard,
-    },
-    {
-      title: "Users",
-      url: "/dashboard/users",
-      icon: IconListDetails,
-    },
-    {
-      title: "Settings",
-      url: "/dashboard/settings",
-      icon: IconChartBar,
-    },
-    {
-      title: "Courses",
-      url: "/lecturer/course",
-      icon: IconBook,
-    },
-  ],
-}
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -70,10 +40,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   )

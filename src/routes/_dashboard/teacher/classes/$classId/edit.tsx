@@ -19,13 +19,13 @@ import { toast } from 'sonner'
 import { useNavigate, Link } from '@tanstack/react-router'
 import { COURSE, MODULE, MATERIAL } from '@/data/const/api_path'
 import { useQuery } from '@tanstack/react-query'
-import { CourseCurriculum, type Module } from '@/components/lecturer/CourseCurriculum'
-export const Route = createFileRoute('/_dashboard/lecturer/course/$courseId/edit')({
+import { CourseCurriculum, type Module } from '@/routes/_dashboard/teacher/classes/-components/CourseCurriculum'
+export const Route = createFileRoute('/_dashboard/teacher/classes/$classId/edit')({
   component: EditCoursePage,
 })
 
 function EditCoursePage() {
-  const { courseId } = Route.useParams()
+  const { classId } = Route.useParams()
   const [copyFeedback, setCopyFeedback] = useState(false)
 
   const [modules, setModules] = useState<Module[]>([])
@@ -40,9 +40,9 @@ function EditCoursePage() {
 
   // Fetch course details
   const { data: courseData, isLoading: isLoadingCourse } = useQuery({
-      queryKey: ['lecturer-course', courseId],
-      queryFn: () => getFetcher(COURSE.DETAIL.replace('{course_id}', courseId)),
-      enabled: !!courseId
+      queryKey: ['lecturer-course', classId],
+      queryFn: () => getFetcher(COURSE.DETAIL.replace('{course_id}', classId)),
+      enabled: !!classId
   })
 
   // Populate state when data is fetched
@@ -125,10 +125,10 @@ function EditCoursePage() {
         formData.append('modules', JSON.stringify(modulesPayload))
 
         // Use putFetcher for update
-        await putFetcher(COURSE.UPDATE.replace('{course_id}', courseId), { arg: formData })
+        await putFetcher(COURSE.UPDATE.replace('{course_id}', classId), { arg: formData })
         
         toast.success('Kursus berhasil diperbarui!')
-        navigate({ to: '/lecturer/course' })
+        navigate({ to: '/teacher/classes' })
       } catch (error: any) {
         console.error(error)
         
@@ -168,7 +168,7 @@ function EditCoursePage() {
       <header className="h-16 flex items-center justify-between px-4 sm:px-8 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
         <div className="flex items-center gap-4">
           <nav className="hidden sm:flex items-center text-sm font-medium text-slate-500 dark:text-slate-400">
-            <Link to="/lecturer/course" className="hover:text-slate-900 dark:hover:text-white transition-all">Kursus</Link>
+            <Link to="/teacher/classes" className="hover:text-slate-900 dark:hover:text-white transition-all">Kursus</Link>
             <ChevronRight className="mx-2 w-4 h-4 text-slate-300" />
             <span className="text-slate-900 dark:text-white bg-gray-100 dark:bg-[#1e293b] px-2 py-0.5 rounded-md">Edit Kursus</span>
           </nav>
@@ -176,8 +176,8 @@ function EditCoursePage() {
 
         <div className="flex items-center gap-2">
              <Link 
-                to="/lecturer/course/$courseId/preview"
-                params={{ courseId }}
+                to="/teacher/classes/$classId/preview"
+                params={{ classId }}
                 className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-[#4f46e5] dark:hover:text-[#6366f1] bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 px-3 py-1.5 rounded-lg transition-all shadow-sm hover:shadow hover:border-[#4f46e5]/30 cursor-pointer"
             >
                 <Eye className="w-4 h-4" />
