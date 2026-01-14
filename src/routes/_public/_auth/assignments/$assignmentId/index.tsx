@@ -14,6 +14,8 @@ import { ASSIGNMENT } from '@/data/const/api_path'
 import type { ApiResponseType } from '@/data/types/api_response_types'
 import type { AssignmentType } from '@/data/types/assignment_type'
 import PublicHeaderGap from '@/layout/PublicHeaderGap'
+import { useRegisterCommands } from '@/hooks/use-register-command'
+import { useVoiceStore } from '@/data/store/voice_store'
 
 export const Route = createFileRoute('/_public/_auth/assignments/$assignmentId/')({
   component: RouteComponent,
@@ -25,8 +27,22 @@ function RouteComponent() {
     ASSIGNMENT.GET_DETAIL, 
     { assignment_id: assignmentId }
   )
+  const speak = useVoiceStore(state => state.speak)
 
   const assignment = assignmentData?.data
+
+  useRegisterCommands([
+    {
+        pattern: /^bacakan\s(.+)$/i,
+        description: "bacakan untuk membacakan bagian tugas. Contoh, bacakan judul, bacakan instruksi, bacakan tenggat",
+        action: ([type]) => {
+            const cleanType = type.toLowerCase().trim()
+            if (cleanType === 'judul') speak(assignment?.title || '')
+            if (cleanType === 'instruksi') speak(assignment?.instruction || '')
+            if (cleanType === 'tenggat') speak(assignment?.deadline || '')
+        }
+    }
+  ])
 
   if (isLoading) {
       return (
@@ -56,17 +72,15 @@ function RouteComponent() {
   const isSubmitted = !!submission
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f9fafb] dark:bg-[#1a202c] font-sans text-slate-800 dark:text-slate-200">
+    <>
         <PublicHeaderGap />
       
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="container mx-auto max-w-6xl px-4">
             {/* Breadcrumb / Back Navigation */}
-            <div className="mb-6">
-                <Link to="/assignments" className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[#2280c3] transition-colors group">
+                <Link to="/assignments" className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[#2280c3] transition-colors group">
                     <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                     Kembali ke Daftar Tugas
                 </Link>
-            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Main Content: Assignment Details */}
@@ -180,6 +194,6 @@ function RouteComponent() {
                 </div>
             </div>
         </div>
-    </div>
+    </>
   )
 }

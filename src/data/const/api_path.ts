@@ -7,8 +7,13 @@ export const AUTH = {
     REGISTER: "/v1/auth/register",
     LOGOUT: "/v1/auth/logout",
     DISABILITY: "/v1/user/accessibility",
+    EMAIL_VERIFICATION: "/v1/auth/verify-email",
     ME: "/v1/auth/me",
 } as const satisfies UrlGroupType
+
+export const USER = {
+    UPDATE_DISABILITY: "/v1/user/accessibility",
+}
 
 export const COURSE = {
     GET_ALL: "/v1/lecturer/courses",
@@ -23,7 +28,7 @@ export const COURSE = {
 } as const satisfies UrlGroupType
 
 export const MODULE = {
-    CREATE_MATERIAL : "/v1/lecturer/modules/{module_id}/materials", // New Endpoint
+    CREATE_MATERIAL: "/v1/lecturer/modules/{module_id}/materials", // New Endpoint
     DELETE: "/v1/lecturer/modules/{module_id}",
 } as const satisfies UrlGroupType
 

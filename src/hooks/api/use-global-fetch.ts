@@ -22,12 +22,12 @@ export const useQueryData = <T>(url: string, params?: ObjectType<any>) => {
 
 export const useMutationAction = (
     url: string,
-    method: 'post' | 'put' | 'delete',
+    method: 'post' | 'put' | 'patch' | 'delete' | 'get',
     config?: {
         refreshKey?: string,
         onSuccess?: () => void,
     }
-) => ( useSWRMutation(
+) => (useSWRMutation(
     url,
     fetcher[method],
     {
@@ -35,18 +35,18 @@ export const useMutationAction = (
             const msg = err?.response?.data?.error || err?.response?.data?.message || 'Terjadi kesalahan'
             toaster(msg, 'error')
         },
-        onSuccess: (data) => {
+        onSuccess: (data: any) => {
             toaster(data?.message || 'Berhasil', 'success')
-            if(config?.refreshKey) mutate(
+            if (config?.refreshKey) mutate(
                 (key) => {
                     if (Array.isArray(key) && key[0] === config.refreshKey) return true
                     if (key === config.refreshKey) return true
                     return false
                 },
-                undefined, 
+                undefined,
                 { revalidate: true }
             )
             config?.onSuccess?.()
         }
     }
-) )
+))

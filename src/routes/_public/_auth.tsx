@@ -13,7 +13,7 @@ export const Route = createFileRoute('/_public/_auth')({
             if (token) {
                 try {
                     const userData = await apiClient.get(AUTH.ME)
-                    login(userData)
+                    login(userData.data)
                     return 
                 } catch (error) {
                     console.error("Session timeout", error)

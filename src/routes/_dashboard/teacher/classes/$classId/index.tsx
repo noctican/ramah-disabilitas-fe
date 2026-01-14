@@ -136,9 +136,9 @@ function CourseDetailPage() {
   if (!course) {
       return (
           <div className="flex-1 flex flex-col justify-center items-center h-full min-h-[400px] text-center p-8">
-             <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Kursus Tidak Ditemukan</h2>
-             <p className="text-zinc-500 mb-6">Kursus yang Anda cari mungkin telah dihapus atau Anda tidak memiliki akses.</p>
-             <Link to="/teacher/classes" className="text-[#661fad] hover:underline font-semibold">Kembali ke Daftar Kursus</Link>
+             <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Kelas Tidak Ditemukan</h2>
+             <p className="text-zinc-500 mb-6">Kelas yang Anda cari mungkin telah dihapus atau Anda tidak memiliki akses.</p>
+             <Link to="/teacher/classes" className="text-[#661fad] hover:underline font-semibold">Kembali ke Daftar Kelas</Link>
           </div>
       )
   }

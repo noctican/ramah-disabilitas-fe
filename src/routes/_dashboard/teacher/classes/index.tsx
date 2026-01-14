@@ -51,14 +51,14 @@ function CourseManagementPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteFetcher(COURSE.DELETE.replace('{course_id}', id.toString())),
     onSuccess: (data: any) => {
-        const message = data?.message || 'Kursus berhasil dihapus'
+        const message = data?.message || 'Kelas berhasil dihapus'
         toast.success(message)
         queryClient.invalidateQueries({ queryKey: ['lecturer-courses'] })
     },
     onError: (error: any) => {
         const errorMessage = error.response?.data?.error || error.response?.data?.message
         
-        toast.error('Gagal menghapus kursus', {
+        toast.error('Gagal menghapus kelas', {
             description: errorMessage || 'Terjadi kesalahan internal server',
             duration: 5000 // Memberikan waktu lebih lama untuk membaca error
         })
@@ -66,7 +66,7 @@ function CourseManagementPage() {
   })
 
   const handleDelete = (id: number) => {
-      if (window.confirm('Apakah Anda yakin ingin menghapus kursus ini? Tindakan ini tidak dapat dibatalkan.')) {
+      if (window.confirm('Apakah Anda yakin ingin menghapus kelas ini? Tindakan ini tidak dapat dibatalkan.')) {
           deleteMutation.mutate(id)
       }
   }
@@ -81,7 +81,7 @@ function CourseManagementPage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           {/* Title Block */}
           <div className="flex flex-col gap-1">
-            <h2 className="text-[#121416] dark:text-white text-3xl font-extrabold tracking-tight">Kursus Saya</h2>
+            <h2 className="text-[#121416] dark:text-white text-3xl font-extrabold tracking-tight">Kelas Saya</h2>
             <p className="text-[#6a7581] dark:text-gray-400 text-base font-normal">Kelola kurikulum, konten, dan kemajuan siswa Anda.</p>
 
           </div>
@@ -92,7 +92,7 @@ function CourseManagementPage() {
             className="flex items-center gap-2 bg-[#6699cc] hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-[#6699cc]/30 transition-all active:scale-95 group cursor-pointer"
           >
             <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-            Buat Kursus Baru
+            Buat Kelas Baru
           </Link>
         </div>
         
@@ -104,7 +104,7 @@ function CourseManagementPage() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#6699cc] transition-colors w-5 h-5" />
               <input 
                 className="w-full pl-11 pr-4 py-3 bg-white dark:bg-[#1e2126] border-none rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-[#6699cc]/50 text-[#121416] dark:text-white placeholder:text-gray-400 transition-all outline-none" 
-                placeholder="Cari kursus berdasarkan nama, tag, atau ID..." 
+                placeholder="Cari kelas berdasarkan nama, tag, atau ID..." 
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -131,7 +131,7 @@ function CourseManagementPage() {
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${status === 'all' ? 'bg-[#6699cc] text-white shadow-md shadow-[#6699cc]/20 hover:-translate-y-0.5' : 'bg-white dark:bg-[#1e2126] text-gray-600 dark:text-gray-300 hover:text-[#6699cc] hover:bg-blue-50 dark:hover:bg-white/5 border border-transparent hover:border-blue-100 dark:hover:border-white/10'}`}
             >
               <Grid className="w-[18px] h-[18px]" />
-              Semua Kursus
+              Semua Kelas
             </button>
             <button 
                 onClick={() => setStatus('published')}
@@ -204,14 +204,14 @@ function CourseManagementPage() {
                             to="/teacher/classes/$classId/edit" 
                             params={{ classId: course.id.toString() }}
                             className="p-2 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-[#6a7581] dark:text-gray-300 transition-colors cursor-pointer" 
-                            title="Edit Kursus"
+                            title="Edit Kelas"
                         >
                             <Edit className="w-4 h-4" />
                         </Link>
                         <button 
                             onClick={() => handleDelete(course.id)}
                             className="p-2 rounded-lg bg-red-50 dark:bg-red-900/10 hover:bg-red-100 dark:hover:bg-red-900/20 text-red-500 transition-colors cursor-pointer" 
-                            title="Hapus Kursus"
+                            title="Hapus Kelas"
                         >
                             <Trash2 className="w-4 h-4" />
                         </button>
@@ -228,7 +228,7 @@ function CourseManagementPage() {
                 <div className="w-16 h-16 rounded-full bg-gray-50 dark:bg-white/5 group-hover:bg-[#6699cc]/10 flex items-center justify-center mb-4 transition-colors">
                   <Plus className="w-8 h-8 text-gray-400 group-hover:text-[#6699cc] transition-colors" />
                 </div>
-                <p className="text-[#121416] dark:text-white font-bold text-lg">Buat Kursus Baru</p>
+                <p className="text-[#121416] dark:text-white font-bold text-lg">Buat Kelas Baru</p>
                 <p className="text-[#6a7581] dark:text-gray-400 text-sm mt-1">Mulai dari awal atau template</p>
               </Link>
           )}

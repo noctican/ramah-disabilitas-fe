@@ -127,7 +127,7 @@ function EditCoursePage() {
         // Use putFetcher for update
         await putFetcher(COURSE.UPDATE.replace('{course_id}', classId), { arg: formData })
         
-        toast.success('Kursus berhasil diperbarui!')
+        toast.success('Kelas berhasil diperbarui!')
         navigate({ to: '/teacher/classes' })
       } catch (error: any) {
         console.error(error)
@@ -138,7 +138,7 @@ function EditCoursePage() {
                 description: 'Mohon periksa input Anda kembali.'
             })
         } else {
-            toast.error('Gagal memperbarui kursus', {
+            toast.error('Gagal memperbarui kelas', {
               description: error.response?.data?.message || 'Terjadi kesalahan sistem'
             })
         }
@@ -168,9 +168,9 @@ function EditCoursePage() {
       <header className="h-16 flex items-center justify-between px-4 sm:px-8 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
         <div className="flex items-center gap-4">
           <nav className="hidden sm:flex items-center text-sm font-medium text-slate-500 dark:text-slate-400">
-            <Link to="/teacher/classes" className="hover:text-slate-900 dark:hover:text-white transition-all">Kursus</Link>
+            <Link to="/teacher/classes" className="hover:text-slate-900 dark:hover:text-white transition-all">Kelas</Link>
             <ChevronRight className="mx-2 w-4 h-4 text-slate-300" />
-            <span className="text-slate-900 dark:text-white bg-gray-100 dark:bg-[#1e293b] px-2 py-0.5 rounded-md">Edit Kursus</span>
+            <span className="text-slate-900 dark:text-white bg-gray-100 dark:bg-[#1e293b] px-2 py-0.5 rounded-md">Edit Kelas</span>
           </nav>
         </div>
 
@@ -192,8 +192,8 @@ function EditCoursePage() {
           
           {/* Page Title */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Edit Kursus</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-2">Perbarui konten dan informasi kursus Anda.</p>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Edit Kelas</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-2">Perbarui konten dan informasi kelas Anda.</p>
           </div>
 
           <div className="space-y-6">
@@ -243,13 +243,13 @@ function EditCoursePage() {
                   <div className="p-1.5 bg-[#e0e7ff] dark:bg-[#1e293b] text-[#4f46e5] rounded-lg">
                     <FileEdit className="w-5 h-5" />
                   </div>
-                  Detail Kursus
+                  Detail Kelas
                 </h3>
                 
                 <div className="space-y-5">
                   <div>
                     <label htmlFor="course-title" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                        Judul Kursus <span className="text-red-500">*</span>
+                        Judul Kelas <span className="text-red-500">*</span>
                     </label>
                     <input 
                         value={title} 
@@ -272,14 +272,14 @@ function EditCoursePage() {
                         id="course-desc" 
                         rows={4} 
                         className={`w-full px-4 py-2.5 rounded-xl border ${validationErrors.description ? 'border-red-500 focus:ring-red-500/20' : 'border-gray-300 dark:border-gray-700 focus:border-[#6366f1] focus:ring-[#6366f1]/20'} bg-white dark:bg-[#1e293b] text-slate-900 dark:text-white placeholder-gray-400 focus:ring-2 transition-all outline-none resize-none`}
-                        placeholder="Apa yang akan dipelajari siswa dalam kursus ini?"
+                        placeholder="Apa yang akan dipelajari siswa dalam kelas ini?"
                     ></textarea>
                      {validationErrors.description && <p className="text-red-500 text-xs mt-1">{validationErrors.description}</p>}
                   </div>
                   
                   <div>
                     <label htmlFor="course-status" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                        Status Kursus
+                        Status Kelas
                     </label>
                     <div className="relative">
                         <select
@@ -294,7 +294,7 @@ function EditCoursePage() {
                          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none w-5 h-5" />
                     </div>
                     <p className="text-xs text-slate-500 mt-1">
-                        {status === 'published' ? 'Kursus akan terlihat oleh siswa.' : 'Kursus hanya terlihat oleh Anda.'}
+                        {status === 'published' ? 'Kelas akan terlihat oleh siswa.' : 'Kelas hanya terlihat oleh Anda.'}
                     </p>
                   </div>
                 </div>

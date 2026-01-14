@@ -32,7 +32,6 @@ export const Route = createFileRoute('/_dashboard/teacher/classes/create')({
 })
 
 function CreateCoursePage() {
-  const [copyFeedback, setCopyFeedback] = useState(false)
   const [isModuleExpanded, setIsModuleExpanded] = useState(true)
   const [accessCode, setAccessCode] = useState('')
 
@@ -44,25 +43,7 @@ function CreateCoursePage() {
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
-
-
-
-
   const [modules, setModules] = useState<Module[]>([])
-
-  const generateCode = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    let part1 = ''
-    let part2 = ''
-    for (let i = 0; i < 3; i++) part1 += chars.charAt(Math.floor(Math.random() * chars.length))
-    for (let i = 0; i < 3; i++) part2 += chars.charAt(Math.floor(Math.random() * chars.length))
-    setAccessCode(`${part1}${part2}`)
-  }
-
-  useEffect(() => {
-    generateCode()
-  }, [])
-
 
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -98,14 +79,8 @@ function CreateCoursePage() {
         
         formData.append('modules', JSON.stringify(modulesPayload))
 
-        // Log FormData entries for debugging
-        console.log('Sending FormData:')
-        for (const pair of formData.entries()) {
-            console.log(pair[0], pair[1])
-        }
-
         await postFetcher(COURSE.CREATE, { arg: formData })
-        toast.success(status === 'published' ? 'Kursus berhasil diterbitkan!' : 'Draf kursus berhasil disimpan!')
+        toast.success(status === 'published' ? 'Kelas berhasil diterbitkan!' : 'Draf kelas berhasil disimpan!')
         navigate({ to: '/teacher/classes' })
       } catch (error: any) {
         console.error(error)
@@ -116,19 +91,13 @@ function CreateCoursePage() {
                 description: 'Mohon periksa input Anda kembali.'
             })
         } else {
-            toast.error(status === 'published' ? 'Gagal menerbitkan kursus' : 'Gagal menyimpan draf', {
+            toast.error(status === 'published' ? 'Gagal menerbitkan kelas' : 'Gagal menyimpan draf', {
               description: error.response?.data?.message || 'Terjadi kesalahan sistem'
             })
         }
       } finally {
         setIsSubmitting(false)
       }
-  }
-
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(accessCode)
-    setCopyFeedback(true)
-    setTimeout(() => setCopyFeedback(false), 2000)
   }
 
   return (
@@ -138,7 +107,7 @@ function CreateCoursePage() {
       <header className="h-16 flex items-center justify-between px-4 sm:px-8 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
         <div className="flex items-center gap-4">
           <nav className="hidden sm:flex items-center text-sm font-medium text-slate-500 dark:text-slate-400">
-            <a href="/lecturer/course" className="hover:text-slate-900 dark:hover:text-white transition-all">Kursus</a>
+            <a href="/lecturer/course" className="hover:text-slate-900 dark:hover:text-white transition-all">Kelas</a>
             <ChevronRight className="mx-2 w-4 h-4 text-slate-300" />
             <span className="text-slate-900 dark:text-white bg-gray-100 dark:bg-[#1e293b] px-2 py-0.5 rounded-md">Buat Baru</span>
           </nav>
@@ -156,50 +125,11 @@ function CreateCoursePage() {
           
           {/* Page Title */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Buat Kursus Baru</h1>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Buat Kelas Baru</h1>
             <p className="text-slate-500 dark:text-slate-400 mt-2">Rancang kurikulum Anda, unggah aset, dan bersiaplah untuk mengajar.</p>
           </div>
 
           <div className="space-y-6">
-              
-               {/* Join Code Widget (Moved to top) */}
-               <div className="bg-white dark:bg-[#0f172a] rounded-2xl shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-gray-100 dark:border-gray-800 p-6 sm:p-8">
-                <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
-                    <div>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-2">
-                        <Key className="text-[#6366f1] w-5 h-5" />
-                        Akses Siswa
-                        </h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                        Bagikan kode unik ini kepada siswa untuk pendaftaran mandiri.
-                        </p>
-                    </div>
-
-                    <div className="flex items-center gap-4 w-full md:w-auto p-4 bg-slate-50 dark:bg-[#1e293b] rounded-xl border border-gray-100 dark:border-gray-800">
-                        <input 
-                            value={accessCode}
-                            onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
-                            className="text-2xl font-mono font-bold text-slate-900 dark:text-white tracking-widest bg-transparent border-none focus:ring-0 outline-none w-32 text-center uppercase" 
-                            maxLength={6}
-                        />
-                        <div className="w-px h-8 bg-gray-300 dark:bg-gray-600 mx-2"></div>
-                        <div className="flex gap-2">
-                             <button onClick={generateCode} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer" title="Reset Kode">
-                                <RefreshCw className="w-5 h-5" />
-                            </button>
-                            <button 
-                                onClick={handleCopyCode} 
-                                className={`p-2 transition-colors cursor-pointer ${
-                                copyFeedback ? 'text-green-500' : 'text-[#4f46e5] hover:text-[#4338ca]'
-                                }`}
-                                title="Salin Kode"
-                            >
-                                {copyFeedback ? <CheckCircle className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-              </div>
 
               {/* Card: Basic Info */}
               <div className="bg-white dark:bg-[#0f172a] rounded-2xl shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-gray-100 dark:border-gray-800 p-6 sm:p-8">
@@ -207,13 +137,13 @@ function CreateCoursePage() {
                   <div className="p-1.5 bg-[#e0e7ff] dark:bg-[#1e293b] text-[#4f46e5] rounded-lg">
                     <FileEdit className="w-5 h-5" />
                   </div>
-                  Detail Kursus
+                  Detail Kelas
                 </h3>
                 
                 <div className="space-y-5">
                   <div>
                     <label htmlFor="course-title" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                        Judul Kursus <span className="text-red-500">*</span>
+                        Judul Kelas <span className="text-red-500">*</span>
                     </label>
                     <input 
                         value={title} 
@@ -235,7 +165,7 @@ function CreateCoursePage() {
                         id="course-desc" 
                         rows={4} 
                         className={`w-full px-4 py-2.5 rounded-xl border ${validationErrors.description ? 'border-red-500 focus:ring-red-500/20' : 'border-gray-300 dark:border-gray-700 focus:border-[#6366f1] focus:ring-[#6366f1]/20'} bg-white dark:bg-[#1e293b] text-slate-900 dark:text-white placeholder-gray-400 focus:ring-2 transition-all outline-none resize-none`}
-                        placeholder="Apa yang akan dipelajari siswa dalam kursus ini?"
+                        placeholder="Apa yang akan dipelajari siswa dalam kelas ini?"
                     ></textarea>
                      {validationErrors.description && <p className="text-red-500 text-xs mt-1">{validationErrors.description}</p>}
                   </div>
@@ -309,17 +239,9 @@ function CreateCoursePage() {
             className="inline-flex items-center gap-2 px-8 py-2.5 text-sm font-semibold text-white bg-[#4f46e5] hover:bg-[#4338ca] rounded-xl shadow-lg shadow-[#6366f1]/30 transition-all active:scale-95 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isSubmitting ? <Loader2 className="w-[18px] h-[18px] animate-spin" /> : <Rocket className="w-[18px] h-[18px]" />}
-            {isSubmitting ? 'Menerbitkan...' : 'Terbitkan Kursus'}
+            {isSubmitting ? 'Menerbitkan...' : 'Terbitkan Kelas'}
           </button>
       </div>
-      
-      {/* Toast Notification (Conditional Render) */}
-      {copyFeedback && (
-        <div className="fixed bottom-5 right-5 bg-[#0f172a] dark:bg-white text-white dark:text-[#0f172a] px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
-            <CheckCircle className="text-green-400 dark:text-green-600 w-5 h-5" />
-            <span className="font-medium text-sm">Kode disalin ke papan klip!</span>
-        </div>
-      )}
     </div>
   )
 }

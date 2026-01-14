@@ -54,7 +54,7 @@ function CoursePreviewPage() {
     .find((mat: any) => mat.id === activeMaterialId)
 
   if (isLoading) return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin text-indigo-600" /></div>
-  if (!course) return <div className="p-8 text-center bg-red-50 text-red-600 rounded-xl m-4">Gagal memuat kursus</div>
+  if (!course) return <div className="p-8 text-center bg-red-50 text-red-600 rounded-xl m-4">Gagal memuat kelas</div>
 
   return (
     <div className="flex flex-col h-[calc(100vh-2rem)] bg-white dark:bg-[#020617] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm relative">
@@ -160,7 +160,7 @@ function CoursePreviewPage() {
                 !sidebarOpen && "translate-x-full lg:hidden"
             )}>
                 <div className="p-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#1e293b]/50">
-                    <h3 className="font-bold text-gray-900 dark:text-white text-sm">Konten Kursus</h3>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-sm">Konten Kelas</h3>
                     <div className="w-full bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full mt-3 overflow-hidden">
                         <div className="bg-green-500 h-full w-[0%]"></div>
                     </div>

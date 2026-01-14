@@ -6,6 +6,7 @@ type Props = {
 }
 
 import { Link } from "@tanstack/react-router"
+import { IconSchool } from "@tabler/icons-react"
 
 export const TaskCard = ({ data }: Props) => {
     const deadlineDate = new Date(data.deadline)
@@ -68,12 +69,13 @@ export const TaskCard = ({ data }: Props) => {
                         {statusConfig.label}
                     </span>
                 </div>
-                <p className="text-[#6b7c80] dark:text-gray-400 text-xs mt-1">
+                <p className="text-[#6b7c80] dark:text-gray-400 text-xs mt-1 flex gap-2">
+                    <CalendarClock className="text-gray-400 w-3.5 h-3.5" />
                     Tenggat: {formattedDeadline}
                 </p>
-                <div className="flex items-center gap-1 mt-2">
-                    <CalendarClock className="text-gray-400 w-3.5 h-3.5" />
-                    <p className="text-xs text-gray-500 font-medium">Course {data.course_id}</p>
+                <div className="flex items-center gap-2 mt-1">
+                    <IconSchool className="text-gray-400 w-3.5 h-3.5" />
+                    <p className="text-xs text-gray-500 font-medium">Kelas {data.course_id}</p>
                 </div>
             </div>
         </Link>

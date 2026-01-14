@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { Link, useNavigate } from "@tanstack/react-router"; // 1. Import TanStack Router
@@ -27,6 +27,8 @@ export default function PublicHeader() {
   const isMobile = useIsMobile()
   const { trigger } = useLogout()
   const navigate = useNavigate()
+
+  useEffect(() => console.log({user}), [user])
 
   const filteredNavItems = useMemo(() => {
     return PUBLIC_NAV_ITEMS.filter(i => !i.hasAccess || i.hasAccess.some(r => r === role))
@@ -133,14 +135,15 @@ export default function PublicHeader() {
 
           {/* ACTIONS */}
           <div className="flex items-center gap-4">
-            {!isAuthenticated && <div className="hidden md:block">
-              <Link to="/login"><Button className="rounded-full px-6">Login</Button></Link>
+            {!isAuthenticated && <div className="hidden md:flex gap-1">
+              <Link to="/login"><Button className="rounded-full px-6" variant="outline">Masuk</Button></Link>
+              <Link to="/register"><Button className="rounded-full px-6">Daftar</Button></Link>
             </div>}
             {isAuthenticated && <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className="h-8 w-8 rounded-full">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-full bg-primary text-white">ID</AvatarFallback>
+                  <AvatarFallback className="rounded-full bg-primary text-white">{user?.name?.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -153,7 +156,7 @@ export default function PublicHeader() {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-full">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-full bg-primary text-white">ID</AvatarFallback>
+                  <AvatarFallback className="rounded-full bg-primary text-white">{user?.name?.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
@@ -195,8 +198,9 @@ export default function PublicHeader() {
             {filteredNavItems.map((item) => (
               <UnifiedNavItem key={item.name} item={item} isMobile />
             ))}
-            <div className="pt-4 mt-4 border-t">
-              <Button className="w-full rounded-full" size="lg">Login Account</Button>
+            <div className="pt-4 mt-4 border-t flex justify-stretch gap-1">
+              <Link to="/login" className="w-full"><Button className="w-full rounded-full" size="lg" variant="outline">Masuk</Button></Link>
+              <Link to="/register" className="w-full"><Button className="w-full rounded-full" size="lg">Daftar</Button></Link>
             </div>
           </div>
         </div>

@@ -27,10 +27,10 @@ function RouteComponent() {
   )
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f9fafb] dark:bg-[#2a3d50] font-sans text-[#131616] dark:text-white">
+    <>
         <PublicHeaderGap />
       
-        <div className="container mx-auto py-8">
+        <div className="container mx-auto">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Daftar Tugas</h1>
@@ -107,6 +107,6 @@ function RouteComponent() {
                 </div>
             </div>
         </div>
-    </div>
+    </>
   )
 }

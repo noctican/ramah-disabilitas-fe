@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_public')({
 
 function RouteComponent() {
   return (
-    <div className='flex flex-col min-h-screen items-stretch bg-primary-50'>
+    <div className='flex flex-col min-h-screen items-stretch'>
         <PublicHeader />
         <main className='grow'>
             <Outlet />

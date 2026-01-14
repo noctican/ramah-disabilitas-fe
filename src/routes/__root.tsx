@@ -5,16 +5,17 @@ import { useVoiceAssistant } from '@/hooks/use-voice-assistant'
 import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { Toaster } from 'sonner'
-// import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-// import { TanStackDevtools } from '@tanstack/react-devtools'
+import { DisabilityCheckModal } from './-components/DisabilityCheckModal'
 
 
 export const Route = createRootRoute({
   component: () => {
     useVoiceAssistant()
     const [isFirst, setIsFirst] = useState(true)
-    const { setIsActive, isActive, isListening, lastTranscript, speak } = useVoiceStore()
+    const { setIsActive, isActive, lastTranscript, speak } = useVoiceStore()
     const { disability } = useAuthStore()
+
+    const [isOpenDisabilityModal, setIsOpenDisabilityModal] = useState(false)
 
     const startAssistant = () => {
       setIsActive(true)
@@ -22,6 +23,7 @@ export const Route = createRootRoute({
     }
   
     useEffect(() => {
+      console.log(disability)
       if(disability?.some(d => d == HEARING_DISABILITY) && !isActive && isFirst) {
         setIsFirst(false)
         speak('silahkan ketuk layar terlebih dahulu untuk memu')
@@ -29,6 +31,7 @@ export const Route = createRootRoute({
     }, [disability, isActive, isFirst])
     return (
       <>
+        <DisabilityCheckModal isOpen={isOpenDisabilityModal} setIsOpen={setIsOpenDisabilityModal} />
         <Outlet />
         <Toaster richColors position="top-right" />
 
@@ -45,17 +48,6 @@ export const Route = createRootRoute({
             </div>
           </div>
         }
-        {/* <TanStackDevtools
-          config={{
-            position: 'bottom-right',
-          }}
-          plugins={[
-            {
-              name: 'Tanstack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        /> */}
       </>
     )
   },
