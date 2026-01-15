@@ -75,9 +75,9 @@ function CourseManagementPage() {
   const courses: Course[] = (coursesData as any)?.data || []
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#f7f7f8] dark:bg-[#22252a] relative font-sans text-[#121416] dark:text-white rounded-xl">
+    <div className="flex-1 flex flex-col h-full overflow-hidden relative font-sans text-[#121416] dark:text-white rounded-xl">
       {/* Top Header Area */}
-      <header className="w-full px-8 pt-8 pb-4 shrink-0">
+      <header className="w-full shrink-0">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           {/* Title Block */}
           <div className="flex flex-col gap-1">
@@ -89,7 +89,7 @@ function CourseManagementPage() {
           {/* Primary Action */}
           <Link 
             to="/teacher/classes/create"
-            className="flex items-center gap-2 bg-primary hover:bg-primary-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-primary/30 transition-all active:scale-95 group cursor-pointer"
+            className="flex items-center gap-2 bg-primary hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-primary/30 transition-all active:scale-95 group cursor-pointer"
           >
             <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
             Buat Kelas Baru

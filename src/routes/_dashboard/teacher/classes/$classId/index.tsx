@@ -26,6 +26,10 @@ import { useState, useEffect } from 'react'
 import { CourseCurriculum, type Module } from '@/routes/_dashboard/teacher/classes/-components/CourseCurriculum'
 import { toast } from 'sonner'
 import { putFetcher } from '@/lib/api-client'
+import { Button } from '@/components/ui/button'
+import { StudentPane } from './-panes/StudentPane'
+import { ModulesPane } from './-panes/ModulesPane'
+import { AssignmentPane } from './-panes/AssignmentPane'
 
 
 export const Route = createFileRoute('/_dashboard/teacher/classes/$classId/')({
@@ -38,7 +42,6 @@ function CourseDetailPage() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<'modules' | 'assignments' | 'students' | 'grades'>('modules')
   const [modules, setModules] = useState<Module[]>([])
-  const [isSaving, setIsSaving] = useState(false)
 
 
   // Fetch course details
@@ -47,14 +50,6 @@ function CourseDetailPage() {
       queryFn: () => getFetcher(COURSE.DETAIL.replace('{course_id}', classId)),
       enabled: !!classId
   })
-
-  const { data: assignmentData, isLoading: isAssignmentsLoading } = useQuery({
-      queryKey: ['lecturer-assignments', classId],
-      queryFn: () => getFetcher(ASSIGNMENT.GET_ALL.replace('{course_id}', classId)),
-      enabled: !!classId
-  })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const assignments = (assignmentData as any)?.data || []
 
   // Populate state when data is fetched
   useEffect(() => {
@@ -77,49 +72,6 @@ function CourseDetailPage() {
           }
       }
   }, [courseData])
-
-  const handleSaveCurriculum = async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const c = (courseData as any)?.data
-    if (!c) return
-
-    try {
-        setIsSaving(true)
-        const formData = new FormData()
-        // Re-append existing course info to avoid clearing it
-        formData.append('title', c.title)
-        formData.append('description', c.description || '')
-        formData.append('class_code', c.class_code)
-        formData.append('status', c.status)
-        // If we had thumbnail file handling here it would be complex, skipping for now as we only edit modules
-
-        const modulesPayload = modules.map(({ ...rest }) => ({
-            title: rest.title,
-            order: rest.order,
-            materials: rest.materials.map(mat => ({
-                title: mat.title,
-                type: mat.type,
-                raw_content: mat.raw_content,
-                source_url: mat.source_url,
-                duration_min: mat.duration_min,
-                has_captions: mat.has_captions || false
-            }))
-        }))
-        
-        formData.append('modules', JSON.stringify(modulesPayload))
-
-        // Note: Actual file upload for materials would require appending files to formData with specific keys
-        // or handling them in a separate endpoint. For this UI task, we assume the structure is prepared.
-
-        await putFetcher(COURSE.UPDATE.replace('{course_id}', classId), { arg: formData })
-        toast.success('Kurikulum berhasil diperbarui!')
-    } catch (error) {
-        console.error(error)
-        toast.error('Gagal menyimpan kurikulum')
-    } finally {
-        setIsSaving(false)
-    }
-  }
 
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -144,10 +96,10 @@ function CourseDetailPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 bg-[#fafafa] dark:bg-[#020617] font-sans text-zinc-900 dark:text-zinc-200">
+    <div className="flex-1 flex flex-col min-w-0">
       
       {/* Hero Section */}
-      <div className="relative w-full h-[280px] bg-zinc-900 overflow-hidden shrink-0 group">
+      <div className="relative w-full h-[280px] bg-zinc-900 overflow-hidden shrink-0 group rounded-xl">
         <div 
             className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105 opacity-60" 
             style={{ backgroundImage: `url("${course.thumbnail || 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1200&auto=format&fit=crop&q=80'}")` }}
@@ -156,7 +108,7 @@ function CourseDetailPage() {
         
         <div className="relative h-full px-8 sm:px-12 pb-10 flex flex-col justify-end">
             <div className="flex items-center gap-2 mb-4 text-sm font-medium">
-                <Link to="/teacher/classes" className="text-zinc-300 hover:text-white transition-colors">Courses</Link>
+                <Link to="/teacher/classes" className="text-zinc-300 hover:text-white transition-colors">Kelas</Link>
                 <span className="text-zinc-500">/</span>
                 <span className="text-white">{course.class_code}</span>
             </div>
@@ -169,10 +121,10 @@ function CourseDetailPage() {
                         ) : (
                             <span className="px-2.5 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full text-[10px] font-bold uppercase tracking-wider">Draft</span>
                         )}
-                        <span className="text-zinc-300 text-sm font-medium">Created on {new Date(course.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        <span className="text-zinc-300 text-sm font-medium">Dibuat pada {new Date(course.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-2 drop-shadow-md">{course.title}</h2>
-                    <p className="text-zinc-200 text-base max-w-xl line-clamp-2">{course.description || 'No course description available.'}</p>
+                    <p className="text-zinc-200 text-base max-w-xl line-clamp-2">{course.description || 'Tidak ada deskripsi kelas.'}</p>
                 </div>
                 
                 <div className="flex gap-3">
@@ -190,7 +142,7 @@ function CourseDetailPage() {
                         className="flex items-center gap-2 bg-primary hover:bg-primary-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-primary/30 whitespace-nowrap"
                     >
                         <Edit className="w-5 h-5" />
-                        Edit Course
+                        Ubah Kelas
                     </Link>
                 </div>
             </div>
@@ -199,7 +151,7 @@ function CourseDetailPage() {
 
       {/* Tab Navigation & Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="px-8 sm:px-12 py-8">
+        <div className="container mx-auto py-8">
             {/* Tabs */}
             <div className="flex flex-col sm:flex-row items-center justify-between border-b border-zinc-200 dark:border-zinc-800 mb-8 gap-4 sm:gap-0">
                 <div className="flex gap-8 overflow-x-auto w-full sm:w-auto pb-0.5 no-scrollbar">
@@ -207,25 +159,25 @@ function CourseDetailPage() {
                         active={activeTab === 'modules'} 
                         onClick={() => setActiveTab('modules')} 
                         icon={<LayoutGrid size={20} />} 
-                        label="Modules" 
+                        label="Modul" 
                     />
                     <TabButton 
                         active={activeTab === 'assignments'} 
                         onClick={() => setActiveTab('assignments')} 
                         icon={<ClipboardList size={20} />} 
-                        label="Assignments" 
+                        label="Penugasan" 
                     />
                     <TabButton 
                         active={activeTab === 'students'} 
                         onClick={() => setActiveTab('students')} 
                         icon={<Users size={20} />} 
-                        label="Students" 
+                        label="Pelajar" 
                     />
                     <TabButton 
                         active={activeTab === 'grades'} 
                         onClick={() => setActiveTab('grades')} 
                         icon={<TrendingUp size={20} />} 
-                        label="Grades" 
+                        label="Penilaian" 
                     />
                 </div>
                 
@@ -240,163 +192,11 @@ function CourseDetailPage() {
                     >
                         
                         {/* Dynamic Modules Rendering via Editor */}
-                        {activeTab === 'modules' && (
-                            <div className="space-y-4">
-                                <CourseCurriculum modules={modules} setModules={setModules} />
-                                
-                                <div className="flex justify-end">
-                                    <button 
-                                        onClick={handleSaveCurriculum}
-                                        disabled={isSaving}
-                                        className="px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary-600 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
-                                    >
-                                        {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                                        {isSaving ? 'Menyimpan...' : 'Simpan Perubahan Kurikulum'}
-                                    </button>
-                                </div>
-                            </div>
-                        )}
+                        {activeTab === 'modules' && <ModulesPane modules={modules} setModules={setModules} courseData={courseData} />}
 
-                        {activeTab === 'assignments' && (
-                             <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm p-8 text-center">
-                                <div className="mx-auto w-16 h-16 bg-purple-50 dark:bg-purple-900/20 rounded-full flex items-center justify-center mb-4">
-                                    <ClipboardList className="w-8 h-8 text-primary" />
-                                </div>
-                                <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Daftar Tugas</h3>
-                                <p className="text-zinc-500 max-w-md mx-auto mb-8">Kelola tugas untuk siswa Anda. Anda bisa membuat tugas baru, melihat pengumpulan, dan memberikan nilai.</p>
-                                
-                                <Link 
-                                    to="/teacher/classes/$classId/assignment/create"
-                                    params={{ classId }}
-                                    className="px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary-600 transition-all flex items-center gap-2 mx-auto inline-flex"
-                                >
-                                    <Plus className="w-4 h-4" />
-                                    Buat Tugas Baru
-                                </Link>
+                        {activeTab === 'assignments' && <AssignmentPane />}
 
-                                {/* Assignment List */}
-                                <div className="mt-8 text-left space-y-3">
-                                    {isAssignmentsLoading ? (
-                                        <div className="flex flex-col items-center justify-center py-12 text-zinc-400 animate-pulse">
-                                            <Loader2 className="w-8 h-8 animate-spin mb-2" />
-                                            <p>Memuat daftar tugas...</p>
-                                        </div>
-                                    ) : assignments?.length === 0 ? (
-                                        <div className="text-center py-12 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
-                                            <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <FileText className="w-8 h-8 text-zinc-400" />
-                                            </div>
-                                            <h3 className="text-zinc-900 dark:text-white font-bold mb-1">Belum ada tugas</h3>
-                                            <p className="text-zinc-500 text-sm max-w-xs mx-auto">Buat tugas pertama Anda untuk mulai menguji pemahaman siswa.</p>
-                                        </div>
-                                    ) : (
-                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                        assignments?.map((assignment: any) => (
-                                            <div key={assignment.id} className="group bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 rounded-2xl hover:border-primary hover:ring-1 hover:ring-primary transition-all cursor-pointer">
-                                                <div className="flex items-start justify-between">
-                                                    <div className="flex gap-4">
-                                                        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                                                            <FileText className="w-6 h-6 text-primary" />
-                                                        </div>
-                                                        <div>
-                                                            <h4 className="font-bold text-zinc-900 dark:text-white group-hover:text-primary transition-colors">
-                                                                {assignment.title}
-                                                            </h4>
-                                                        
-                                                            <div className="flex items-center gap-4 mt-2 text-xs text-zinc-500">
-                                                                <div className="flex items-center gap-1.5">
-                                                                    <Calendar className="w-3.5 h-3.5" />
-                                                                    <span>
-                                                                        Tenggat: {new Date(assignment.deadline).toLocaleDateString('id-ID', { 
-                                                                            weekday: 'long', 
-                                                                            day: 'numeric', 
-                                                                            month: 'long', 
-                                                                            year: 'numeric' 
-                                                                        })}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="flex items-center gap-1.5">
-                                                                    <Clock className="w-3.5 h-3.5" />
-                                                                    <span>
-                                                                        {new Date(assignment.deadline).toLocaleTimeString('id-ID', { 
-                                                                            hour: '2-digit', 
-                                                                            minute: '2-digit' 
-                                                                        })}
-                                                                        {' '}(WIB)
-                                                                    </span>
-                                                                </div>
-                                                                {assignment.allow_late && (
-                                                                    <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-full">
-                                                                        <AlertCircle className="w-3 h-3" />
-                                                                        <span>Terlambat Diizinkan</span>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex flex-col items-end gap-2">
-                                                        <span className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-bold rounded-lg border border-zinc-200 dark:border-zinc-700">
-                                                            {assignment.max_points} Poin
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                             </div>
-                        )}
-
-                        {activeTab === 'students' && (
-                            <div className="space-y-6">
-                                <div className="flex justify-between items-center">
-                                    <h3 className="font-bold text-lg text-zinc-900 dark:text-white">Siswa Terdaftar (128)</h3>
-                                    <button className="text-sm font-semibold text-primary hover:underline">Export Data</button>
-                                </div>
-                                
-                                <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm overflow-hidden">
-                                    <table className="w-full text-sm text-left">
-                                        <thead className="bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 uppercase text-xs font-bold border-b border-zinc-100 dark:border-zinc-800">
-                                            <tr>
-                                                <th className="px-6 py-4">Nama Siswa</th>
-                                                <th className="px-6 py-4">Tanggal Bergabung</th>
-                                                <th className="px-6 py-4">Progress</th>
-                                                <th className="px-6 py-4 text-right">Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                                            {[1, 2, 3, 4, 5].map((i) => (
-                                                <tr key={i} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/20 transition-colors">
-                                                    <td className="px-6 py-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center font-bold text-zinc-500 text-xs">U{i}</div>
-                                                            <div>
-                                                                <p className="font-bold text-zinc-900 dark:text-zinc-100">User Siswa {i}</p>
-                                                                <p className="text-xs text-zinc-400">siswa{i}@email.com</p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-zinc-500">10 Jan 2024</td>
-                                                    <td className="px-6 py-4">
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="w-20 bg-zinc-100 dark:bg-zinc-700 h-1.5 rounded-full overflow-hidden">
-                                                                <div className="bg-green-500 h-full" style={{ width: `${i * 15}%` }}></div>
-                                                            </div>
-                                                            <span className="text-xs font-medium text-zinc-500">{i * 15}%</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-right">
-                                                        <button className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1">
-                                                            <MoreHorizontal className="w-4 h-4" />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
+                        {activeTab === 'students' && <StudentPane />}
                     </div>
 
                     {/* RIGHT COLUMN (Stats) */}
@@ -405,7 +205,7 @@ function CourseDetailPage() {
                             
                             {/* Progress Card */}
                             <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6">
-                                <h4 className="font-bold text-xs text-zinc-400 uppercase tracking-widest mb-4">Course Progress</h4>
+                                <h4 className="font-bold text-xs text-zinc-400 uppercase tracking-widest mb-4">Progres Kelas</h4>
                                 <div className="relative pt-1">
                                     <div className="flex mb-2 items-center justify-between">
                                         <div>

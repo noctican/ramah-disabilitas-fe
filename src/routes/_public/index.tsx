@@ -1,217 +1,189 @@
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Plus, PlayCircle, MoreVertical, ChevronLeft, ChevronRight, HelpCircle } from 'lucide-react'
-import PublicHeaderGap from '@/layout/PublicHeaderGap'
+import { Accessibility, ArrowRight, BookOpen, Ear, Eye, Users, Volume2 } from 'lucide-react'
 
 export const Route = createFileRoute('/_public/')({
-  component: Dashboard,
+  component: LandingPage,
 })
 
-function Dashboard() {
+function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#f6f6f8] dark:bg-[#14141e] font-sans text-[#303338] dark:text-gray-200">
-      <PublicHeaderGap />
-      
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-            <div>
-                <h1 className="text-3xl font-extrabold text-[#131316] dark:text-white mb-1">Halo,  👋</h1>
-                <p className="text-gray-500 dark:text-gray-400">Selamat datang kembali! Berikut aktifitas belajarmu hari ini.</p>
-            </div>
-            <div className="flex gap-3">
-                <Link to="/classes" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1c1c27] border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-bold shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] hover:bg-gray-50 dark:hover:bg-gray-800 transition-all cursor-pointer">
-                    <Plus className="w-5 h-5" />
-                    Gabung Kelas
+    <div className="flex flex-col min-h-[calc(100vh-4rem)]">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-primary-50 py-20 lg:py-32">
+        <div className="container mx-auto px-4 md:px-6 relative z-10">
+          <div className="grid gap-12 lg:grid-cols-2 items-center">
+            <div className="flex flex-col justify-center space-y-8 animate-in slide-in-from-left duration-700 fade-in">
+              <div className="space-y-4">
+                <div className="inline-block rounded-full bg-primary-100 px-3 py-1 text-sm font-semibold text-primary-700">
+                  Platform LMS Ramah Disabilitas
+                </div>
+                <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl xl:text-6xl text-balance">
+                  Pendidikan Tanpa Batas untuk <span className="text-primary-600">Semua Potensi</span>
+                </h1>
+                <p className="max-w-150 text-lg text-muted-foreground md:text-xl leading-relaxed">
+                  Wujudkan pengalaman belajar yang inklusif dengan fitur aksesibilitas adaptif. Dirancang khusus untuk mendukung pelajar disabilitas meraih prestasi gemilang.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link to="/register">
+                  <Button size="lg" className="w-full sm:w-auto text-lg px-8 py-6 rounded-full shadow-lg shadow-primary-500/20 transition-all hover:scale-105 active:scale-95">
+                    Mulai Sekarang <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
                 </Link>
-                <Link to="/assignments" className="px-6 py-2 bg-[#9696d9] text-white rounded-lg text-sm font-bold shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] hover:opacity-90 transition-all cursor-pointer flex items-center">
-                    Lihat Semua Tugas
-                </Link>
+                <a href="#features">
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto text-lg px-8 py-6 rounded-full bg-white/50 backdrop-blur-sm border-primary-200 text-primary-700 hover:bg-white hover:text-primary-800">
+                    Pelajari Fitur
+                  </Button>
+                </a>
+              </div>
+              
+              <div className="flex items-center gap-4 text-sm text-muted-foreground mt-4">
+                <div className="flex -space-x-2">
+                  <div className="h-8 w-8 rounded-full border-2 border-white bg-primary-200 flex items-center justify-center text-xs font-bold text-primary-700">A</div>
+                  <div className="h-8 w-8 rounded-full border-2 border-white bg-primary-300 flex items-center justify-center text-xs font-bold text-primary-800">R</div>
+                  <div className="h-8 w-8 rounded-full border-2 border-white bg-primary-400 flex items-center justify-center text-xs font-bold text-primary-900">S</div>
+                </div>
+                <p>Bergabung dengan <span className="font-bold text-primary-700">1,000+</span> pelajar lainnya</p>
+              </div>
             </div>
+            
+            <div className="relative mx-auto lg:ml-auto w-full max-w-125 lg:max-w-none animate-in slide-in-from-right duration-700 fade-in delay-200">
+               {/* Decorative blobs */}
+               <div className="absolute -top-20 -right-20 w-72 h-72 bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+               <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-primary-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-1000"></div>
+               
+               {/* Hero Image / Illustration Placeholder */}
+               <div className="relative rounded-2xl bg-white/40 backdrop-blur-xl border border-white/50 shadow-2xl p-6 lg:p-10 transform lg:-rotate-2 hover:rotate-0 transition-transform duration-500">
+                  <div className="grid grid-cols-2 gap-4">
+                      <Card className="col-span-2 bg-white/80 border-primary-100 shadow-sm">
+                          <CardHeader className="pb-2">
+                             <div className="flex items-center justify-between">
+                                <CardTitle className="text-lg">Kelas Bahasa Isyarat</CardTitle>
+                                <span className="bg-primary-100 text-primary-700 text-xs px-2 py-1 rounded-full">Live</span>
+                             </div>
+                          </CardHeader>
+                          <CardContent>
+                              <div className="h-2 w-full bg-primary-100 rounded-full mb-2 overflow-hidden">
+                                  <div className="h-full bg-primary-500 w-[65%] rounded-full"></div>
+                              </div>
+                              <p className="text-xs text-muted-foreground">Progres: 65%</p>
+                          </CardContent>
+                      </Card>
+                      <Card className="bg-primary-600 text-white border-none shadow-md">
+                          <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
+                              <Volume2 className="h-8 w-8 mb-2 opacity-90" />
+                              <p className="font-bold text-sm">Text-to-Speech</p>
+                          </CardContent>
+                      </Card>
+                      <Card className="bg-white/80 border-primary-100 shadow-sm">
+                          <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
+                              <Eye className="h-8 w-8 mb-2 text-primary-600" />
+                              <p className="font-bold text-sm text-foreground">High Contrast</p>
+                          </CardContent>
+                      </Card>
+                  </div>
+               </div>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white dark:bg-[#1c1c27] p-6 rounded-xl shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-transparent dark:border-gray-800">
-                <p className="text-gray-400 text-sm font-medium mb-1 uppercase tracking-wider">Total Kelas</p>
-                <div className="flex items-end justify-between">
-                    <h3 className="text-3xl font-extrabold dark:text-white">8</h3>
-                    <span className="text-[#5CA683] text-sm font-bold bg-[#5CA683]/10 px-2 py-0.5 rounded">+1 semester ini</span>
-                </div>
-            </div>
-            <div className="bg-white dark:bg-[#1c1c27] p-6 rounded-xl shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-transparent dark:border-gray-800">
-                <p className="text-gray-400 text-sm font-medium mb-1 uppercase tracking-wider">Tugas Pending</p>
-                <div className="flex items-end justify-between">
-                    <h3 className="text-3xl font-extrabold dark:text-white">4</h3>
-                    <span className="text-[#F28D7B] text-sm font-bold bg-[#F28D7B]/10 px-2 py-0.5 rounded">2 mendesak</span>
-                </div>
-            </div>
-            <div className="bg-white dark:bg-[#1c1c27] p-6 rounded-xl shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-transparent dark:border-gray-800">
-                <p className="text-gray-400 text-sm font-medium mb-1 uppercase tracking-wider">Tenggat Berikutnya</p>
-                <div className="flex items-end justify-between">
-                    <h3 className="text-xl font-extrabold dark:text-white">Besok</h3>
-                    <span className="text-gray-400 text-xs mb-1">23:59 WIB</span>
-                </div>
-            </div>
-            <div className="bg-white dark:bg-[#1c1c27] p-6 rounded-xl shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-transparent dark:border-gray-800">
-                <p className="text-gray-400 text-sm font-medium mb-1 uppercase tracking-wider">Progres Keseluruhan</p>
-                <div className="flex items-end justify-between">
-                    <h3 className="text-3xl font-extrabold dark:text-white">92%</h3>
-                    <span className="text-[#5CA683] text-sm font-bold bg-[#5CA683]/10 px-2 py-0.5 rounded">IPK 3.8</span>
-                </div>
-            </div>
+      {/* Features Section */}
+      <section id="features" className="py-20 bg-background">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl text-balance">
+              Teknologi Pendukung untuk <span className="text-primary-600">Setiap Kebutuhan</span>
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Kami mengintegrasikan standar untuk memastikan tidak ada pelajar yang tertinggal.
+            </p>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+             <FeatureCard 
+                icon={<Ear className="h-10 w-10 text-primary-500" />}
+                title="Dukungan Tuna Rungu"
+                description="Navigasi dan akses materi pembelajaran menggunakan perintah suara untuk kemudahan akses tanpa sentuhan."
+             />
+             <FeatureCard 
+                icon={<Eye className="h-10 w-10 text-primary-500" />}
+                title="Visual Adaptif"
+                description="Mode kontras tinggi, penyesuaian ukuran teks dinamis, dan dukungan screen reader untuk pelajar dengan gangguan penglihatan."
+             />
+             <FeatureCard 
+                icon={<Accessibility className="h-10 w-10 text-primary-500" />}
+                title="Navigasi Ramah Motorik"
+                description="Seluruh platform dapat dioperasikan sepenuhnya menggunakan keyboard."
+             />
+          </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
-                <div>
-                    <h2 className="text-xl font-bold mb-4 dark:text-white flex items-center gap-2">
-                        <PlayCircle className="w-6 h-6 text-[#9696d9] fill-current" />
-                        Lanjutkan Belajar
-                    </h2>
-                    <div className="bg-white dark:bg-[#1c1c27] rounded-xl overflow-hidden shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-transparent dark:border-gray-800 flex flex-col md:flex-row">
-                        <div className="md:w-1/3 aspect-video md:aspect-auto bg-cover bg-center bg-slate-200 dark:bg-slate-800" style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDLV0POjgA3qNxcXrw7m-h-mA0E_cdMjtPl7ornFl7lOOI8w1O5SGOR490ppqKAoCZXCyjqQ8VUOY-zmHR7G6MLm9X1iXh4yJ0rnPTSA7jGPH5pRvqsFAepYSqoKxjz_MTguPIc7vkMhOTZlrF1jm_rSvYc2cQc_Xo6FZcT7Hl9zZ0Q1M3WyjXSlWTsINUBX8OFvxJRE2TM_zR40la3Xmcic_a5Nx9la983dXStAF2yxGcbLQOUYW6Q4LnYQsiD5oYRAVuR7xqvUChA")' }}></div>
-                        <div className="p-6 flex-1">
-                            <div className="flex justify-between items-start mb-2">
-                                <span className="px-2 py-1 bg-[#9696d9]/10 text-[#9696d9] text-[10px] font-bold uppercase rounded">Menengah</span>
-                                <span className="text-xs text-gray-400">Terakhir akses: 2 jam lalu</span>
-                            </div>
-                            <h3 className="text-xl font-bold mb-1 dark:text-white">Web Development Bootcamp</h3>
-                            <p className="text-gray-500 text-sm mb-4">Module 4: Advanced Responsive Design and CSS Grid layouts.</p>
-                            <div className="flex items-center gap-4">
-                                <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                                    <div className="h-full bg-[#9696d9]" style={{ width: '45%' }}></div>
-                                </div>
-                                <span className="text-xs font-bold text-gray-500">45%</span>
-                                <button className="bg-[#9696d9] text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-opacity-90 transition-all cursor-pointer">Lanjut</button>
-                            </div>
-                        </div>
-                    </div>
+      {/* Stats/CTA Section */}
+      <section className="py-20 bg-primary-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
+        <div className="container mx-auto px-4 md:px-6 relative z-10 text-center">
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16 divide-x divide-primary-800">
+                <div className="p-4">
+                    <div className="text-4xl lg:text-5xl font-extrabold text-primary-100 mb-2">10k+</div>
+                    <div className="text-primary-200">Pelajar Aktif</div>
                 </div>
-
-                <div>
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-bold dark:text-white">Kelas Saya</h2>
-                        <Link to="/classes" className="text-[#9696d9] text-sm font-bold hover:underline cursor-pointer">Lihat Semua</Link>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-white dark:bg-[#1c1c27] p-5 rounded-xl border border-transparent dark:border-gray-800 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] hover:translate-y-[-2px] transition-transform cursor-pointer">
-                            <div className="flex justify-between mb-3">
-                                <div className="size-10 bg-[#5CA683]/10 text-[#5CA683] rounded-lg flex items-center justify-center">
-                                    <div className="w-6 h-6 text-center leading-6 font-bold">{}</div>
-                                </div>
-                                <button className="text-gray-300 hover:text-gray-500 transition-colors">
-                                    <MoreVertical className="w-5 h-5" />
-                                </button>
-                            </div>
-                            <h4 className="font-bold dark:text-white mb-1">Logika & Algoritma</h4>
-                            <p className="text-xs text-gray-400 mb-4">Pengajar: Dr. Sarah Jane</p>
-                            <div className="space-y-1">
-                                <div className="flex justify-between text-[10px] font-bold text-gray-400">
-                                    <span>PROGRES</span>
-                                    <span>80%</span>
-                                </div>
-                                <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                                    <div className="h-full bg-[#5CA683]" style={{ width: '80%' }}></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="bg-white dark:bg-[#1c1c27] p-5 rounded-xl border border-transparent dark:border-gray-800 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] hover:translate-y-[-2px] transition-transform cursor-pointer">
-                            <div className="flex justify-between mb-3">
-                                <div className="size-10 bg-[#9696d9]/10 text-[#9696d9] rounded-lg flex items-center justify-center">
-                                     <div className="w-6 h-6 text-center leading-6 font-bold">{}</div>
-                                </div>
-                                <button className="text-gray-300 hover:text-gray-500 transition-colors">
-                                    <MoreVertical className="w-5 h-5" />
-                                </button>
-                            </div>
-                            <h4 className="font-bold dark:text-white mb-1">UI/UX Design</h4>
-                            <p className="text-xs text-gray-400 mb-4">Pengajar: Prof. Marcus</p>
-                            <div className="space-y-1">
-                                <div className="flex justify-between text-[10px] font-bold text-gray-400">
-                                    <span>PROGRES</span>
-                                    <span>10%</span>
-                                </div>
-                                <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                                    <div className="h-full bg-[#9696d9]" style={{ width: '10%' }}></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div className="p-4">
+                    <div className="text-4xl lg:text-5xl font-extrabold text-primary-100 mb-2">500+</div>
+                    <div className="text-primary-200">Materi Inklusif</div>
+                </div>
+                <div className="p-4">
+                    <div className="text-4xl lg:text-5xl font-extrabold text-primary-100 mb-2">98%</div>
+                    <div className="text-primary-200">Kepuasan Pengguna</div>
+                </div>
+                <div className="p-4">
+                    <div className="text-4xl lg:text-5xl font-extrabold text-primary-100 mb-2">24/7</div>
+                    <div className="text-primary-200">Dukungan Aksesibilitas</div>
                 </div>
             </div>
 
-            <div className="space-y-8">
-                <div className="bg-white dark:bg-[#1c1c27] p-6 rounded-xl shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-transparent dark:border-gray-800">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="font-bold dark:text-white">Oktober 2023</h3>
-                        <div className="flex gap-2">
-                            <button className="size-8 flex items-center justify-center rounded-lg border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                                <ChevronLeft className="w-4 h-4" />
-                            </button>
-                            <button className="size-8 flex items-center justify-center rounded-lg border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                                <ChevronRight className="w-4 h-4" />
-                            </button>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-7 gap-y-4 text-center text-xs">
-                        <div className="text-gray-400 font-bold">SN</div><div className="text-gray-400 font-bold">SL</div><div className="text-gray-400 font-bold">RB</div><div className="text-gray-400 font-bold">KM</div><div className="text-gray-400 font-bold">JM</div><div className="text-gray-400 font-bold">SB</div><div className="text-gray-400 font-bold">MG</div>
-                        <div className="py-1 text-gray-300">28</div><div className="py-1 text-gray-300">29</div><div className="py-1 text-gray-300">30</div>
-                        <div className="py-1 dark:text-gray-200">1</div><div className="py-1 dark:text-gray-200">2</div><div className="py-1 dark:text-gray-200">3</div><div className="py-1 dark:text-gray-200">4</div>
-                        <div className="py-1 dark:text-gray-200">5</div><div className="py-1 dark:text-gray-200">6</div><div className="py-1 dark:text-gray-200 relative">7<div className="absolute bottom-0 left-1/2 -translate-x-1/2 size-1 bg-[#F28D7B] rounded-full"></div></div>
-                        <div className="py-1 dark:text-gray-200">8</div><div className="py-1 dark:text-gray-200">9</div><div className="py-1 dark:text-gray-200">10</div><div className="py-1 dark:text-gray-200">11</div>
-                        <div className="py-1 bg-[#9696d9] text-white rounded-lg font-bold">12</div><div className="py-1 dark:text-gray-200">13</div>
-                        <div className="py-1 dark:text-gray-200 relative">14<div className="absolute bottom-0 left-1/2 -translate-x-1/2 size-1 bg-[#9696d9] rounded-full"></div></div>
-                        <div className="py-1 dark:text-gray-200">15</div><div className="py-1 dark:text-gray-200">16</div>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 className="font-bold mb-4 dark:text-white flex items-center justify-between">
-                        Tugas Mendatang
-                        <span className="text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-500 px-2 py-0.5 rounded-full">4 TOTAL</span>
-                    </h3>
-                    <div className="space-y-3">
-                        <div className="p-4 bg-white dark:bg-[#1c1c27] rounded-xl border-l-[4px] border-l-[#F28D7B] shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border-y border-r border-gray-50 dark:border-y-gray-800 dark:border-r-gray-800">
-                             <div className="flex justify-between items-start mb-1">
-                                <h4 className="text-sm font-bold dark:text-white">Responsive Design Mockup</h4>
-                                <span className="text-[10px] font-bold text-[#F28D7B] bg-[#F28D7B]/10 px-2 py-0.5 rounded">2 HARI LAGI</span>
-                            </div>
-                            <p className="text-xs text-gray-400">Web Development Bootcamp</p>
-                        </div>
-                        <div className="p-4 bg-white dark:bg-[#1c1c27] rounded-xl border-l-[4px] border-l-[#9696d9] shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border-y border-r border-gray-50 dark:border-y-gray-800 dark:border-r-gray-800">
-                             <div className="flex justify-between items-start mb-1">
-                                <h4 className="text-sm font-bold dark:text-white">SQL Database Schema</h4>
-                                <span className="text-[10px] font-bold text-[#9696d9] bg-[#9696d9]/10 px-2 py-0.5 rounded">5 HARI LAGI</span>
-                            </div>
-                            <p className="text-xs text-gray-400">Database Management</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 className="font-bold mb-4 dark:text-white">Pengumuman Terbaru</h3>
-                    <div className="bg-white dark:bg-[#1c1c27] rounded-xl shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-transparent dark:border-gray-800 divide-y dark:divide-gray-800">
-                        <div className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer rounded-t-xl">
-                            <p className="text-xs text-[#9696d9] font-bold mb-1">Bagian Akademik • 1 jam lalu</p>
-                            <h4 className="text-sm font-bold dark:text-white mb-1">Jadwal UTS Dirilis</h4>
-                            <p className="text-xs text-gray-500 line-clamp-1">Jadwal ujian tengah semester untuk Musim Gugur 2023 sudah tersedia.</p>
-                        </div>
-                        <div className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer rounded-b-xl">
-                            <p className="text-xs text-[#9696d9] font-bold mb-1">Prof. Marcus • 4 jam lalu</p>
-                            <h4 className="text-sm font-bold dark:text-white mb-1">Materi baru ditambahkan ke UI/UX</h4>
-                            <p className="text-xs text-gray-500 line-clamp-1">Saya telah mengunggah sumber daya komunitas Figma untuk lokakarya berikutnya.</p>
-                        </div>
-                    </div>
+            <div className="max-w-2xl mx-auto space-y-6">
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Siap Memulai Perjalanan Belajarmu?</h2>
+                <p className="text-primary-100 text-lg">
+                    Bergabunglah sekarang dan rasakan pengalaman belajar yang benar-benar mengerti kebutuhanmu. Gratis untuk pendaftaran pertama.
+                </p>
+                <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+                    <Link to="/register">
+                      <Button size="lg" className="w-full sm:w-auto bg-white text-primary-900 hover:bg-primary-50 rounded-full text-lg px-8">
+                        Daftar Gratis
+                      </Button>
+                    </Link>
+                    <Link to="/login">
+                      <Button size="lg" variant="outline" className="w-full sm:w-auto border-white text-white hover:bg-white/10 hover:text-white bg-transparent rounded-full text-lg px-8">
+                        Masuk
+                      </Button>
+                    </Link>
                 </div>
             </div>
         </div>
-      </main>
-
-      <div className="fixed bottom-8 right-8 flex flex-col items-end gap-3 z-30">
-        <button className="flex items-center gap-3 px-6 py-4 bg-[#131316] text-white rounded-full shadow-2xl hover:scale-105 transition-transform cursor-pointer">
-            <HelpCircle className="w-6 h-6" />
-            <span className="font-bold text-sm">Tanya Tutor</span>
-        </button>
-      </div>
+      </section>
     </div>
   )
+}
+
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+    return (
+        <Card className="border-primary-100 hover:border-primary-300 transition-colors hover:shadow-lg hover:shadow-primary-100/50 group">
+            <CardHeader>
+                <div className="mb-4 inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary-50 group-hover:bg-primary-100 transition-colors">
+                    {icon}
+                </div>
+                <CardTitle className="text-xl group-hover:text-primary-700 transition-colors">{title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <CardDescription className="text-base leading-relaxed">
+                    {description}
+                </CardDescription>
+            </CardContent>
+        </Card>
+    )
 }
