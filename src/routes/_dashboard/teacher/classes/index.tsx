@@ -89,7 +89,7 @@ function CourseManagementPage() {
           {/* Primary Action */}
           <Link 
             to="/teacher/classes/create"
-            className="flex items-center gap-2 bg-[#6699cc] hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-[#6699cc]/30 transition-all active:scale-95 group cursor-pointer"
+            className="flex items-center gap-2 bg-primary hover:bg-primary-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-primary/30 transition-all active:scale-95 group cursor-pointer"
           >
             <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
             Buat Kelas Baru
@@ -101,9 +101,9 @@ function CourseManagementPage() {
           
           <div className="flex flex-1 gap-3 w-full lg:max-w-2xl">
             <div className="relative flex-1 group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#6699cc] transition-colors w-5 h-5" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors w-5 h-5" />
               <input 
-                className="w-full pl-11 pr-4 py-3 bg-white dark:bg-[#1e2126] border-none rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-[#6699cc]/50 text-[#121416] dark:text-white placeholder:text-gray-400 transition-all outline-none" 
+                className="w-full pl-11 pr-4 py-3 bg-white dark:bg-[#1e2126] border-none rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-primary/50 text-[#121416] dark:text-white placeholder:text-gray-400 transition-all outline-none" 
                 placeholder="Cari kelas berdasarkan nama, tag, atau ID..." 
                 type="text"
                 value={search}
@@ -115,7 +115,7 @@ function CourseManagementPage() {
               <select 
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="w-full pl-4 pr-10 py-3 bg-white dark:bg-[#1e2126] border-none rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-[#6699cc]/50 text-[#121416] dark:text-white appearance-none cursor-pointer outline-none"
+                className="w-full pl-4 pr-10 py-3 bg-white dark:bg-[#1e2126] border-none rounded-xl shadow-sm text-sm focus:ring-2 focus:ring-primary/50 text-[#121416] dark:text-white appearance-none cursor-pointer outline-none"
               >
                 <option value="newest">Urutkan: Terbaru</option>
                 <option value="oldest">Urutkan: Terlama</option>
@@ -128,21 +128,21 @@ function CourseManagementPage() {
           <div className="flex items-center gap-2 overflow-x-auto pb-2 xl:pb-0 no-scrollbar w-full xl:w-auto">
             <button 
                 onClick={() => setStatus('all')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${status === 'all' ? 'bg-[#6699cc] text-white shadow-md shadow-[#6699cc]/20 hover:-translate-y-0.5' : 'bg-white dark:bg-[#1e2126] text-gray-600 dark:text-gray-300 hover:text-[#6699cc] hover:bg-blue-50 dark:hover:bg-white/5 border border-transparent hover:border-blue-100 dark:hover:border-white/10'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${status === 'all' ? 'bg-primary text-white shadow-md shadow-primary/20 hover:-translate-y-0.5' : 'bg-white dark:bg-[#1e2126] text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-blue-50 dark:hover:bg-white/5 border border-transparent hover:border-blue-100 dark:hover:border-white/10'}`}
             >
               <Grid className="w-[18px] h-[18px]" />
               Semua Kelas
             </button>
             <button 
                 onClick={() => setStatus('published')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${status === 'published' ? 'bg-white border-2 border-green-500 text-green-600 shadow-sm' : 'bg-white dark:bg-[#1e2126] text-gray-600 dark:text-gray-300 hover:text-[#6699cc] hover:bg-blue-50 dark:hover:bg-white/5 border border-transparent hover:border-blue-100 dark:hover:border-white/10'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${status === 'published' ? 'bg-white border-2 border-green-500 text-green-600 shadow-sm' : 'bg-white dark:bg-[#1e2126] text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-blue-50 dark:hover:bg-white/5 border border-transparent hover:border-blue-100 dark:hover:border-white/10'}`}
             >
               <CheckCircle className={`w-[18px] h-[18px] ${status === 'published' ? 'text-green-600' : 'text-green-500'}`} />
               Aktif
             </button>
             <button 
                 onClick={() => setStatus('draft')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${status === 'draft' ? 'bg-white border-2 border-amber-500 text-amber-600 shadow-sm' : 'bg-white dark:bg-[#1e2126] text-gray-600 dark:text-gray-300 hover:text-[#6699cc] hover:bg-blue-50 dark:hover:bg-white/5 border border-transparent hover:border-blue-100 dark:hover:border-white/10'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${status === 'draft' ? 'bg-white border-2 border-amber-500 text-amber-600 shadow-sm' : 'bg-white dark:bg-[#1e2126] text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-blue-50 dark:hover:bg-white/5 border border-transparent hover:border-blue-100 dark:hover:border-white/10'}`}
             >
               <FileEdit className={`w-[18px] h-[18px] ${status === 'draft' ? 'text-amber-600' : 'text-amber-500'}`} />
               Draf
@@ -158,7 +158,7 @@ function CourseManagementPage() {
           
           {isLoading ? (
              <div className="col-span-full flex justify-center py-20">
-               <Loader2 className="w-10 h-10 animate-spin text-[#6699cc]" />
+               <Loader2 className="w-10 h-10 animate-spin text-primary" />
              </div>
           ) : (
             courses.map((course) => (
@@ -184,7 +184,7 @@ function CourseManagementPage() {
                 </div>
                 <div className="p-5 flex flex-col flex-1">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg font-bold text-[#121416] dark:text-white leading-tight group-hover:text-[#6699cc] transition-colors">{course.title}</h3>
+                    <h3 className="text-lg font-bold text-[#121416] dark:text-white leading-tight group-hover:text-primary transition-colors">{course.title}</h3>
                   </div>
                   <p className="text-sm text-[#6a7581] dark:text-gray-400 mb-4 line-clamp-2">{course.description}</p>
                   <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2">
@@ -195,7 +195,7 @@ function CourseManagementPage() {
                         <Link 
                             to="/teacher/classes/$classId" 
                             params={{ classId: course.id.toString() }}
-                            className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/10 hover:bg-blue-100 dark:hover:bg-blue-900/20 text-blue-500 transition-colors cursor-pointer" 
+                            className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/10 hover:bg-blue-100 dark:hover:bg-blue-900/20 text-primary-600 transition-colors cursor-pointer" 
                             title="Lihat Detail"
                         >
                             <Eye className="w-4 h-4" />
@@ -224,9 +224,9 @@ function CourseManagementPage() {
 
           {/* New Placeholder Card */}
           {!isLoading && (
-              <Link to="/teacher/classes/create" className="group border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center h-full min-h-[360px] cursor-pointer hover:border-[#6699cc]/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all">
-                <div className="w-16 h-16 rounded-full bg-gray-50 dark:bg-white/5 group-hover:bg-[#6699cc]/10 flex items-center justify-center mb-4 transition-colors">
-                  <Plus className="w-8 h-8 text-gray-400 group-hover:text-[#6699cc] transition-colors" />
+              <Link to="/teacher/classes/create" className="group border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center h-full min-h-[360px] cursor-pointer hover:border-primary/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all">
+                <div className="w-16 h-16 rounded-full bg-gray-50 dark:bg-white/5 group-hover:bg-primary/10 flex items-center justify-center mb-4 transition-colors">
+                  <Plus className="w-8 h-8 text-gray-400 group-hover:text-primary transition-colors" />
                 </div>
                 <p className="text-[#121416] dark:text-white font-bold text-lg">Buat Kelas Baru</p>
                 <p className="text-[#6a7581] dark:text-gray-400 text-sm mt-1">Mulai dari awal atau template</p>

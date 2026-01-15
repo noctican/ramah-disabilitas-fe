@@ -91,9 +91,9 @@ function CreateAssignmentPage() {
         {/* Header */}
         <header className="h-16 border-b border-[#f1f3f4] dark:border-gray-700 bg-white dark:bg-[#22262a] px-4 sm:px-8 flex items-center justify-between sticky top-0 z-10 shrink-0">
             <div className="flex items-center gap-2 text-sm">
-                <Link to="/teacher/classes" className="text-[#677c83] hover:text-[#2e95b8] transition-colors">Kelas</Link>
+                <Link to="/teacher/classes" className="text-[#677c83] hover:text-primary transition-colors">Kelas</Link>
                 <span className="text-[#677c83]">/</span>
-                <Link to="/teacher/classes/$classId" params={{ classId }} className="text-[#677c83] hover:text-[#2e95b8] transition-colors">{classId}</Link>
+                <Link to="/teacher/classes/$classId" params={{ classId }} className="text-[#677c83] hover:text-primary transition-colors">{classId}</Link>
                 <span className="text-[#677c83]">/</span>
                 <span className="font-semibold text-[#121617] dark:text-white">Buat Tugas Baru</span>
             </div>
@@ -110,7 +110,7 @@ function CreateAssignmentPage() {
                 <button 
                     onClick={handleSubmit}
                     disabled={loading}
-                    className="px-6 py-2 text-sm font-bold text-white bg-[#2e95b8] hover:bg-[#2e95b8]/90 rounded-lg shadow-sm transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="px-6 py-2 text-sm font-bold text-white bg-primary hover:bg-primary-600 rounded-lg shadow-sm transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                     Buat Tugas
@@ -132,7 +132,7 @@ function CreateAssignmentPage() {
                             <div className="flex flex-col gap-2">
                                 <label className="text-xs font-bold uppercase tracking-wider text-[#677c83]">Judul Tugas <span className="text-red-500">*</span></label>
                                 <input 
-                                    className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-[#dde2e4] dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#2e95b8]/20 focus:border-[#2e95b8] outline-none transition-all text-lg font-medium" 
+                                    className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-[#dde2e4] dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-lg font-medium" 
                                     placeholder="Contoh: Makalah Penelitian Tengah Semester: Jaringan Saraf Tiruan" 
                                     type="text"
                                     value={formData.title}
@@ -143,13 +143,13 @@ function CreateAssignmentPage() {
                             {/* Instructions Field */}
                             <div className="flex flex-col gap-2">
                                 <label className="text-xs font-bold uppercase tracking-wider text-[#677c83]">Instruksi <span className="text-red-500">*</span></label>
-                                <div className="border border-[#dde2e4] dark:border-gray-600 rounded-xl overflow-hidden focus-within:border-[#2e95b8] transition-all bg-white dark:bg-gray-800">
+                                <div className="border border-[#dde2e4] dark:border-gray-600 rounded-xl overflow-hidden focus-within:border-primary transition-all bg-white dark:bg-gray-800">
                                     <div className="bg-[#F5F8FA] dark:bg-gray-800/50 border-b border-[#dde2e4] dark:border-gray-600 px-4 py-2 flex gap-4">
-                                        <button className="text-gray-500 hover:text-[#2e95b8] p-1"><Bold className="w-4 h-4" /></button>
-                                        <button className="text-gray-500 hover:text-[#2e95b8] p-1"><Italic className="w-4 h-4" /></button>
-                                        <button className="text-gray-500 hover:text-[#2e95b8] p-1"><List className="w-4 h-4" /></button>
-                                        <button className="text-gray-500 hover:text-[#2e95b8] p-1"><LinkIcon className="w-4 h-4" /></button>
-                                        <button className="text-gray-500 hover:text-[#2e95b8] p-1"><ImageIcon className="w-4 h-4" /></button>
+                                        <button className="text-gray-500 hover:text-primary p-1"><Bold className="w-4 h-4" /></button>
+                                        <button className="text-gray-500 hover:text-primary p-1"><Italic className="w-4 h-4" /></button>
+                                        <button className="text-gray-500 hover:text-primary p-1"><List className="w-4 h-4" /></button>
+                                        <button className="text-gray-500 hover:text-primary p-1"><LinkIcon className="w-4 h-4" /></button>
+                                        <button className="text-gray-500 hover:text-primary p-1"><ImageIcon className="w-4 h-4" /></button>
                                     </div>
                                     <textarea 
                                         className="w-full p-4 h-64 bg-white dark:bg-gray-800 border-none focus:ring-0 text-base resize-none outline-none" 
@@ -174,7 +174,7 @@ function CreateAssignmentPage() {
                             <div>
                                 <p className="text-sm font-semibold mb-2">Modul</p>
                                 <select 
-                                    className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-[#dde2e4] dark:border-gray-600 rounded-lg text-sm focus:ring-[#2e95b8] focus:border-[#2e95b8] outline-none"
+                                    className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-[#dde2e4] dark:border-gray-600 rounded-lg text-sm focus:ring-primary focus:border-primary outline-none"
                                     value={formData.moduleId}
                                     onChange={(e) => setFormData({...formData, moduleId: e.target.value})}
                                 >
@@ -189,7 +189,7 @@ function CreateAssignmentPage() {
                                 <p className="text-sm font-semibold mb-2">Total Poin <span className="text-red-500">*</span></p>
                                 <div className="relative">
                                     <input 
-                                        className="w-full bg-white dark:bg-gray-800 border border-[#dde2e4] dark:border-gray-600 rounded-lg text-sm pl-4 pr-10 py-2 focus:ring-[#2e95b8] focus:border-[#2e95b8] outline-none" 
+                                        className="w-full bg-white dark:bg-gray-800 border border-[#dde2e4] dark:border-gray-600 rounded-lg text-sm pl-4 pr-10 py-2 focus:ring-primary focus:border-primary outline-none" 
                                         type="number" 
                                         value={formData.points}
                                         onChange={(e) => setFormData({...formData, points: parseInt(e.target.value) || 0})}
@@ -208,7 +208,7 @@ function CreateAssignmentPage() {
                                 <p className="text-sm font-semibold mb-2">Tanggal Tenggat <span className="text-red-500">*</span></p>
                                 <div className="relative">
                                     <input 
-                                        className="w-full bg-white dark:bg-gray-800 border border-[#dde2e4] dark:border-gray-600 rounded-lg text-sm px-4 py-2 focus:ring-[#2e95b8] focus:border-[#2e95b8] outline-none" 
+                                        className="w-full bg-white dark:bg-gray-800 border border-[#dde2e4] dark:border-gray-600 rounded-lg text-sm px-4 py-2 focus:ring-primary focus:border-primary outline-none" 
                                         type="date"
                                         value={formData.dueDate}
                                         onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
@@ -219,7 +219,7 @@ function CreateAssignmentPage() {
                                 <p className="text-sm font-semibold mb-2">Waktu Tenggat</p>
                                 <div className="relative">
                                     <input 
-                                        className="w-full bg-white dark:bg-gray-800 border border-[#dde2e4] dark:border-gray-600 rounded-lg text-sm px-4 py-2 focus:ring-[#2e95b8] focus:border-[#2e95b8] outline-none" 
+                                        className="w-full bg-white dark:bg-gray-800 border border-[#dde2e4] dark:border-gray-600 rounded-lg text-sm px-4 py-2 focus:ring-primary focus:border-primary outline-none" 
                                         type="time" 
                                         value={formData.dueTime}
                                         onChange={(e) => setFormData({...formData, dueTime: e.target.value})}
@@ -245,8 +245,8 @@ function CreateAssignmentPage() {
                                         className={cn(
                                             "px-3 py-1.5 rounded-full text-xs font-bold border transition-all flex items-center gap-1",
                                             formData.allowFile
-                                                ? "bg-[#2e95b8] text-white border-[#2e95b8]" 
-                                                : "border-[#dde2e4] hover:border-[#2e95b8] hover:text-[#2e95b8]"
+                                                ? "bg-primary text-white border-primary" 
+                                                : "border-[#dde2e4] hover:border-primary hover:text-primary"
                                         )}
                                     >
                                         {formData.allowFile && <Check className="w-3 h-3" />} Unggah File
@@ -256,8 +256,8 @@ function CreateAssignmentPage() {
                                         className={cn(
                                             "px-3 py-1.5 rounded-full text-xs font-bold border transition-all flex items-center gap-1",
                                             formData.allowText 
-                                                ? "bg-[#2e95b8] text-white border-[#2e95b8]" 
-                                                : "border-[#dde2e4] hover:border-[#2e95b8] hover:text-[#2e95b8]"
+                                                ? "bg-primary text-white border-primary" 
+                                                : "border-[#dde2e4] hover:border-primary hover:text-primary"
                                         )}
                                     >
                                         {formData.allowText && <Check className="w-3 h-3" />} Teks Online
@@ -273,11 +273,11 @@ function CreateAssignmentPage() {
                                             onChange={(e) => setFormData({...formData, allowLate: e.target.checked})}
                                             type="checkbox" 
                                             id="toggle" 
-                                            className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-[#dde2e4] checked:right-0 checked:border-[#2e95b8] transition-all"
+                                            className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-[#dde2e4] checked:right-0 checked:border-primary transition-all"
                                         />
                                         <label htmlFor="toggle" className={cn(
                                             "toggle-label block overflow-hidden h-6 rounded-full cursor-pointer transition-colors",
-                                            formData.allowLate ? "bg-[#2e95b8]" : "bg-gray-300"
+                                            formData.allowLate ? "bg-primary" : "bg-gray-300"
                                         )}></label>
                                     </div>
                                 </div>
@@ -289,11 +289,11 @@ function CreateAssignmentPage() {
                     </div>
 
                     {/* Helpful Tips */}
-                    <div className="p-4 bg-[#2e95b8]/5 rounded-xl border border-[#2e95b8]/20">
+                    <div className="p-4 bg-primary/5 rounded-xl border border-primary/20">
                         <div className="flex gap-3">
-                            <AlertCircle className="text-[#2e95b8] w-6 h-6 shrink-0" />
+                            <AlertCircle className="text-primary w-6 h-6 shrink-0" />
                             <div>
-                                <p className="text-xs font-bold text-[#2e95b8] uppercase mb-1">Tips Cepat</p>
+                                <p className="text-xs font-bold text-primary uppercase mb-1">Tips Cepat</p>
                                 <p className="text-xs text-[#677c83] leading-relaxed">Siswa dapat melihat rubrik penilaian Anda segera setelah tugas diterbitkan.</p>
                             </div>
                         </div>

@@ -128,7 +128,7 @@ function CourseDetailPage() {
   if (isLoading) {
       return (
           <div className="flex-1 flex justify-center items-center h-full min-h-[400px]">
-              <Loader2 className="w-10 h-10 animate-spin text-[#661fad]" />
+              <Loader2 className="w-10 h-10 animate-spin text-primary" />
           </div>
       )
   }
@@ -138,7 +138,7 @@ function CourseDetailPage() {
           <div className="flex-1 flex flex-col justify-center items-center h-full min-h-[400px] text-center p-8">
              <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Kelas Tidak Ditemukan</h2>
              <p className="text-zinc-500 mb-6">Kelas yang Anda cari mungkin telah dihapus atau Anda tidak memiliki akses.</p>
-             <Link to="/teacher/classes" className="text-[#661fad] hover:underline font-semibold">Kembali ke Daftar Kelas</Link>
+             <Link to="/teacher/classes" className="text-primary hover:underline font-semibold">Kembali ke Daftar Kelas</Link>
           </div>
       )
   }
@@ -187,7 +187,7 @@ function CourseDetailPage() {
                     <Link 
                         to="/teacher/classes/$classId/edit" 
                         params={{ classId: course.id.toString() }}
-                        className="flex items-center gap-2 bg-[#661fad] hover:bg-[#5a1aa0] text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-[#661fad]/30 whitespace-nowrap"
+                        className="flex items-center gap-2 bg-primary hover:bg-primary-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-primary/30 whitespace-nowrap"
                     >
                         <Edit className="w-5 h-5" />
                         Edit Course
@@ -248,7 +248,7 @@ function CourseDetailPage() {
                                     <button 
                                         onClick={handleSaveCurriculum}
                                         disabled={isSaving}
-                                        className="px-6 py-2.5 bg-[#661fad] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#661fad]/20 hover:bg-[#5a1aa0] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
+                                        className="px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary-600 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
                                     >
                                         {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                                         {isSaving ? 'Menyimpan...' : 'Simpan Perubahan Kurikulum'}
@@ -260,7 +260,7 @@ function CourseDetailPage() {
                         {activeTab === 'assignments' && (
                              <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm p-8 text-center">
                                 <div className="mx-auto w-16 h-16 bg-purple-50 dark:bg-purple-900/20 rounded-full flex items-center justify-center mb-4">
-                                    <ClipboardList className="w-8 h-8 text-[#661fad]" />
+                                    <ClipboardList className="w-8 h-8 text-primary" />
                                 </div>
                                 <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Daftar Tugas</h3>
                                 <p className="text-zinc-500 max-w-md mx-auto mb-8">Kelola tugas untuk siswa Anda. Anda bisa membuat tugas baru, melihat pengumpulan, dan memberikan nilai.</p>
@@ -268,7 +268,7 @@ function CourseDetailPage() {
                                 <Link 
                                     to="/teacher/classes/$classId/assignment/create"
                                     params={{ classId }}
-                                    className="px-6 py-2.5 bg-[#661fad] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#661fad]/20 hover:bg-[#5a1aa0] transition-all flex items-center gap-2 mx-auto inline-flex"
+                                    className="px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary-600 transition-all flex items-center gap-2 mx-auto inline-flex"
                                 >
                                     <Plus className="w-4 h-4" />
                                     Buat Tugas Baru
@@ -292,14 +292,14 @@ function CourseDetailPage() {
                                     ) : (
                                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                         assignments?.map((assignment: any) => (
-                                            <div key={assignment.id} className="group bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 rounded-2xl hover:border-[#661fad] hover:ring-1 hover:ring-[#661fad] transition-all cursor-pointer">
+                                            <div key={assignment.id} className="group bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 rounded-2xl hover:border-primary hover:ring-1 hover:ring-primary transition-all cursor-pointer">
                                                 <div className="flex items-start justify-between">
                                                     <div className="flex gap-4">
-                                                        <div className="w-12 h-12 bg-[#661fad]/10 rounded-xl flex items-center justify-center shrink-0">
-                                                            <FileText className="w-6 h-6 text-[#661fad]" />
+                                                        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                                                            <FileText className="w-6 h-6 text-primary" />
                                                         </div>
                                                         <div>
-                                                            <h4 className="font-bold text-zinc-900 dark:text-white group-hover:text-[#661fad] transition-colors">
+                                                            <h4 className="font-bold text-zinc-900 dark:text-white group-hover:text-primary transition-colors">
                                                                 {assignment.title}
                                                             </h4>
                                                         
@@ -351,7 +351,7 @@ function CourseDetailPage() {
                             <div className="space-y-6">
                                 <div className="flex justify-between items-center">
                                     <h3 className="font-bold text-lg text-zinc-900 dark:text-white">Siswa Terdaftar (128)</h3>
-                                    <button className="text-sm font-semibold text-[#661fad] hover:underline">Export Data</button>
+                                    <button className="text-sm font-semibold text-primary hover:underline">Export Data</button>
                                 </div>
                                 
                                 <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-sm overflow-hidden">
@@ -409,16 +409,16 @@ function CourseDetailPage() {
                                 <div className="relative pt-1">
                                     <div className="flex mb-2 items-center justify-between">
                                         <div>
-                                            <span className="text-xs font-bold inline-block py-1 px-2 uppercase rounded-full text-[#661fad] bg-[#661fad]/10 border border-[#661fad]/20">
+                                            <span className="text-xs font-bold inline-block py-1 px-2 uppercase rounded-full text-primary bg-primary/10 border border-primary/20">
                                                 Content Completion
                                             </span>
                                         </div>
                                         <div className="text-right">
-                                            <span className="text-sm font-bold inline-block text-[#661fad]">{(course.modules?.length || 0 ) * 20}%</span>
+                                            <span className="text-sm font-bold inline-block text-primary">{(course.modules?.length || 0 ) * 20}%</span>
                                         </div>
                                     </div>
                                     <div className="overflow-hidden h-2 mb-4 text-xs flex rounded-full bg-zinc-100 dark:bg-zinc-800">
-                                        <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-[#661fad]" style={{ width: `${(course.modules?.length || 0) * 20}%` }}></div>
+                                        <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary" style={{ width: `${(course.modules?.length || 0) * 20}%` }}></div>
                                     </div>
                                 </div>
                                 <p className="text-xs text-zinc-500 leading-relaxed">Status based on module content population.</p>
@@ -426,7 +426,7 @@ function CourseDetailPage() {
 
                             {/* Enrollment Card */}
                             <div className="bg-[#141217] text-white rounded-2xl shadow-lg p-6 flex flex-col h-auto relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-[#661fad]/20 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none"></div>
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none"></div>
                                 
                                 <div className="flex justify-between items-start mb-6 relative z-10">
                                     <div>
@@ -444,7 +444,7 @@ function CourseDetailPage() {
                                                 <Users className="w-3 h-3 text-zinc-400" />
                                             </div>
                                         ))}
-                                        <div className="size-8 rounded-full border-2 border-[#141217] bg-[#661fad] flex items-center justify-center text-[10px] font-bold">+125</div>
+                                        <div className="size-8 rounded-full border-2 border-[#141217] bg-primary flex items-center justify-center text-[10px] font-bold">+125</div>
                                     </div>
                                     <button className="text-xs font-bold text-[#a586ff] hover:text-white transition-colors flex items-center gap-1">
                                         View All <ChevronRight className="w-3 h-3" />
@@ -498,7 +498,7 @@ function TabButton({ active, onClick, icon, label }: { active: boolean, onClick:
       onClick={onClick}
       className={`pb-4 px-1 font-bold text-sm flex items-center gap-2 transition-all border-b-2 cursor-pointer ${
         active 
-          ? 'border-[#661fad] text-[#661fad]' 
+          ? 'border-primary text-primary' 
           : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
       }`}
     >
@@ -513,7 +513,7 @@ function ActionButton({ icon, isDanger = false }: { icon: React.ReactNode, isDan
     <button className={`p-2 rounded-lg transition-colors cursor-pointer ${
       isDanger 
         ? 'hover:bg-red-50 dark:hover:bg-red-900/20 text-zinc-400 hover:text-red-500' 
-        : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-[#661fad]'
+        : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-primary'
     }`}>
       {icon}
     </button>
@@ -522,17 +522,17 @@ function ActionButton({ icon, isDanger = false }: { icon: React.ReactNode, isDan
 
 function MaterialItem({ icon, bgClass, title, meta }: { icon: React.ReactNode, bgClass: string, title: string, meta: string }) {
   return (
-    <div className="group flex items-center justify-between p-3.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:border-[#661fad]/20 transition-all cursor-pointer">
+    <div className="group flex items-center justify-between p-3.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:border-primary/20 transition-all cursor-pointer">
       <div className="flex items-center gap-4">
         <div className={`size-11 rounded-xl ${bgClass} flex items-center justify-center shrink-0`}>
           {icon}
         </div>
         <div>
-          <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-[#661fad] transition-colors">{title}</p>
+          <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-primary transition-colors">{title}</p>
           <p className="text-[11px] text-zinc-500 font-medium mt-0.5">{meta}</p>
         </div>
       </div>
-      <ChevronRight className="text-zinc-300 group-hover:text-[#661fad] transition-colors opacity-0 group-hover:opacity-100" size={20} />
+      <ChevronRight className="text-zinc-300 group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100" size={20} />
     </div>
   );
 }
@@ -544,7 +544,7 @@ function ActivityItem({ icon, colorClass, text, time }: { icon: React.ReactNode,
         {icon}
       </div>
       <div>
-        <p className="text-sm font-bold text-zinc-900 dark:text-zinc-200 leading-tight hover:text-[#661fad] cursor-pointer transition-colors">{text}</p>
+        <p className="text-sm font-bold text-zinc-900 dark:text-zinc-200 leading-tight hover:text-primary cursor-pointer transition-colors">{text}</p>
         <p className="text-xs text-zinc-400 mt-1 font-medium">{time}</p>
       </div>
     </div>

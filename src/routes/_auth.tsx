@@ -1,36 +1,24 @@
-import { createFileRoute, isRedirect, Outlet, redirect } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect, useNavigate } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 import AuthIllustration from '@/components/illustrations/AuthIllustration'
 import { useAuthStore } from '@/data/store/auth_store'
-import { getToken } from '@/lib/token-handler'
-import { apiClient } from '@/lib/api-client'
-import { AUTH } from '@/data/const/api_path'
-import { ROLE_TEACHER } from '@/data/enums/roles'
+import { ROLE_STUDENT, ROLE_TEACHER } from '@/data/enums/roles'
+import { useEffect } from 'react'
 
 export const Route = createFileRoute('/_auth')({
-  beforeLoad: async () => {
-    const { login, logout } = useAuthStore.getState()
-    const token = getToken()
-
-    if(!token) return
-
-    try {
-      const userData = await apiClient.get(AUTH.ME)
-      login(userData.data.data)
-      throw redirect({
-        to: userData.data.data.role === ROLE_TEACHER ? '/lecturer' : '/classes',
-      })
-    } catch (error) {
-      if(isRedirect(error)) throw error
-      console.error("Session restore failed:", error)
-      logout()
-    }
-  },
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  const { isAuthenticated, role } = useAuthStore()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+      if(isAuthenticated && role === ROLE_TEACHER) navigate({to: '/teacher'})
+      else if(isAuthenticated && role === ROLE_STUDENT) navigate({to: '/classes'})
+      else if(isAuthenticated) navigate({to: '/'})  
+  }, [isAuthenticated])
   return (
     <>
     <div className="relative flex min-h-dvh w-full items-center justify-center bg-white dark:bg-black">

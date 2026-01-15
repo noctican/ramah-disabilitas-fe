@@ -152,7 +152,7 @@ export function CourseCurriculum({ modules, setModules, onDeleteModule, onDelete
             </div>
             Kurikulum
             </h3>
-            <button onClick={toggleAllModules} className="text-sm font-semibold text-[#4f46e5] hover:text-[#4338ca] dark:text-[#6366f1] cursor-pointer">
+            <button onClick={toggleAllModules} className="text-sm font-semibold text-primary hover:text-primary-700 cursor-pointer">
             {isAllExpanded ? 'Tutup Semua' : 'Buka Semua'}
             </button>
         </div>
@@ -258,7 +258,7 @@ export function CourseCurriculum({ modules, setModules, onDeleteModule, onDelete
                     
                     <button 
                         onClick={() => openAddMaterialModal(module.id)}
-                        className="mt-3 ml-2 text-xs font-bold text-[#4f46e5] dark:text-[#6366f1] hover:underline flex items-center gap-1 cursor-pointer"
+                        className="mt-3 ml-2 text-xs font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
                     >
                         <Plus className="w-4 h-4" /> Tambah Pelajaran
                     </button>
@@ -268,7 +268,7 @@ export function CourseCurriculum({ modules, setModules, onDeleteModule, onDelete
             ))}
 
             {/* Add Module Button */}
-            <button onClick={handleAddModule} className="w-full py-3 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-sm font-semibold text-slate-500 hover:text-[#4f46e5] hover:border-[#6366f1] hover:bg-[#eef2ff] dark:hover:bg-[#0f172a]/10 transition-all flex items-center justify-center gap-2 group cursor-pointer">
+            <button onClick={handleAddModule} className="w-full py-3 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-sm font-semibold text-slate-500 hover:text-primary hover:border-[#6366f1] hover:bg-[#eef2ff] dark:hover:bg-[#0f172a]/10 transition-all flex items-center justify-center gap-2 group cursor-pointer">
             <PlusCircle className="group-hover:scale-110 transition-all w-5 h-5" />
             Tambah Modul Baru
             </button>

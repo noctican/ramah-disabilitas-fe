@@ -134,7 +134,7 @@ function CreateCoursePage() {
               {/* Card: Basic Info */}
               <div className="bg-white dark:bg-[#0f172a] rounded-2xl shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] border border-gray-100 dark:border-gray-800 p-6 sm:p-8">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                  <div className="p-1.5 bg-[#e0e7ff] dark:bg-[#1e293b] text-[#4f46e5] rounded-lg">
+                  <div className="p-1.5 bg-[#e0e7ff] dark:bg-[#1e293b] text-primary rounded-lg">
                     <FileEdit className="w-5 h-5" />
                   </div>
                   Detail Kelas
@@ -236,7 +236,7 @@ function CreateCoursePage() {
           <button 
             onClick={() => handleSubmit('published')}
             disabled={isSubmitting}
-            className="inline-flex items-center gap-2 px-8 py-2.5 text-sm font-semibold text-white bg-[#4f46e5] hover:bg-[#4338ca] rounded-xl shadow-lg shadow-[#6366f1]/30 transition-all active:scale-95 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 px-8 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary-600 rounded-xl shadow-lg shadow-[#6366f1]/30 transition-all active:scale-95 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isSubmitting ? <Loader2 className="w-[18px] h-[18px] animate-spin" /> : <Rocket className="w-[18px] h-[18px]" />}
             {isSubmitting ? 'Menerbitkan...' : 'Terbitkan Kelas'}

@@ -6,6 +6,10 @@ import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { Toaster } from 'sonner'
 import { DisabilityCheckModal } from './-components/DisabilityCheckModal'
+import { getToken } from '@/lib/token-handler'
+import { apiClient } from '@/lib/api-client'
+import { AUTH } from '@/data/const/api_path'
+import { LoadingPage } from '@/components/custom/LoadingPage'
 
 
 export const Route = createRootRoute({
@@ -13,7 +17,7 @@ export const Route = createRootRoute({
     useVoiceAssistant()
     const [isFirst, setIsFirst] = useState(true)
     const { setIsActive, isActive, lastTranscript, speak } = useVoiceStore()
-    const { disability } = useAuthStore()
+    const { disability, firstRender, isAuthenticated, login, logout, setFirstRender } = useAuthStore()
 
     const [isOpenDisabilityModal, setIsOpenDisabilityModal] = useState(false)
 
@@ -23,12 +27,36 @@ export const Route = createRootRoute({
     }
   
     useEffect(() => {
-      console.log(disability)
       if(disability?.some(d => d == HEARING_DISABILITY) && !isActive && isFirst) {
         setIsFirst(false)
         speak('silahkan ketuk layar terlebih dahulu untuk memu')
       }
     }, [disability, isActive, isFirst])
+
+    useEffect(() => {
+      const getCurrentUser = async () => {
+        const token = getToken()
+        
+        if (!isAuthenticated) {
+          if (token) {
+            try {
+              const userData = await apiClient.get(AUTH.ME)
+              login(userData.data)
+              return 
+            } catch (error) {
+              console.error("Session timeout", error)
+            }
+          }
+          
+          logout()
+        }
+
+        setFirstRender(false)
+      }
+      if(firstRender) getCurrentUser()
+    }, [firstRender, isAuthenticated])
+
+    if(firstRender) return <LoadingPage />
     return (
       <>
         <DisabilityCheckModal isOpen={isOpenDisabilityModal} setIsOpen={setIsOpenDisabilityModal} />

@@ -1,39 +1,22 @@
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { AUTH } from '@/data/const/api_path'
+import { ROLE_STUDENT } from '@/data/enums/roles'
 import { useAuthStore } from '@/data/store/auth_store'
 import { SiteHeader } from '@/layout/DashHeader'
 import { AppSidebar } from '@/layout/DashSidebar'
-import { apiClient } from '@/lib/api-client'
-import { getToken } from '@/lib/token-handler'
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect, useNavigate } from '@tanstack/react-router'
+import { useEffect } from 'react'
 
 export const Route = createFileRoute('/_dashboard')({
-    beforeLoad: async () => {
-        const { isAuthenticated, login, logout } = useAuthStore.getState()
-        const token = getToken()
-        
-        if (!isAuthenticated) {
-            if (token) {
-                try {
-                    const userData = await apiClient.get(AUTH.ME)
-                    login(userData.data)
-                    return 
-                } catch (error) {
-                    console.error("Session timeout", error)
-                }
-            }
-
-            logout()
-            
-            throw redirect({
-                to: '/login'
-            })
-        }
-    },
     component: RouteComponent,
 })
 
 function RouteComponent() {
+    const { isAuthenticated, role } = useAuthStore()
+    const navigate = useNavigate()
+    useEffect(() => {
+        if(!isAuthenticated) navigate({to: '/login'})
+        else if(isAuthenticated && role === ROLE_STUDENT) navigate({to: '/classes'})
+    }, [isAuthenticated])
     return (
         <SidebarProvider
             style={

@@ -105,8 +105,8 @@ function RouteComponent() {
                             <SelectValue placeholder="Pilih role" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value={ROLE_STUDENT}>Mahasiswa</SelectItem>
-                            <SelectItem value={ROLE_TEACHER}>Dosen</SelectItem>
+                            <SelectItem value={ROLE_STUDENT}>Pelajar</SelectItem>
+                            <SelectItem value={ROLE_TEACHER}>Pengajar</SelectItem>
                         </SelectContent>
                     </Select>
                     <FormMessage />
