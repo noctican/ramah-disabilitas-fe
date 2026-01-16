@@ -201,11 +201,11 @@ function ClassLessonView() {
           <div className="flex items-center gap-3">
             <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer">
               <Bookmark className="w-5 h-5" />
-              Save
+              Simpan
             </button>
             <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer">
               <Share2 className="w-5 h-5" />
-              Share
+              Bagikan
             </button>
           </div>
         </header>
@@ -227,7 +227,7 @@ function ClassLessonView() {
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-white">
-                      Video Source Unavailable
+                      Sumber Video Tidak Tersedia
                     </div>
                   )}
                 </div>
@@ -295,7 +295,7 @@ function ClassLessonView() {
                         <span className="material-symbols-outlined text-[18px]">
                           schedule
                         </span>
-                        <span>{material.duration_min} min</span>
+                        <span>{material.duration_min} menit</span>
                       </div>
                     )}
                   </div>
@@ -314,11 +314,10 @@ function ClassLessonView() {
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1">
-                    Instructor's Note
+                    Catatan Instruktur
                   </h3>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
-                    Pay special attention to the `grid-template-areas` section
-                    at 08:30. It's a game-changer for responsive design!
+                    Perhatikan baik-baik bagian `grid-template-areas` pada menit 08:30. Ini sangat penting untuk desain responsif!
                   </p>
                 </div>
               </div>
@@ -351,10 +350,10 @@ function ClassLessonView() {
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-slate-900 dark:text-white leading-tight">
-                    Learning Assistant
+                    Asisten Belajar
                   </h2>
                   <p className="text-xs text-[#8B5CF6] font-medium">
-                    Powered by EduAI
+                    Ditenagai oleh EduAI
                   </p>
                 </div>
               </div>
@@ -390,7 +389,7 @@ function ClassLessonView() {
                                         : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50"
                                     }`}
               >
-                AI Chat
+                Chat AI
               </button>
               <button
                 onClick={() => setActiveTab("flashcards")}
@@ -401,7 +400,7 @@ function ClassLessonView() {
                                         : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50"
                                     }`}
               >
-                Flashcards
+                Flashcard
               </button>
               <button
                 onClick={() => setActiveTab("quiz")}
@@ -412,7 +411,7 @@ function ClassLessonView() {
                                         : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50"
                                     }`}
               >
-                Quiz
+                Kuis
               </button>
               <button
                 onClick={() => setActiveTab("summary")}
@@ -423,7 +422,7 @@ function ClassLessonView() {
                                         : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50"
                                     }`}
               >
-                Summary
+                Ringkasan
               </button>
             </div>
             <div className="flex-1 flex flex-col overflow-hidden bg-slate-50/30 dark:bg-black/20">
@@ -481,7 +480,7 @@ function SummaryView({ material }: { material?: MaterialDetailType }) {
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <FileText className="w-5 h-5 text-[#8B5CF6]" />
-            Topic Summary
+            Ringkasan Topik
           </h3>
         </div>
 
@@ -508,12 +507,12 @@ function SummaryView({ material }: { material?: MaterialDetailType }) {
               {isGenerating ? (
                 <>
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                  Generating...
+                  Membuat...
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  Generate Summary
+                  Buat Ringkasan
                 </>
               )}
             </button>
@@ -540,7 +539,7 @@ function SummaryView({ material }: { material?: MaterialDetailType }) {
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                Simpan Summary
+                Simpan Ringkasan
               </>
             )}
           </button>
@@ -812,7 +811,7 @@ function FlashcardsView({ material }: { material?: MaterialDetailType }) {
             <div className="flex items-center justify-between mb-4 flex-shrink-0">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <BrainCircuit className="w-5 h-5 text-[#8B5CF6]" />
-                    Review Concepts
+                    Review Konsep
                 </h3>
                 <span className="text-xs font-medium text-slate-400">
                     {currentCard + 1} / {cards.length}
@@ -832,7 +831,7 @@ function FlashcardsView({ material }: { material?: MaterialDetailType }) {
                         <h4 className="text-base font-bold text-slate-900 dark:text-white line-clamp-6">
                             {cards[currentCard]?.front}
                         </h4>
-                        <p className="text-[10px] text-slate-400 mt-auto pt-4">Tap to flip</p>
+                        <p className="text-[10px] text-slate-400 mt-auto pt-4">Ketuk untuk balik</p>
                     </div>
 
                     {/* Back */}
@@ -862,7 +861,7 @@ function FlashcardsView({ material }: { material?: MaterialDetailType }) {
                         className="w-full py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2 text-sm cursor-pointer"
                     >
                         <RotateCw className="w-4 h-4" />
-                        Flip Card
+                        Balik Kartu
                     </button>
                 </div>
                 <button 
@@ -971,7 +970,7 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
                     {isLoading ? (
                         <>
                              <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                             Generating Quiz...
+                             Membuat Kuis...
                         </>
                     ) : (
                         <>
@@ -1040,7 +1039,7 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <CheckCircle className="w-5 h-5 text-[#8B5CF6]" />
-                    Safe-Check Quiz
+                    Kuis Pemahaman
                 </h3>
                 <span className="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-zinc-800 px-2 py-1 rounded-md">
                     {currentIndex + 1} / {questions.length}
@@ -1050,7 +1049,7 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
             <div className="flex-1 overflow-y-auto space-y-6">
                 <div className="space-y-3">
                     <span className="text-xs font-bold text-[#8B5CF6] uppercase tracking-wider">
-                        Question {currentIndex + 1}
+                        Pertanyaan {currentIndex + 1}
                     </span>
                     <h4 className="text-base font-bold text-slate-900 dark:text-white leading-snug">
                         {currentQuestion.question_text}
@@ -1100,7 +1099,7 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
                 
                 {showResult && (
                     <div className="p-4 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded-xl text-sm leading-relaxed border border-blue-100 dark:border-blue-900/30 animate-in fade-in slide-in-from-top-2">
-                        <strong>Explanation:</strong> {currentQuestion.explanation}
+                        <strong>Penjelasan:</strong> {currentQuestion.explanation}
                     </div>
                 )}
             </div>
@@ -1112,14 +1111,14 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
                         disabled={!selectedAnswer}
                         className="w-full py-3 bg-[#8B5CF6] hover:bg-[#7c4dff] text-white font-bold rounded-xl shadow-[0_0_20px_rgba(139,92,246,0.25)] transition-all transform active:scale-95 cursor-pointer disabled:opacity-50 disabled:shadow-none disabled:active:scale-100"
                     >
-                        Check Answer
+                        Periksa Jawaban
                     </button>
                 ) : (
                     <button 
                         onClick={handleNext}
                         className="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl shadow-lg transition-all transform active:scale-95 cursor-pointer"
                     >
-                        {currentIndex < questions.length - 1 ? 'Next Question' : 'Finish Quiz'}
+                        {currentIndex < questions.length - 1 ? 'Pertanyaan Selanjutnya' : 'Selesaikan Kuis'}
                     </button>
                 )}
             </div>
