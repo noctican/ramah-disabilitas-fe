@@ -2,7 +2,7 @@ import { getToken, removeToken, setToken } from "@/lib/token-handler";
 import { type RoleType } from "../types/role_types";
 import { create } from "zustand";
 import type { DisabilityType } from "../types/disability_types";
-import { ALL_DISABILITY, HEARING_DISABILITY, SLOW_LEARNER } from "../const/disability";
+import { ALL_DISABILITY } from "../const/disability";
 
 type AuthState = {
     firstRender: boolean;
@@ -32,7 +32,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         if (isValidate) set({ isAuthenticated: true, role: data.data.role, user: data.data, disability: formatDisability(data.data.accessibility) })
         else set({ isAuthenticated: true, role: data.user.role, user: data.user, disability: formatDisability(data.user.accessibility) })
         setToken(isValidate ? getToken() : data.token)
-        set({ disability: [SLOW_LEARNER] })
     },
     logout: () => {
         set({ isAuthenticated: false, role: null, user: null, disability: null })

@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { COURSE } from "@/data/const/api_path";
-import { HEARING_DISABILITY } from "@/data/const/disability";
+import { BLIND_DISABILITY } from "@/data/const/disability";
 import { useAuthStore } from "@/data/store/auth_store";
 import { useVoiceStore } from "@/data/store/voice_store";
 import { joinClassSchema, type JoinClassType } from "@/data/validations/classes_schema";
@@ -47,7 +47,7 @@ export const JoinClassDialog = ({ isOpen, setIsOpen }: Props) => {
 
     const dynamicCommands = useMemo(() => {
         const cmds: CommandInput[] = []
-        if(disability?.some(v => v == HEARING_DISABILITY) && isOpen) {
+        if(disability?.some(v => v == BLIND_DISABILITY) && isOpen) {
             cmds.push({
                 pattern: /^daftar masukan$/i,
                 description: "Daftar masukan... adalah untuk membacakan seluruh kolom yang bisa diisi",
@@ -74,7 +74,7 @@ export const JoinClassDialog = ({ isOpen, setIsOpen }: Props) => {
     useRegisterCommands(dynamicCommands)
 
     useEffect(() => {
-        if(isOpen && disability?.some(v => v == HEARING_DISABILITY)) speak('Form telah terbuka, anda dapat mengisi kolom "' + Object.keys(fieldMapping).join('", "') + '" dengan menggunakan perintah "isi kolom nama kolom dengan nilai"')
+        if(isOpen && disability?.some(v => v == BLIND_DISABILITY)) speak('Form telah terbuka, anda dapat mengisi kolom "' + Object.keys(fieldMapping).join('", "') + '" dengan menggunakan perintah "isi kolom nama kolom dengan nilai"')
     }, [isOpen])
 
     return (
