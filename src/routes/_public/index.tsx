@@ -11,7 +11,7 @@ function Dashboard() {
     <div className="min-h-screen bg-[#f6f6f8] dark:bg-[#14141e] font-sans text-[#303338] dark:text-gray-200">
       <PublicHeaderGap />
       
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="container mx-auto max-w-6xl px-4 space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <div>
                 <h1 className="text-3xl font-extrabold text-[#131316] dark:text-white mb-1">Halo,  👋</h1>
