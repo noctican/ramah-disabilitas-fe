@@ -9,24 +9,6 @@ export const Route = createFileRoute('/_public/')({
 
 function LandingPage() {
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen bg-[#f6f6f8] dark:bg-[#14141e] font-sans text-[#303338] dark:text-gray-200">
-      <PublicHeaderGap />
-      
-      <main className="container mx-auto max-w-6xl px-4 space-y-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-            <div>
-                <h1 className="text-3xl font-extrabold text-[#131316] dark:text-white mb-1">Halo,  👋</h1>
-                <p className="text-gray-500 dark:text-gray-400">Selamat datang kembali! Berikut aktifitas belajarmu hari ini.</p>
-            </div>
-            <div className="flex gap-3">
-                <Link to="/classes" className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1c1c27] border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-bold shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] hover:bg-gray-50 dark:hover:bg-gray-800 transition-all cursor-pointer">
-                    <Plus className="w-5 h-5" />
-                    Gabung Kelas
-                </Link>
-                <Link to="/assignments" className="px-6 py-2 bg-[#9696d9] text-white rounded-lg text-sm font-bold shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] hover:opacity-90 transition-all cursor-pointer flex items-center">
-                    Lihat Semua Tugas
-=======
     <div className="flex flex-col min-h-[calc(100vh-4rem)]">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-primary-50 py-20 lg:py-32">
@@ -49,7 +31,6 @@ function LandingPage() {
                   <Button size="lg" className="w-full sm:w-auto text-lg px-8 py-6 rounded-full shadow-lg shadow-primary-500/20 transition-all hover:scale-105 active:scale-95">
                     Mulai Sekarang <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
->>>>>>> ca34d292ccf32835828eddea91ca8a47a665f94b
                 </Link>
                 <a href="#features">
                   <Button variant="outline" size="lg" className="w-full sm:w-auto text-lg px-8 py-6 rounded-full bg-white/50 backdrop-blur-sm border-primary-200 text-primary-700 hover:bg-white hover:text-primary-800">
