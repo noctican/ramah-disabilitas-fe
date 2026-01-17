@@ -10,8 +10,9 @@ import { apiClient } from "@/lib/api-client";
 import { toaster } from "@/lib/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Upload, X } from "lucide-react";
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
+import { useRegisterCommands } from "@/hooks/use-register-command";
 
 type Props = {
     isOpen: boolean;
@@ -33,6 +34,7 @@ export const SubmitAssignmentDialog = ({ isOpen, setIsOpen, assignmentId, allowT
 
     const [file, setFile] = useState<File | null>(null)
     const [isUploading, setIsUploading] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     const form = useForm<AssignmentSubmissionType>({
         resolver: zodResolver(assignmentSubmissionSchema),
@@ -55,14 +57,10 @@ export const SubmitAssignmentDialog = ({ isOpen, setIsOpen, assignmentId, allowT
                 const formData = new FormData()
                 formData.append('file', file)
                 
-                // Upload to media endpoint
                 const res = await apiClient.post(MEDIA.UPLOAD, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 })
                 
-                // Assuming standard response wrapper { data: { url: ... } } or similar
-                // Based on common patterns in this project (response.data is returned by fetcher)
-                // Let's assume safely checking properties
                 fileUrl = res.data?.data?.url || res.data?.url || res.data?.file_url
                 
                 if (!fileUrl) {
@@ -91,6 +89,34 @@ export const SubmitAssignmentDialog = ({ isOpen, setIsOpen, assignmentId, allowT
             form.clearErrors("root")
         }
     }
+
+    useRegisterCommands([
+        {
+            pattern: /^batal$/i,
+            description: "batal adalah untuk menutup form mengirimkan jawaban anda",
+            action: () => {
+                setIsOpen(false)
+            }
+        }, {
+            pattern: /^pilih file$/i,
+            description: "pilih file adalah untuk memilih file yang akan diunggah",
+            action: () => {
+                fileInputRef.current?.click()
+            }
+        }, {
+            pattern: /^isi teks dengan +(.+)$/i,
+            description: "isi teks dengan adalah untuk mengisi teks jawaban anda",
+            action: ([match]) => {
+                form.setValue("text_answer", match)
+            }
+        },{
+            pattern: /^kirim$/i,
+            description: "kirim adalah untuk mengirimkan jawaban anda",
+            action: () => {
+                form.handleSubmit(onSubmit)()
+            }
+        }
+    ])
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -133,6 +159,7 @@ export const SubmitAssignmentDialog = ({ isOpen, setIsOpen, assignmentId, allowT
                                         type="file" 
                                         className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
                                         onChange={handleFileChange}
+                                        ref={fileInputRef}
                                     />
                                     
                                     {file ? (
@@ -173,7 +200,7 @@ export const SubmitAssignmentDialog = ({ isOpen, setIsOpen, assignmentId, allowT
                             <Button type="button" variant="ghost" onClick={() => setIsOpen(false)} disabled={isUploading || isMutating}>
                                 Batal
                             </Button>
-                            <Button type="submit" className="bg-primary hover:bg-primary-600 text-white min-w-[120px]" disabled={isUploading || isMutating}>
+                            <Button type="submit" className="bg-primary hover:bg-primary-600 text-white min-w-[120px]" disabled={isUploading || isMutating || !form.formState.isValid}>
                                 {isUploading ? (
                                     <>
                                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />

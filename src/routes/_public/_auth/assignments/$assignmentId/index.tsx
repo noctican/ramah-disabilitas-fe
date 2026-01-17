@@ -18,6 +18,7 @@ import type { AssignmentType } from '@/data/types/assignment_type'
 import PublicHeaderGap from '@/layout/PublicHeaderGap'
 import { useRegisterCommands } from '@/hooks/use-register-command'
 import { useVoiceStore } from '@/data/store/voice_store'
+import dayjs from 'dayjs'
 
 export const Route = createFileRoute('/_public/_auth/assignments/$assignmentId/')({
   component: RouteComponent,
@@ -42,7 +43,14 @@ function RouteComponent() {
             const cleanType = type.toLowerCase().trim()
             if (cleanType === 'judul') speak(assignment?.title || '')
             if (cleanType === 'instruksi') speak(assignment?.instruction || '')
-            if (cleanType === 'tenggat') speak(assignment?.deadline || '')
+            if (cleanType === 'tenggat') speak(dayjs(assignment?.deadline).format('DD MMMM YYYY, HH:mm') || '')
+            if(cleanType === 'jenis pengumpulan') speak(`diizinkan untuk menjawab dengan ${assignment?.allow_file ? 'file' : ''}, ${assignment?.allow_text ? 'teks' : ''}`)
+        }
+    }, {
+        pattern: /^jawab$/i,
+        description: "jawab adalah membuka form untuk mengirimkan jawaban anda",
+        action: () => {
+            setIsSubmitOpen(true)
         }
     }
   ])

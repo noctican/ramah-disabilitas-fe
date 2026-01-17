@@ -57,6 +57,7 @@ export const useVoiceAssistant = () => {
 
   // 2. EFFECT UTAMA: Pengendali Mic (The Brain)
   useEffect(() => {
+    console.log('zzz')
     const recognition = recognitionRef.current;
     if (!recognition) return;
 

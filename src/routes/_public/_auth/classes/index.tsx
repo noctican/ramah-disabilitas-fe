@@ -82,8 +82,8 @@ function RouteComponent() {
       }
     },
     {
-      pattern: /^masuk kelas\s+(.+)$/i,
-      description: "masuk kelas... adalah untuk masuk ke kelas yang sudah ada. perintah diikuti oleh nama kelas",
+      pattern: /^buka kelas\s+(.+)$/i,
+      description: "buka kelas... adalah untuk masuk ke kelas yang sudah ada. perintah diikuti oleh nama kelas",
       action: ([target]) => {
         const className = target.toLowerCase().trim()
         const classData = data?.data?.find(c => c.title.toLowerCase() === className)

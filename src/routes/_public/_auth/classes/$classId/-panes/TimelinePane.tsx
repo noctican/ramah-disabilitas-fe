@@ -6,8 +6,9 @@ import {
   Lock
 } from 'lucide-react'
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
-import { useRegisterCommands } from '@/hooks/use-register-command'
+import { useRegisterCommands, type CommandInput } from '@/hooks/use-register-command'
 import { useVoiceStore } from '@/data/store/voice_store'
+import { useMemo } from 'react'
 
 type Props = {
   data?: StudentCourseDetail
@@ -18,10 +19,82 @@ export const TimelinePane = ({ data }: Props) => {
   const { speak } = useVoiceStore()
   const navigate = useNavigate()
 
+  const cmds = useMemo<CommandInput[]>(() => {
+    return [{
+      pattern: /daftar modul/i,
+      description: "daftar modul... adalah untuk membacakan daftar modul atau bab yang ada pada kelas ini",
+      action: () => {
+        console.log({data})
+        const modules = data?.modules
+        const text_to_speech = modules?.map((m, i) => `${i + 1}. ${m.title}`).join('. ')
+        speak(text_to_speech || 'Tidak ada modul')
+      }
+    }, {
+      pattern: /daftar semua materi/i,
+      description: "daftar semua materi... adalah untuk membacakan daftar materi yang ada pada kelas ini.",
+      action: () => {
+        const materials = data?.modules?.map((m) => m.materials).flat()
+        const text_to_speech = materials?.map((m, i) => `${i + 1}. ${m.title}`).join('. ')
+        speak(text_to_speech || 'Tidak ada materi')
+      }
+    }, {
+      pattern: /daftar materi/i,
+      description: "daftar materi... adalah untuk membacakan daftar materi yang ada pada kelas ini. perintah ini harus diikuti oleh nama modul.",
+      action: ([module]) => {
+        const mod = data?.modules?.find((m) => m.title.toLocaleLowerCase() === module.toLocaleLowerCase())
+        const materials = mod?.materials
+        const text_to_speech = materials?.map((m, i) => `${i + 1}. ${m.title}`).join('. ')
+        speak(text_to_speech || 'Tidak ada materi')
+      }
+    }, {
+      pattern: /buka materi\s+(.+)/i,
+      description: "buka materi... adalah untuk membuka materi yang ada pada kelas ini. perintah ini harus diikuti oleh nama materi.",
+      action: ([args]) => {
+        if (!args || !data?.modules) {
+            speak('Data materi belum siap');
+            return;
+        }
+
+          const keyword = args.toLowerCase().trim();
+          console.log("Mencari keyword:", keyword);
+
+          let foundMaterial = null;
+          let foundModule = null;
+
+          for (const mod of data.modules) {
+              if (!mod.materials) continue;
+
+              const mat = mod.materials.find(m => {
+                  const title = m.title.toLowerCase();
+                  return title.includes(keyword) || keyword.includes(title); 
+              });
+
+              if (mat) {
+                  foundMaterial = mat;
+                  foundModule = mod;
+                  break;
+              }
+          }
+
+          if (!foundMaterial) {
+              console.log(`Gagal menemukan: ${keyword} dalam`, data.modules);
+              speak(`Materi ${args} tidak ditemukan`);
+              return;
+          }
+
+          speak(`Membuka ${foundMaterial.title}`);
+          navigate({ to: `/learn/${classId}?materialId=${foundMaterial.id}` });
+      }
+    }]
+  }, [data])
+
+  useRegisterCommands(cmds)
+
   useRegisterCommands([{
     pattern: /daftar modul/i,
-    description: "daftar modul... adalah untuk membacakan daftar modul/bab yang ada pada kelas ini",
+    description: "daftar modul... adalah untuk membacakan daftar modul atau bab yang ada pada kelas ini",
     action: () => {
+      console.log({data})
       const modules = data?.modules
       const text_to_speech = modules?.map((m, i) => `${i + 1}. ${m.title}`).join('. ')
       speak(text_to_speech || 'Tidak ada modul')
@@ -47,9 +120,14 @@ export const TimelinePane = ({ data }: Props) => {
     pattern: /buka materi\s(.+)/i,
     description: "buka materi... adalah untuk membuka materi yang ada pada kelas ini. perintah ini harus diikuti oleh nama materi.",
     action: ([material]) => {
-      const mod = data?.modules?.flat()
-      const mat = mod?.find((m) => m.title === material)
-      navigate({ to: `/class/${classId}/${mat?.id}` })
+      const mod = data?.modules?.find((m) => m.materials?.some((m) => m.title === material))
+      const mat = mod?.materials?.find(m => m.title === material)
+      console.log({mod, mat, material, modules: data?.modules})
+      if (!mat) {
+        speak('Materi tidak ditemukan')
+        return
+      }
+      navigate({ to: `/lean/${classId}?materialId=${mat?.id}` })
     }
   }])
 

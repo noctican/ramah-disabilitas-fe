@@ -26,7 +26,7 @@ export const AssignmentsPane = () => {
 
   useRegisterCommands([
     {
-      pattern: /^daftar\s+tugas\s+(.+)$/i,
+      pattern: /^daftar tugas\s+(.+)$/i,
       description: "daftar tugas... adalah untuk membacakan daftar tugas",
       action: ([type]) => {
         const jenis = type.toLowerCase().trim()

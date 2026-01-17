@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useMemo, useState } from 'react'
 import { Plus, Filter, SortAsc, Search } from 'lucide-react'
 import { useQueryData } from '@/hooks/api/use-global-fetch'
 import { ASSIGNMENT } from '@/data/const/api_path'
@@ -7,6 +7,8 @@ import type { ApiResponseType } from '@/data/types/api_response_types'
 import type { AssignmentType } from '@/data/types/assignment_type'
 import { TaskCard } from '../classes/-component/TaskCard'
 import PublicHeaderGap from '@/layout/PublicHeaderGap'
+import { useRegisterCommands, type CommandInput } from '@/hooks/use-register-command'
+import { useVoiceStore } from '@/data/store/voice_store'
 
 export const Route = createFileRoute('/_public/_auth/assignments/')({
   component: RouteComponent,
@@ -15,6 +17,8 @@ export const Route = createFileRoute('/_public/_auth/assignments/')({
 function RouteComponent() {
   const [filter, setFilter] = useState<'upcoming' | 'overdue' | ''>('')
   const [search, setSearch] = useState('')
+  const speak = useVoiceStore(s => s.speak)
+  const navigate = useNavigate()
 
   const { data: assignmentsData, isLoading } = useQueryData<ApiResponseType<'multiple', AssignmentType>>(
     ASSIGNMENT.MY_ASSIGNMENTS, 
@@ -25,6 +29,37 @@ function RouteComponent() {
     assignment.title.toLowerCase().includes(search.toLowerCase()) ||
     assignment.course_id.toString().includes(search.toLowerCase())
   )
+
+  const cmds = useMemo<CommandInput[]>(() => {
+    return [
+    {
+      pattern: /^daftar tugas/i,
+      description: "daftar tugas adalah untuk membacakan daftar tugas",
+      action: () => {
+        let text_to_speech = `Anda memiliki ${filteredAssignments?.length} tugas.`
+        if(filteredAssignments?.length == 0) text_to_speech += ' Tidak ada tugas yang ditemukan'
+        else {
+            text_to_speech += ' Yaitu: '
+            text_to_speech += filteredAssignments?.map((c, i) => `Tugas ke-${i+1}: ${c.title}`).join('. ')
+        }
+
+        speak(text_to_speech)
+      }
+    },
+    {
+      pattern: /^tugas\s+(.+)$/i,
+      description: "tugas... adalah untuk menampilkan detail tugas. sertakan nama tugas setelah kata tugas.",
+      action: ([target]) => {
+        const targetTask = target.toLowerCase().trim()
+        const assignment = filteredAssignments?.find(a => a.title.toLowerCase() == targetTask)
+        if(assignment) navigate({ to: `/assignments/$assignmentId`, params: { assignmentId: assignment.id.toString() } })
+        else speak(`tugas ${targetTask} tidak ditemukan`)
+      }
+    }
+  ]
+  }, [filteredAssignments])
+
+  useRegisterCommands(cmds)
 
   return (
     <>

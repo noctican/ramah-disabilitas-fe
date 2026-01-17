@@ -1,3 +1,4 @@
+import { useVoiceStore } from "@/data/store/voice_store"
 import type { ObjectType } from "@/data/types/object_types"
 import { fetcher } from "@/lib/api-client"
 import { toaster } from "@/lib/toast"
@@ -33,7 +34,10 @@ export const useMutationAction = (
     {
         onError: (err) => {
             const msg = err?.response?.data?.error || err?.response?.data?.message || 'Terjadi kesalahan'
+            const { speak } = useVoiceStore.getState()
+            speak(msg)
             toaster(msg, 'error')
+
         },
         onSuccess: (data: any) => {
             toaster(data?.message || 'Berhasil', 'success')

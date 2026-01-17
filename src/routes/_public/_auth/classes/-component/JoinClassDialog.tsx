@@ -67,6 +67,16 @@ export const JoinClassDialog = ({ isOpen, setIsOpen }: Props) => {
                     }
                 }
             })
+            cmds.push({
+                pattern: /^batal$/i,
+                description: "Batal... adalah untuk menutup form",
+                action: () => setIsOpen(false)
+            })
+            cmds.push({
+                pattern: /^kirim$/i,
+                description: "Kirim... adalah untuk mengirim form",
+                action: () => form.handleSubmit(onSubmit)()
+            })
         }
         return cmds
     }, [disability, isOpen])

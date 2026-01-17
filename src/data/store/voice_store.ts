@@ -76,9 +76,8 @@ export const useVoiceStore = create<VoiceState>((set, get) => ({
     console.log("Mendengar:", cleanText);
 
     if (cleanText === 'bantuan') {
-      get().speak("Perintah tersedia...");
       const cmds = get().commands
-      const desc = cmds.map((c, i) => `${i + 1}. ${c.description}`).join('. ')
+      const desc = "Perintah tersedia..." + cmds.map((c, i) => `${i + 1}. ${c.description}`).join('. ')
       get().speak(desc)
       console.log(cmds)
       return;
@@ -96,6 +95,7 @@ export const useVoiceStore = create<VoiceState>((set, get) => ({
 
   speak: (text: string) => {
     if (!window.speechSynthesis) return;
+    if (get().isSystemSpeaking) return;
 
     // Hentikan suara sebelumnya
     window.speechSynthesis.cancel();

@@ -36,7 +36,15 @@ export default function PublicHeader() {
 
   const dynamicCommands = useMemo(() => {
     const cmds = []
-
+    
+    cmds.push({
+      pattern: /^buka beranda$/i,
+      description: "buka beranda... adalah untuk membuka halaman beranda.",
+      action: () => {
+        speak("Membuka halaman beranda");
+        navigate({ to: '/' });
+      }
+    })
     if(!isAuthenticated) cmds.push({
       pattern: /^buka login$/i,
       description: "buka login... adalah untuk membuka halaman login.",
@@ -50,7 +58,7 @@ export default function PublicHeader() {
         pattern: /^buka kelas$/i,
         description: "buka kelas... adalah untuk membuka halaman kelas.",
         action: () => {
-          speak("Membuka halaman kelas Anda");
+          speak("Membuka halaman kelas");
           navigate({ to: '/classes' });
         }
       })
@@ -58,7 +66,7 @@ export default function PublicHeader() {
         pattern: /^buka tugas$/i,
         description: "buka tugas... adalah untuk membuka halaman tugas.",
         action: () => {
-          speak("Membuka halaman tugas Anda");
+          speak("Membuka halaman tugas");
           navigate({ to: '/assignments' });
         }
       })

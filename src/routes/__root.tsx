@@ -2,7 +2,7 @@ import { BLIND_DISABILITY } from '@/data/const/disability'
 import { useAuthStore } from '@/data/store/auth_store'
 import { useVoiceStore } from '@/data/store/voice_store'
 import { useVoiceAssistant } from '@/hooks/use-voice-assistant'
-import { Outlet, createRootRoute } from '@tanstack/react-router'
+import { Outlet, createRootRoute, useRouter } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { Toaster } from 'sonner'
 import { DisabilityCheckModal } from './-components/DisabilityCheckModal'
@@ -10,22 +10,34 @@ import { getToken } from '@/lib/token-handler'
 import { apiClient } from '@/lib/api-client'
 import { AUTH } from '@/data/const/api_path'
 import { LoadingPage } from '@/components/custom/LoadingPage'
+import { useRegisterCommands } from '@/hooks/use-register-command'
 
 
 export const Route = createRootRoute({
   component: () => {
-    useVoiceAssistant()
     const [isFirst, setIsFirst] = useState(true)
     const { setIsActive, isActive, lastTranscript, speak } = useVoiceStore()
     const { disability, firstRender, isAuthenticated, login, logout, setFirstRender } = useAuthStore()
-
+    
     const [isOpenDisabilityModal, setIsOpenDisabilityModal] = useState(false)
 
+    const router = useRouter()
+    
     const startAssistant = () => {
       setIsActive(true)
       speak('microfon aktif')
     }
-  
+
+    useVoiceAssistant()
+
+    useRegisterCommands([{
+      pattern: /^kembali/i,
+      description: "kembali... adalah untuk kembali ke halaman sebelumnya.",
+      action: () => {
+        router.history.back()
+      }
+    }])
+    
     useEffect(() => {
       if(disability?.some(d => d == BLIND_DISABILITY) && !isActive && isFirst) {
         setIsFirst(false)
@@ -77,6 +89,15 @@ export const Route = createRootRoute({
                 <br/>
                 <span className="text-sm opacity-80">Mendengar: "{lastTranscript}"</span>
               </div>
+            </div>
+          </div>
+        }
+        {disability?.some(d => d == BLIND_DISABILITY) &&
+          <div className={`p-4 text-white flex justify-between items-center opacity-0 ${isActive ? 'bg-lime-500' : 'bg-yellow-500'}`}>
+            <div>
+              Status: <strong>{isActive ? 'Mendengarkan...' : 'Nonaktif (Klik layar)'}</strong>
+              <br/>
+              <span className="text-sm opacity-80">Mendengar: "{lastTranscript}"</span>
             </div>
           </div>
         }
