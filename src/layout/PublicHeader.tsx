@@ -9,13 +9,13 @@ import type { PublicNavItemTypes } from "@/data/types/nav_types";
 import { PUBLIC_NAV_ITEMS } from "@/data/const/public_nav";
 import { useAuthStore } from "@/data/store/auth_store";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { IconLogout, IconNotification, IconUserCircle } from "@tabler/icons-react";
-import { useLogout } from "@/hooks/api/use-auth";
+import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { speak } from "@/lib/speech";
 import { ROLE_STUDENT, ROLE_TEACHER } from "@/data/enums/roles";
 import { useRegisterCommands } from "@/hooks/use-register-command";
+import { UserDropdownContent } from "@/components/custom/UserDropdownContent";
+import { SLOW_LEARNER } from "@/data/const/disability";
+import { useLogout } from "@/hooks/api/use-auth";
 
 export default function PublicHeader() {
   
@@ -23,14 +23,14 @@ export default function PublicHeader() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isFloating = useRef(false);
-  const { isAuthenticated, user, role } = useAuthStore()
-  const isMobile = useIsMobile()
-  const { trigger } = useLogout()
+  const { isAuthenticated, user, role, hasDisability } = useAuthStore()
   const navigate = useNavigate()
+  const logout = useLogout()
 
   useEffect(() => console.log({user}), [user])
 
   const filteredNavItems = useMemo(() => {
+    if(hasDisability(SLOW_LEARNER)) return PUBLIC_NAV_ITEMS.filter(i => (!i.hasAccess || i.hasAccess.some(r => r === role)) && i.name !== "Beranda")
     return PUBLIC_NAV_ITEMS.filter(i => !i.hasAccess || i.hasAccess.some(r => r === role))
   }, [role])
 
@@ -39,7 +39,7 @@ export default function PublicHeader() {
 
     if(!isAuthenticated) cmds.push({
       pattern: /^buka login$/i,
-      description: "Masuk ke halaman login",
+      description: "buka login... adalah untuk membuka halaman login.",
       action: () => {
         speak("Membuka halaman login");
         navigate({ to: '/login' });
@@ -48,7 +48,7 @@ export default function PublicHeader() {
     else if(role === ROLE_STUDENT) {
       cmds.push({
         pattern: /^buka kelas$/i,
-        description: "Membuka daftar kelas",
+        description: "buka kelas... adalah untuk membuka halaman kelas.",
         action: () => {
           speak("Membuka halaman kelas Anda");
           navigate({ to: '/classes' });
@@ -56,7 +56,7 @@ export default function PublicHeader() {
       })
       cmds.push({
         pattern: /^buka tugas$/i,
-        description: "Membuka daftar tugas",
+        description: "buka tugas... adalah untuk membuka halaman tugas.",
         action: () => {
           speak("Membuka halaman tugas Anda");
           navigate({ to: '/assignments' });
@@ -65,7 +65,7 @@ export default function PublicHeader() {
     }
     else if(role === ROLE_TEACHER) cmds.push({
       pattern: /^buka dashboard$/i,
-      description: "Membuka dashboard",
+      description: "buka dashboard... adalah untuk membuka halaman dashboard.",
       action: () => {
         speak("Membuka halaman dashboard");
         navigate({ to: '/teacher' });
@@ -73,7 +73,7 @@ export default function PublicHeader() {
     })
 
     return cmds
-  }, [isAuthenticated, user, navigate, speak, trigger])
+  }, [isAuthenticated, user, navigate, speak])
 
   useRegisterCommands(dynamicCommands)
 
@@ -122,8 +122,7 @@ export default function PublicHeader() {
         <div className="w-full h-full px-6 md:px-8 flex items-center justify-between">
           {/* LOGO */}
           <Link to="/" className="flex items-center gap-2 cursor-pointer select-none">
-            <img src="/favicon.ico" className="h-8" alt="" />
-            <span className="text-xl font-bold tracking-tight text-foreground">{import.meta.env.VITE_APP_NAME}</span>
+            {!hasDisability(SLOW_LEARNER) && <img src="/logos/logo-full.png" className="h-5" alt="" /> }
           </Link>
 
           {/* DESKTOP NAV */}
@@ -139,51 +138,16 @@ export default function PublicHeader() {
               <Link to="/login"><Button className="rounded-full px-6" variant="outline">Masuk</Button></Link>
               <Link to="/register"><Button className="rounded-full px-6">Daftar</Button></Link>
             </div>}
-            {isAuthenticated && <DropdownMenu>
+            {isAuthenticated && !hasDisability(SLOW_LEARNER) && <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Avatar className="h-8 w-8 rounded-full">
+                <Avatar className="h-10 w-10 rounded-full">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="rounded-full bg-primary text-white">{user?.name?.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side="bottom"
-            align="end"
-            sideOffset={10}
-          >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-full">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-full bg-primary text-white">{user?.name?.charAt(0).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="text-muted-foreground truncate text-xs">
-                    {user.email}
-                  </span>
-                </div>
-              </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <IconUserCircle />
-                  Account
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <IconNotification />
-                  Notifications
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => trigger()}>
-                <IconLogout />
-                Log out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-              </DropdownMenu>}
+              <UserDropdownContent />
+            </DropdownMenu>}
+            {isAuthenticated && hasDisability(SLOW_LEARNER) && <Button onClick={() => logout.trigger()}>Keluar</Button>}
             <button className="md:hidden p-1 text-foreground" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
               {isMobileMenuOpen ? <X /> : <Menu />}
             </button>

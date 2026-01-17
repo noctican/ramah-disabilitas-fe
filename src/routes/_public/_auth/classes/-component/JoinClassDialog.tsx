@@ -50,12 +50,12 @@ export const JoinClassDialog = ({ isOpen, setIsOpen }: Props) => {
         if(disability?.some(v => v == HEARING_DISABILITY) && isOpen) {
             cmds.push({
                 pattern: /^daftar masukan$/i,
-                description: "Daftar masukan untuk membacakan seluruh kolom yang bisa diisi",
+                description: "Daftar masukan... adalah untuk membacakan seluruh kolom yang bisa diisi",
                 action: () => speak("Terdapat kolom " + Object.keys(fieldMapping).join(", ") + " yang bisa diisi")
             })
             cmds.push({
                 pattern: /^isi\s+kolom\s+(.+)\s+dengan\s+(.+)$/i,
-                description: "Isi kolom nama kolom dengan nilai",
+                description: "Isi kolom.. dengan... adalah untuk mengisi kolom dengan nilai. nama kolom dapat berupa: " + Object.keys(fieldMapping).join(", ") + "... contoh: isi kolom nama dengan budi",
                 action: ([kolom, nilai]) => {
                     const targetKey = kolom.toLowerCase().trim();
                     const actualFieldName = fieldMapping[targetKey];

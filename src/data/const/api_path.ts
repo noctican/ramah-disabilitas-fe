@@ -24,8 +24,13 @@ export const COURSE = {
 
     JOIN: "/v1/courses/join",
     JOINED: "/v1/courses/joined",
-    STUDENT_DETAIL: "/v1/courses/{course_id}", // Student Access
-    IMPORT_STUDENT: "/v1/courses/{course_id}/students/import",
+    STUDENT_DETAIL: "/v1/courses/{course_id}",
+    LIST_STUDENT: "/v1/lecturer/courses/{course_id}/students/",
+} as const satisfies UrlGroupType
+
+export const STUDENT = {
+    ADD_TO_COURSE: "/v1/lecturer/courses/{course_id}/students",
+    IMPORT_TO_COURSE: "/v1/lecturer/courses/{course_id}/students/import",
 } as const satisfies UrlGroupType
 
 export const MODULE = {
@@ -54,4 +59,5 @@ export const ASSIGNMENT = {
     MY_ASSIGNMENTS: "/v1/courses/assignments",
     GET_COURSE_ASSIGNMENTS: "/v1/courses/{course_id}/assignments",
     GET_DETAIL: "/v1/assignments/{assignment_id}",
+    SUBMIT_ANSWER: "/v1/assignments/{assignment_id}/submit",
 } as const satisfies UrlGroupType

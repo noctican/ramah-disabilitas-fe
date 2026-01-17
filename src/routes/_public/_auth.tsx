@@ -12,5 +12,8 @@ function RouteComponent() {
     useEffect(() => {
         if(!isAuthenticated) navigate({to: '/login'})
     }, [isAuthenticated])
+
+    if(!isAuthenticated) return null
+    
     return <Outlet />
 }

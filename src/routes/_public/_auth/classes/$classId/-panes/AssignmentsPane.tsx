@@ -27,7 +27,7 @@ export const AssignmentsPane = () => {
   useRegisterCommands([
     {
       pattern: /^daftar\s+tugas\s+(.+)$/i,
-      description: "daftar tugas untuk membacakan daftar tugas",
+      description: "daftar tugas... adalah untuk membacakan daftar tugas",
       action: ([type]) => {
         const jenis = type.toLowerCase().trim()
         if (jenis.includes('terlambat')) {
@@ -62,7 +62,7 @@ export const AssignmentsPane = () => {
     },
     {
       pattern: /^tugas\s+(.+)$/i,
-      description: "tugas nama tugas untuk menampilkan detail tugas",
+      description: "tugas... adalah untuk menampilkan detail tugas. sertakan nama tugas setelah kata tugas.",
       action: ([target]) => {
         const targetTask = target.toLowerCase().trim()
         const assignment = assignments.find(a => a.title.toLowerCase() == targetTask)

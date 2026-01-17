@@ -9,6 +9,8 @@ import {
     ArrowLeft,
     Download
 } from 'lucide-react'
+import { useState } from 'react'
+import { SubmitAssignmentDialog } from './-components/SubmitAssignmentDialog'
 import { useQueryData } from '@/hooks/api/use-global-fetch'
 import { ASSIGNMENT } from '@/data/const/api_path'
 import type { ApiResponseType } from '@/data/types/api_response_types'
@@ -23,6 +25,7 @@ export const Route = createFileRoute('/_public/_auth/assignments/$assignmentId/'
 
 function RouteComponent() {
   const { assignmentId } = Route.useParams()
+  const [isSubmitOpen, setIsSubmitOpen] = useState(false)
   const { data: assignmentData, isLoading } = useQueryData<ApiResponseType<'single', AssignmentType>>(
     ASSIGNMENT.GET_DETAIL, 
     { assignment_id: assignmentId }
@@ -34,7 +37,7 @@ function RouteComponent() {
   useRegisterCommands([
     {
         pattern: /^bacakan\s(.+)$/i,
-        description: "bacakan untuk membacakan bagian tugas. Contoh, bacakan judul, bacakan instruksi, bacakan tenggat",
+        description: "bacakan... adalah untuk membacakan bagian tugas. Contoh, bacakan judul, bacakan instruksi, bacakan tenggat",
         action: ([type]) => {
             const cleanType = type.toLowerCase().trim()
             if (cleanType === 'judul') speak(assignment?.title || '')
@@ -77,7 +80,7 @@ function RouteComponent() {
       
         <div className="container mx-auto max-w-6xl px-4">
             {/* Breadcrumb / Back Navigation */}
-                <Link to="/assignments" className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[#2280c3] transition-colors group">
+                <Link to="/assignments" className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-primary transition-colors group">
                     <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                     Kembali ke Daftar Tugas
                 </Link>
@@ -132,8 +135,8 @@ function RouteComponent() {
                                 </div>
 
                                 {submission.grade > 0 ? (
-                                    <div className="bg-[#2280c3]/10 dark:bg-[#2280c3]/20 border border-[#2280c3]/20 rounded-xl p-4 text-center">
-                                        <p className="text-xs font-bold text-[#2280c3] uppercase tracking-wider mb-1">Nilai Anda</p>
+                                    <div className="bg-primary/10 dark:bg-primary/20 border border-primary/20 rounded-xl p-4 text-center">
+                                        <p className="text-xs font-bold text-primary uppercase tracking-wider mb-1">Nilai Anda</p>
                                         <p className="text-3xl font-black text-primary dark:text-white">{submission.grade}<span className="text-base font-medium text-slate-400">/100</span></p>
                                     </div>
                                 ) : (
@@ -154,7 +157,7 @@ function RouteComponent() {
                                 {submission.file_url && (
                                     <div>
                                         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">File Terlampir</p>
-                                        <a href={submission.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-3 bg-slate-50 dark:bg-black/20 rounded-lg text-sm text-[#2280c3] hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors border border-slate-100 dark:border-slate-700">
+                                        <a href={submission.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-3 bg-slate-50 dark:bg-black/20 rounded-lg text-sm text-primary hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors border border-slate-100 dark:border-slate-700">
                                             <Download className="w-4 h-4" />
                                             <span>Lihat File Submission</span>
                                         </a>
@@ -176,7 +179,10 @@ function RouteComponent() {
                                         <p className="text-sm font-bold text-red-600 dark:text-red-400">Maaf, waktu pengumpulan sudah habis.</p>
                                     </div>
                                 ) : (
-                                    <button className="w-full py-2.5 bg-[#2280c3] hover:bg-[#1a659e] text-white font-bold rounded-xl shadow-[0_0_15px_rgba(34,128,195,0.25)] transition-all active:scale-95 cursor-pointer">
+                                    <button 
+                                        onClick={() => setIsSubmitOpen(true)}
+                                        className="w-full py-2.5 bg-primary hover:bg-primary-600 text-white font-bold rounded-xl shadow-[0_0_15px] shadow-primary/25 transition-all active:scale-95 cursor-pointer"
+                                    >
                                         Kirim Jawaban
                                     </button>
                                 )}
@@ -194,6 +200,15 @@ function RouteComponent() {
                 </div>
             </div>
         </div>
+        {assignment && (
+            <SubmitAssignmentDialog 
+                isOpen={isSubmitOpen} 
+                setIsOpen={setIsSubmitOpen} 
+                assignmentId={assignmentId}
+                allowText={assignment.allow_text}
+                allowFile={assignment.allow_file}
+            />
+        )}
     </>
   )
 }

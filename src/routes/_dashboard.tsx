@@ -11,12 +11,15 @@ export const Route = createFileRoute('/_dashboard')({
 })
 
 function RouteComponent() {
-    const { isAuthenticated, role } = useAuthStore()
+    const { isAuthenticated, role, firstRender } = useAuthStore()
     const navigate = useNavigate()
     useEffect(() => {
         if(!isAuthenticated) navigate({to: '/login'})
         else if(isAuthenticated && role === ROLE_STUDENT) navigate({to: '/classes'})
     }, [isAuthenticated])
+
+    if(!isAuthenticated) return null
+    
     return (
         <SidebarProvider
             style={

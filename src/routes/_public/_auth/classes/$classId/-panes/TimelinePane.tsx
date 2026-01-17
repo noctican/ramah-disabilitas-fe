@@ -5,7 +5,9 @@ import {
   CheckCircle, 
   Lock
 } from 'lucide-react'
-import { Link, useParams } from '@tanstack/react-router'
+import { Link, useNavigate, useParams } from '@tanstack/react-router'
+import { useRegisterCommands } from '@/hooks/use-register-command'
+import { useVoiceStore } from '@/data/store/voice_store'
 
 type Props = {
   data?: StudentCourseDetail
@@ -13,6 +15,43 @@ type Props = {
 
 export const TimelinePane = ({ data }: Props) => {
   const { classId } = useParams({ from: '/_public/_auth/classes/$classId/' })
+  const { speak } = useVoiceStore()
+  const navigate = useNavigate()
+
+  useRegisterCommands([{
+    pattern: /daftar modul/i,
+    description: "daftar modul... adalah untuk membacakan daftar modul/bab yang ada pada kelas ini",
+    action: () => {
+      const modules = data?.modules
+      const text_to_speech = modules?.map((m, i) => `${i + 1}. ${m.title}`).join('. ')
+      speak(text_to_speech || 'Tidak ada modul')
+    }
+  }, {
+    pattern: /daftar semua materi/i,
+    description: "daftar semua materi... adalah untuk membacakan daftar materi yang ada pada kelas ini.",
+    action: () => {
+      const materials = data?.modules?.map((m) => m.materials).flat()
+      const text_to_speech = materials?.map((m, i) => `${i + 1}. ${m.title}`).join('. ')
+      speak(text_to_speech || 'Tidak ada materi')
+    }
+  }, {
+    pattern: /daftar materi/i,
+    description: "daftar materi... adalah untuk membacakan daftar materi yang ada pada kelas ini. perintah ini harus diikuti oleh nama modul.",
+    action: ([module]) => {
+      const mod = data?.modules?.find((m) => m.title === module)
+      const materials = mod?.materials
+      const text_to_speech = materials?.map((m, i) => `${i + 1}. ${m.title}`).join('. ')
+      speak(text_to_speech || 'Tidak ada materi')
+    }
+  }, {
+    pattern: /buka materi\s(.+)/i,
+    description: "buka materi... adalah untuk membuka materi yang ada pada kelas ini. perintah ini harus diikuti oleh nama materi.",
+    action: ([material]) => {
+      const mod = data?.modules?.flat()
+      const mat = mod?.find((m) => m.title === material)
+      navigate({ to: `/class/${classId}/${mat?.id}` })
+    }
+  }])
 
   if (!data || !data.modules) {
     return <div className="text-center py-10 text-slate-500">Memuat materi...</div>

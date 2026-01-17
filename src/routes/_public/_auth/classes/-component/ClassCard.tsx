@@ -1,3 +1,5 @@
+import { SLOW_LEARNER } from "@/data/const/disability"
+import { useAuthStore } from "@/data/store/auth_store"
 import type { JoinedCourse } from "@/data/types/course_type"
 import { Link } from "@tanstack/react-router"
 import { School } from "lucide-react"
@@ -7,6 +9,7 @@ type Props = {
 }
 
 export const ClassCard = ({ data }: Props) => {
+    const {hasDisability} = useAuthStore()
     return (
         <Link 
             to="/classes/$classId" 
@@ -18,9 +21,12 @@ export const ClassCard = ({ data }: Props) => {
                 style={{ backgroundImage: `url("${data.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60'}")` }}
             >
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
-                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-lg text-xs font-bold text-primary-700 shadow-sm">
-                    {data.class_code}
-                </div>
+                {
+                    !hasDisability(SLOW_LEARNER) &&
+                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-lg text-xs font-bold text-primary-700 shadow-sm">
+                        {data.class_code}
+                    </div>
+                }
             </div>
             <div className="pt-4 flex-1 flex flex-col">
                 <div className="flex justify-between items-start mb-2 gap-3">

@@ -28,18 +28,18 @@ export const TaskCard = ({ data }: Props) => {
 
     if (isOverdue) {
         statusConfig = {
-            bg: "bg-red-50 dark:bg-red-500/10",
-            text: "text-red-600 dark:text-red-400",
-            badgeBg: "bg-red-100 dark:bg-red-900/30",
-            badgeText: "text-red-700 dark:text-red-300",
+            bg: "bg-yellow-50 dark:bg-yellow-500/10",
+            text: "text-yellow-600 dark:text-yellow-400",
+            badgeBg: "bg-yellow-100 dark:bg-yellow-900/30",
+            badgeText: "text-yellow-700 dark:text-yellow-300",
             label: "Terlewat"
         }
     } else if (isUrgent) {
          statusConfig = {
-            bg: "bg-orange-50 dark:bg-orange-500/10",
-            text: "text-orange-600 dark:text-orange-400",
-            badgeBg: "bg-orange-100 dark:bg-orange-900/30",
-            badgeText: "text-orange-700 dark:text-orange-300",
+            bg: "bg-purple-50 dark:bg-purple-500/10",
+            text: "text-purple-600 dark:text-purple-400",
+            badgeBg: "bg-purple-100 dark:bg-purple-900/30",
+            badgeText: "text-purple-700 dark:text-purple-300",
             label: "Penting"
         }
     }

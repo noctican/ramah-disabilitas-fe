@@ -36,7 +36,7 @@ function RouteComponent() {
           <Card className="overflow-hidden p-0">
             <CardContent className="grid p-0 md:grid-cols-2">
               <div className="p-6 md:p-8">
-                <img src="/favicon.ico" alt="" className='h-12 mx-auto'/>
+                <img src="/logos/logo.png" alt="" className='h-6 mx-auto mb-4'/>
                 <Outlet />
               </div>
               <div className="bg-primary relative hidden md:block">

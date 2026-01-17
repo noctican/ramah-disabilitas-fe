@@ -16,7 +16,7 @@ export const PeoplePane = () => {
   useRegisterCommands([
     {
       pattern: /^daftar\s+(.+)$/i,
-      description: "daftar nama daftar untuk membacakan daftar yang ada. bisa berupa daftar orang, pengajar, pelajar",
+      description: "daftar... adalah untuk membacakan daftar yang ada. bisa berupa: orang, pengajar, pelajar",
       action: ([type]) => {
                 
       }

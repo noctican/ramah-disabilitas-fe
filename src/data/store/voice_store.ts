@@ -13,17 +13,21 @@ interface VoiceState {
   isSystemSpeaking: boolean; // <--- State Baru
   lastTranscript: string;
   isActive: boolean;
-  
+  pauseConfig: {
+    comma: number;
+    sentence: number;
+  }
+
   // Actions
   setIsListening: (status: boolean) => void;
   setTranscript: (text: string) => void;
-  registerCommands: (cmds: Omit<VoiceCommand, 'id'>[]) => void;
+  registerCommands: (cmds: VoiceCommand[] | Omit<VoiceCommand, 'id'>[]) => void;
   unregisterCommands: (ids: string[]) => void;
   processTranscript: (text: string) => void;
-  setIsActive: (status: boolean) =>void,
-  
+  setIsActive: (status: boolean) => void,
+
   // Pindahkan fungsi speak ke sini agar bisa akses state
-  speak: (text: string) => void; 
+  speak: (text: string) => void;
 }
 
 export const useVoiceStore = create<VoiceState>((set, get) => ({
@@ -32,17 +36,30 @@ export const useVoiceStore = create<VoiceState>((set, get) => ({
   isActive: false,
   isSystemSpeaking: false, // Default mati
   lastTranscript: '',
+  pauseConfig: {
+    comma: 100,
+    sentence: 200
+  },
 
   setIsListening: (status) => set({ isListening: status }),
   setIsActive: (status) => set({ isActive: status }),
   setTranscript: (text) => set({ lastTranscript: text }),
 
-  registerCommands: (newCmds) => set((state) => ({
-    commands: [...state.commands, ...newCmds.map(c => ({ 
-      ...c, 
-      id: Math.random().toString(36).substring(7) 
-    }))]
-  })),
+  registerCommands: (newCmds) => set((state) => {
+    const processedCmds = newCmds.map(c => {
+      if ('id' in c) {
+        return c as VoiceCommand;
+      }
+      return {
+        ...c,
+        id: Math.random().toString(36).substring(7)
+      };
+    });
+
+    return {
+      commands: [...state.commands, ...processedCmds]
+    };
+  }),
 
   unregisterCommands: (ids) => set((state) => ({
     commands: state.commands.filter((c) => !ids.includes(c.id))
@@ -50,8 +67,8 @@ export const useVoiceStore = create<VoiceState>((set, get) => ({
 
   processTranscript: (transcript) => {
     if (get().isSystemSpeaking) {
-        console.log("Diabaikan: Sistem sedang bicara.");
-        return;
+      console.log("Diabaikan: Sistem sedang bicara.");
+      return;
     }
 
     const { commands } = get();
@@ -59,16 +76,20 @@ export const useVoiceStore = create<VoiceState>((set, get) => ({
     console.log("Mendengar:", cleanText);
 
     if (cleanText === 'bantuan') {
-        get().speak("Perintah tersedia...");
-        return;
+      get().speak("Perintah tersedia...");
+      const cmds = get().commands
+      const desc = cmds.map((c, i) => `${i + 1}. ${c.description}`).join('. ')
+      get().speak(desc)
+      console.log(cmds)
+      return;
     }
 
     for (const cmd of commands) {
       const match = cleanText.match(cmd.pattern);
       if (match) {
-        const args = match.slice(1); 
+        const args = match.slice(1);
         cmd.action(args);
-        return; 
+        return;
       }
     }
   },
@@ -80,20 +101,40 @@ export const useVoiceStore = create<VoiceState>((set, get) => ({
     window.speechSynthesis.cancel();
     set({ isSystemSpeaking: true }); // <--- Matikan telinga
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'id-ID';
-    utterance.rate = 1;
+    const chunks = text.match(/[^.,?!]+[.,?!]?/g) || [text]
+    let index = 0;
 
-    // Saat SELESAI bicara
-    utterance.onend = () => {
-        set({ isSystemSpeaking: false }); // <--- Nyalakan telinga lagi
-    };
+    const playNextChunk = () => {
+      // A. JIKA SUDAH HABIS
+      if (index >= chunks.length) {
+        // Cooldown terakhir sebelum mic nyala lagi
+        setTimeout(() => {
+          set({ isSystemSpeaking: false });
+        }, 800);
+        return;
+      }
 
-    // Saat ERROR (misal dibatalkan paksa), pastikan state kembali false
-    utterance.onerror = () => {
-        set({ isSystemSpeaking: false });
-    };
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'id-ID';
+      utterance.rate = .8;
 
-    window.speechSynthesis.speak(utterance);
+      // Saat SELESAI bicara
+      utterance.onend = () => {
+        setTimeout(() => {
+          set({ isSystemSpeaking: false }); // <--- Nyalakan telinga lagi
+        }, 300)
+      };
+
+      // Saat ERROR (misal dibatalkan paksa), pastikan state kembali false
+      utterance.onerror = () => {
+        setTimeout(() => {
+          set({ isSystemSpeaking: false });
+        }, 100)
+      };
+
+      setTimeout(() => {
+        window.speechSynthesis.speak(utterance);
+      }, 100);
+    }
   }
 }));

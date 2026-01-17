@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Download, Loader2, Upload, FileSpreadsheet } from "lucide-react"
 import { useMutationAction } from "@/hooks/api/use-global-fetch"
-import { COURSE } from "@/data/const/api_path"
+import { COURSE, STUDENT } from "@/data/const/api_path"
 
 import {
   Dialog,
@@ -60,7 +60,7 @@ export function ImportStudentModal({
   })
 
   const { trigger, isMutating } = useMutationAction(
-    COURSE.IMPORT_STUDENT.replace("{course_id}", classId),
+    STUDENT.IMPORT_TO_COURSE.replace("{course_id}", classId),
     "post",
     {
       onSuccess: () => {

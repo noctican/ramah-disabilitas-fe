@@ -198,16 +198,6 @@ function ClassLessonView() {
               </span>
             </nav>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer">
-              <Bookmark className="w-5 h-5" />
-              Save
-            </button>
-            <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer">
-              <Share2 className="w-5 h-5" />
-              Share
-            </button>
-          </div>
         </header>
 
         {/* Main Content */}
@@ -268,7 +258,7 @@ function ClassLessonView() {
                               href={material.source_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="px-6 py-2.5 bg-[#2280c3] text-white rounded-lg hover:bg-blue-600 transition-colors cursor-pointer"
+                              className="px-6 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors cursor-pointer"
                             >
                               Buka Materi
                             </a>
@@ -301,7 +291,7 @@ function ClassLessonView() {
                   </div>
                 </div>
                 <button
-                  className={`flex-shrink-0 flex items-center gap-2 px-6 py-3 font-semibold rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer ${material?.is_completed ? "bg-green-100 text-green-700 shadow-none" : "bg-[#2280c3] hover:bg-[#1a659e] text-white shadow-[0_0_15px_rgba(34,128,195,0.15)]"}`}
+                  className={`flex-shrink-0 flex items-center gap-2 px-6 py-3 font-semibold rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer ${material?.is_completed ? "bg-green-100 text-green-700 shadow-none" : "bg-primary-500 hover:bg-primary-600 text-white shadow-[0_0_15px_rgba(34,128,195,0.15)]"}`}
                 >
                   <CheckCircle className="w-5 h-5" />
                   {material?.is_completed ? "Selesai" : "Tandai Selesai"}
@@ -335,25 +325,25 @@ function ClassLessonView() {
           >
             {/* Drag Handle */}
             <div
-              className="absolute left-0 top-0 bottom-0 w-1.5 hover:bg-purple-400 cursor-ew-resize z-50 transition-colors group"
+              className="absolute left-0 top-0 bottom-0 w-1.5 hover:bg-primary-400 cursor-ew-resize z-50 transition-colors group"
               onMouseDown={(e) => {
                 e.preventDefault();
                 setIsResizing(true);
               }}
             >
-              <div className="absolute inset-y-0 left-[-2px] right-[-2px] group-hover:bg-purple-500/10"></div>
+              <div className="absolute inset-y-0 left-[-2px] right-[-2px] group-hover:bg-primary-500/10"></div>
             </div>
 
-            <div className="p-5 border-b border-slate-100 dark:border-zinc-800 bg-gradient-to-r from-white to-purple-50 dark:from-zinc-900 dark:to-purple-900/10 flex items-center justify-between">
+            <div className="p-5 border-b border-slate-100 dark:border-zinc-800 bg-gradient-to-r from-white to-primary-50 dark:from-zinc-900 dark:to-primary-900/10 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#8B5CF6] to-indigo-600 flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.15)]">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-600 flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.15)]">
                   <Sparkles className="w-4 h-4 text-white" />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-slate-900 dark:text-white leading-tight">
                     Learning Assistant
                   </h2>
-                  <p className="text-xs text-[#8B5CF6] font-medium">
+                  <p className="text-xs text-primary font-medium">
                     Powered by EduAI
                   </p>
                 </div>
@@ -368,7 +358,7 @@ function ClassLessonView() {
                     setIsSidebarExpanded(true);
                   }
                 }}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-[#8B5CF6] hover:bg-white dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-white dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                 title={
                   isSidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar"
                 }
@@ -386,7 +376,7 @@ function ClassLessonView() {
                 className={`flex-1 py-3 px-2 text-sm font-medium transition-colors whitespace-nowrap border-b-2 cursor-pointer
                                     ${
                                       activeTab === "chat"
-                                        ? "text-[#8B5CF6] border-[#8B5CF6] bg-purple-50/50 dark:bg-purple-900/10"
+                                        ? "text-primary border-primary bg-primary-50/50 dark:bg-primary-900/10"
                                         : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50"
                                     }`}
               >
@@ -397,7 +387,7 @@ function ClassLessonView() {
                 className={`flex-1 py-3 px-2 text-sm font-medium transition-colors whitespace-nowrap border-b-2 cursor-pointer
                                     ${
                                       activeTab === "flashcards"
-                                        ? "text-[#8B5CF6] border-[#8B5CF6] bg-purple-50/50 dark:bg-purple-900/10"
+                                        ? "text-primary border-primary bg-primary-50/50 dark:bg-primary-900/10"
                                         : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50"
                                     }`}
               >
@@ -408,7 +398,7 @@ function ClassLessonView() {
                 className={`flex-1 py-3 px-2 text-sm font-medium transition-colors whitespace-nowrap border-b-2 cursor-pointer
                                     ${
                                       activeTab === "quiz"
-                                        ? "text-[#8B5CF6] border-[#8B5CF6] bg-purple-50/50 dark:bg-purple-900/10"
+                                        ? "text-primary border-primary bg-primary-50/50 dark:bg-primary-900/10"
                                         : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50"
                                     }`}
               >
@@ -419,7 +409,7 @@ function ClassLessonView() {
                 className={`flex-1 py-3 px-2 text-sm font-medium transition-colors whitespace-nowrap border-b-2 cursor-pointer
                                     ${
                                       activeTab === "summary"
-                                        ? "text-[#8B5CF6] border-[#8B5CF6] bg-purple-50/50 dark:bg-purple-900/10"
+                                        ? "text-primary border-primary bg-primary-50/50 dark:bg-primary-900/10"
                                         : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border-transparent hover:bg-slate-50 dark:hover:bg-zinc-800/50"
                                     }`}
               >
@@ -480,7 +470,7 @@ function SummaryView({ material }: { material?: MaterialDetailType }) {
       <div className="flex-1 overflow-y-auto p-5 space-y-6">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[#8B5CF6]" />
+            <FileText className="w-5 h-5 text-primary" />
             Topic Summary
           </h3>
         </div>
@@ -491,8 +481,8 @@ function SummaryView({ material }: { material?: MaterialDetailType }) {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center p-8 text-center border-2 border-dashed border-slate-200 dark:border-zinc-700 rounded-xl mt-10">
-            <div className="w-16 h-16 bg-purple-50 dark:bg-purple-900/10 rounded-full flex items-center justify-center mb-4">
-              <Sparkles className="w-8 h-8 text-[#8B5CF6]" />
+            <div className="w-16 h-16 bg-primary-50 dark:bg-primary-900/10 rounded-full flex items-center justify-center mb-4">
+              <Sparkles className="w-8 h-8 text-primary" />
             </div>
             <h4 className="text-base font-bold text-slate-900 dark:text-white mb-2">
               Belum ada ringkasan
@@ -503,7 +493,7 @@ function SummaryView({ material }: { material?: MaterialDetailType }) {
             <button
               onClick={handleGenerate}
               disabled={isGenerating}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#8B5CF6] text-white font-medium rounded-xl hover:bg-[#7c4dff] transition-colors disabled:opacity-50 shadow-lg shadow-purple-500/20 cursor-pointer"
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-medium rounded-xl hover:bg-primary-700 transition-colors disabled:opacity-50 shadow-lg shadow-primary-500/20 cursor-pointer"
             >
               {isGenerating ? (
                 <>
@@ -533,7 +523,7 @@ function SummaryView({ material }: { material?: MaterialDetailType }) {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-2 bg-[#2280c3] text-white rounded-lg hover:bg-[#1a659e] transition-colors disabled:opacity-50 font-medium text-sm cursor-pointer"
+            className="flex items-center gap-2 px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 font-medium text-sm cursor-pointer"
           >
             {isSaving ? (
               "Menyimpan..."
@@ -662,7 +652,7 @@ function ChatView({ material }: { material?: MaterialDetailType }) {
                     <div key={msg.id} className={`flex flex-col gap-2 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                         <div className="flex gap-3 max-w-[85%]">
                             {msg.role === 'assistant' && (
-                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#8B5CF6] to-indigo-600 flex items-center justify-center shrink-0 mt-1">
+                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-600 flex items-center justify-center shrink-0 mt-1">
                                     <Sparkles className="w-4 h-4 text-white" />
                                 </div>
                             )}
@@ -671,7 +661,7 @@ function ChatView({ material }: { material?: MaterialDetailType }) {
                                 className={`p-3 rounded-2xl text-sm shadow-sm
                                 ${msg.role === 'assistant' 
                                     ? 'bg-white dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700 text-slate-700 dark:text-slate-300 rounded-tl-none' 
-                                    : 'bg-[#8B5CF6] text-white rounded-tr-none'
+                                    : 'bg-primary text-white rounded-tr-none'
                                 }`}
                             >
                                 <div className="markdown-body">
@@ -684,7 +674,7 @@ function ChatView({ material }: { material?: MaterialDetailType }) {
                 ))}
                  {isLoading && (
                     <div className="flex gap-3 max-w-[85%]">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#8B5CF6] to-indigo-600 flex items-center justify-center shrink-0 mt-1">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-600 flex items-center justify-center shrink-0 mt-1">
                             <Sparkles className="w-4 h-4 text-white" />
                         </div>
                          <div className="bg-white dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700 p-4 rounded-2xl rounded-tl-none shadow-sm">
@@ -708,12 +698,12 @@ function ChatView({ material }: { material?: MaterialDetailType }) {
                         onKeyDown={handleKeyDown}
                         disabled={isLoading}
                         placeholder="Tanyakan sesuatu tentang materi ini..."
-                        className="w-full pl-4 pr-12 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/20 focus:border-[#8B5CF6] disabled:opacity-60"
+                        className="w-full pl-4 pr-12 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-60"
                     />
                     <button 
                         onClick={handleSendMessage}
                         disabled={isLoading || !input.trim()}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-[#8B5CF6] text-white rounded-lg hover:bg-[#7c4dff] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                         <Send className="w-4 h-4" />
                     </button>
@@ -767,8 +757,8 @@ function FlashcardsView({ material }: { material?: MaterialDetailType }) {
     if (!hasGenerated && cards.length === 0) {
          return (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                 <div className="w-20 h-20 bg-purple-50 dark:bg-purple-900/10 rounded-full flex items-center justify-center mb-6">
-                    <BrainCircuit className="w-10 h-10 text-[#8B5CF6]" />
+                 <div className="w-20 h-20 bg-primary-50 dark:bg-primary-900/10 rounded-full flex items-center justify-center mb-6">
+                    <BrainCircuit className="w-10 h-10 text-primary" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
                     Review Materi Cepat
@@ -779,7 +769,7 @@ function FlashcardsView({ material }: { material?: MaterialDetailType }) {
                 <button
                     onClick={handleGenerate}
                     disabled={isLoading}
-                    className="flex items-center gap-2 px-8 py-3 bg-[#8B5CF6] text-white font-bold rounded-xl hover:bg-[#7c4dff] transition-all shadow-[0_0_20px_rgba(139,92,246,0.25)] active:scale-95 cursor-pointer disabled:opacity-70"
+                    className="flex items-center gap-2 px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-700 transition-all shadow-[0_0_20px_rgba(139,92,246,0.25)] active:scale-95 cursor-pointer disabled:opacity-70"
                 >
                     {isLoading ? (
                         <>
@@ -811,7 +801,7 @@ function FlashcardsView({ material }: { material?: MaterialDetailType }) {
 
             <div className="flex items-center justify-between mb-4 flex-shrink-0">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <BrainCircuit className="w-5 h-5 text-[#8B5CF6]" />
+                    <BrainCircuit className="w-5 h-5 text-primary" />
                     Review Concepts
                 </h3>
                 <span className="text-xs font-medium text-slate-400">
@@ -826,7 +816,7 @@ function FlashcardsView({ material }: { material?: MaterialDetailType }) {
                 >
                     {/* Front */}
                     <div className="absolute inset-0 backface-hidden bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl shadow-lg flex flex-col items-center justify-center p-6 text-center">
-                        <div className="w-10 h-10 bg-purple-50 dark:bg-zinc-700/50 rounded-full flex items-center justify-center mb-3 text-[#8B5CF6]">
+                        <div className="w-10 h-10 bg-primary-50 dark:bg-zinc-700/50 rounded-full flex items-center justify-center mb-3 text-primary">
                             <HelpCircle className="w-5 h-5" />
                         </div>
                         <h4 className="text-base font-bold text-slate-900 dark:text-white line-clamp-6">
@@ -837,7 +827,7 @@ function FlashcardsView({ material }: { material?: MaterialDetailType }) {
 
                     {/* Back */}
                     <div 
-                        className="absolute inset-0 backface-hidden bg-[#8B5CF6] text-white rounded-2xl shadow-lg flex flex-col items-center justify-center p-6 text-center rotate-y-180"
+                        className="absolute inset-0 backface-hidden bg-primary text-white rounded-2xl shadow-lg flex flex-col items-center justify-center p-6 text-center rotate-y-180"
                     >
                         <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mb-3 text-white">
                             <Lightbulb className="w-5 h-5" />
@@ -954,8 +944,8 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
     if (quizState === 'idle') {
         return (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                 <div className="w-20 h-20 bg-purple-50 dark:bg-purple-900/10 rounded-full flex items-center justify-center mb-6">
-                    <CheckCircle className="w-10 h-10 text-[#8B5CF6]" />
+                 <div className="w-20 h-20 bg-primary-50 dark:bg-primary-900/10 rounded-full flex items-center justify-center mb-6">
+                    <CheckCircle className="w-10 h-10 text-primary" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
                     Uji Pemahamanmu
@@ -966,7 +956,7 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
                 <button
                     onClick={handleStartQuiz}
                     disabled={isLoading}
-                    className="flex items-center gap-2 px-8 py-3 bg-[#8B5CF6] text-white font-bold rounded-xl hover:bg-[#7c4dff] transition-all shadow-[0_0_20px_rgba(139,92,246,0.25)] active:scale-95 cursor-pointer disabled:opacity-70"
+                    className="flex items-center gap-2 px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-700 transition-all shadow-[0_0_20px_rgba(139,92,246,0.25)] active:scale-95 cursor-pointer disabled:opacity-70"
                 >
                     {isLoading ? (
                         <>
@@ -987,7 +977,7 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
     if (quizState === 'loading') {
          return (
             <div className="flex flex-col items-center justify-center h-full">
-                <span className="w-10 h-10 border-4 border-[#8B5CF6]/30 border-t-[#8B5CF6] rounded-full animate-spin mb-4"></span>
+                <span className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4"></span>
                 <p className="text-slate-500 font-medium">Sedang membuat soal kuis...</p>
             </div>
         )
@@ -1003,7 +993,7 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
                     Kuis Selesai!
                 </h3>
                 <p className="text-slate-500 mb-2">Skor Kamu</p>
-                <div className="text-5xl font-black text-[#8B5CF6] mb-8">
+                <div className="text-5xl font-black text-primary mb-8">
                     {Math.round((score / questions.length) * 100)}
                 </div>
                 <div className="flex gap-4">
@@ -1015,7 +1005,7 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
                     </button>
                      <button
                         onClick={() => setQuizState('idle')}
-                        className="px-6 py-2.5 bg-[#8B5CF6] text-white font-semibold rounded-xl hover:bg-[#7c4dff] transition-colors cursor-pointer"
+                        className="px-6 py-2.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors cursor-pointer"
                     >
                         Selesai
                     </button>
@@ -1039,7 +1029,7 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
         <div className="flex flex-col h-full p-6">
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-[#8B5CF6]" />
+                    <CheckCircle className="w-5 h-5 text-primary" />
                     Safe-Check Quiz
                 </h3>
                 <span className="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-zinc-800 px-2 py-1 rounded-md">
@@ -1049,7 +1039,7 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
 
             <div className="flex-1 overflow-y-auto space-y-6">
                 <div className="space-y-3">
-                    <span className="text-xs font-bold text-[#8B5CF6] uppercase tracking-wider">
+                    <span className="text-xs font-bold text-primary uppercase tracking-wider">
                         Question {currentIndex + 1}
                     </span>
                     <h4 className="text-base font-bold text-slate-900 dark:text-white leading-snug">
@@ -1062,7 +1052,7 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
                         const isSelected = selectedAnswer === option.key
                         const isCorrect = option.key === currentQuestion.correct_answer
                         
-                        let borderClass = "border-slate-200 dark:border-zinc-700 hover:border-[#8B5CF6]"
+                        let borderClass = "border-slate-200 dark:border-zinc-700 hover:border-primary"
                         let bgClass = "bg-white dark:bg-zinc-800"
                         
                         if (showResult) {
@@ -1074,8 +1064,8 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
                                 bgClass = "bg-red-50 dark:bg-red-900/20"
                             }
                         } else if (isSelected) {
-                             borderClass = "border-[#8B5CF6]"
-                             bgClass = "bg-purple-50 dark:bg-purple-900/10"
+                             borderClass = "border-primary"
+                             bgClass = "bg-primary-50 dark:bg-primary-900/10"
                         }
 
                         return (
@@ -1085,9 +1075,9 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
                                 disabled={showResult}
                                 className={`w-full flex items-start gap-3 p-4 border rounded-xl text-left transition-all group ${borderClass} ${bgClass} ${showResult ? '' : 'cursor-pointer'}`}
                             >
-                                <div className={`relative flex items-center justify-center w-5 h-5 mt-0.5 rounded-full border border-slate-300 dark:border-zinc-600 ${isSelected || (showResult && isCorrect) ? 'border-[#8B5CF6]' : ''}`}>
+                                <div className={`relative flex items-center justify-center w-5 h-5 mt-0.5 rounded-full border border-slate-300 dark:border-zinc-600 ${isSelected || (showResult && isCorrect) ? 'border-primary' : ''}`}>
                                     {(isSelected || (showResult && isCorrect)) && (
-                                         <div className={`w-2.5 h-2.5 rounded-full ${showResult && isCorrect ? 'bg-green-500' : (showResult && isSelected ? 'bg-red-500' : 'bg-[#8B5CF6]')}`}></div>
+                                         <div className={`w-2.5 h-2.5 rounded-full ${showResult && isCorrect ? 'bg-green-500' : (showResult && isSelected ? 'bg-red-500' : 'bg-primary')}`}></div>
                                     )}
                                 </div>
                                 <span className={`text-sm ${isSelected ? 'text-slate-900 dark:text-white font-medium' : 'text-slate-600 dark:text-slate-300'}`}>
@@ -1099,7 +1089,7 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
                 </div>
                 
                 {showResult && (
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded-xl text-sm leading-relaxed border border-blue-100 dark:border-blue-900/30 animate-in fade-in slide-in-from-top-2">
+                    <div className="p-4 bg-primary-50 dark:bg-primary-900/20 text-primary-800 dark:text-primary-200 rounded-xl text-sm leading-relaxed border border-primary-100 dark:border-primary-900/30 animate-in fade-in slide-in-from-top-2">
                         <strong>Explanation:</strong> {currentQuestion.explanation}
                     </div>
                 )}
@@ -1110,7 +1100,7 @@ function QuizView({ material }: { material?: MaterialDetailType }) {
                     <button 
                         onClick={handleCheckAnswer}
                         disabled={!selectedAnswer}
-                        className="w-full py-3 bg-[#8B5CF6] hover:bg-[#7c4dff] text-white font-bold rounded-xl shadow-[0_0_20px_rgba(139,92,246,0.25)] transition-all transform active:scale-95 cursor-pointer disabled:opacity-50 disabled:shadow-none disabled:active:scale-100"
+                        className="w-full py-3 bg-primary hover:bg-primary-700 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(139,92,246,0.25)] transition-all transform active:scale-95 cursor-pointer disabled:opacity-50 disabled:shadow-none disabled:active:scale-100"
                     >
                         Check Answer
                     </button>

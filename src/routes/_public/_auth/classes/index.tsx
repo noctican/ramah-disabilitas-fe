@@ -23,6 +23,7 @@ import { useRegisterCommands } from '@/hooks/use-register-command'
 import { useVoiceStore } from '@/data/store/voice_store'
 import { useAuthStore } from '@/data/store/auth_store'
 import { Button } from '@/components/ui/button'
+import { SLOW_LEARNER } from '@/data/const/disability'
 
 export const Route = createFileRoute('/_public/_auth/classes/')({
   component: RouteComponent,
@@ -34,17 +35,17 @@ function RouteComponent() {
   const { data } = useQueryData<ApiResponseType<'multiple', JoinedCourse>>(COURSE.JOINED)
   const { data: assignmentsData } = useQueryData<ApiResponseType<'multiple', AssignmentType>>(ASSIGNMENT.MY_ASSIGNMENTS, { filter: 'upcoming' })
   const speak = useVoiceStore(state => state.speak)
-  const { user } = useAuthStore()
+  const { user, hasDisability } = useAuthStore()
 
   useRegisterCommands([
     {
-      pattern:  /^ikut kelas$/i,
-      description: 'Ikut kelas untuk mengikuti kelas baru',
+      pattern:  /^gabung kelas$/i,
+      description: 'gabung kelas... adalah untuk bergabung dengan kelas baru',
       action: () => setIsJoinDialogOpen(true)
     },
     {
       pattern: /^daftar\s+(.+)$/i, 
-      description: "Dafter nama daftar untuk membacakan daftar yang ada. Nama daftar dapat berupa kelas atau tugas.",
+      description: "daftar... adalah untuk membacakan daftar yang ada. Nama daftar dapat berupa: kelas, tugas.",
       action: ([target]) => {
         const jenis = target.toLowerCase().trim()
         if (jenis.includes('kelas') || jenis.includes('course') || jenis.includes('pelajaran')) {
@@ -86,12 +87,12 @@ function RouteComponent() {
       <JoinClassDialog isOpen={isJoinDialogOpen} setIsOpen={setIsJoinDialogOpen} />
       <PublicHeaderGap />
 
-      <div className="container mx-auto max-w-6xl px-4 space-y-8">
+      <div className="container mx-auto  px-4 mb-8 space-y-8">
         
         <section className="bg-white dark:bg-[#1e2d3b] rounded-2xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[#f1f3f3] dark:border-gray-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex flex-col gap-2">
             <h2 className="text-[#131616] dark:text-white text-3xl font-black leading-tight tracking-[-0.03em]">Selamat belajar, {user.name}! 👋</h2>
-            <p className="text-[#6b7c80] dark:text-gray-400 text-base font-normal">Anda memiliki <span className="font-bold text-primary">3 tugas</span> yang harus dikumpulkan minggu ini.</p>
+            {!hasDisability(SLOW_LEARNER) &&<p className="text-[#6b7c80] dark:text-gray-400 text-base font-normal">Anda memiliki <span className="font-bold text-primary">3 tugas</span> yang harus dikumpulkan minggu ini.</p>}
           </div>
           <button 
             onClick={() => setIsJoinDialogOpen(true)}
@@ -110,16 +111,18 @@ function RouteComponent() {
               {data?.data?.map((course) => (
                 <ClassCard key={course.id} data={course} />
               ))}
-              <div 
-                  onClick={() => setIsJoinDialogOpen(true)}
-                  className="bg-[#f1f3f3] dark:bg-white/5 rounded-2xl border-2 border-dashed border-[#d1d5db] dark:border-gray-700 p-4 flex flex-col items-center justify-center min-h-[250px] group cursor-pointer hover:border-primary/50 transition-colors"
-              >
-                <div className="bg-white dark:bg-white/10 p-4 rounded-full mb-3 group-hover:scale-110 transition-transform">
-                  <Plus className="text-gray-400 w-8 h-8" />
+              {!hasDisability(SLOW_LEARNER) &&
+                <div 
+                    onClick={() => setIsJoinDialogOpen(true)}
+                    className="bg-[#f1f3f3] dark:bg-white/5 rounded-2xl border-2 border-dashed border-[#d1d5db] dark:border-gray-700 p-4 flex flex-col items-center justify-center min-h-[250px] group cursor-pointer hover:border-primary/50 transition-colors"
+                >
+                  <div className="bg-white dark:bg-white/10 p-4 rounded-full mb-3 group-hover:scale-110 transition-transform">
+                    <Plus className="text-gray-400 w-8 h-8" />
+                  </div>
+                  <p className="text-[#131616] dark:text-white font-bold text-base">Bergabung dengan Kelas</p>
+                  <p className="text-[#6b7c80] dark:text-gray-400 text-sm text-center px-4 mt-1">Cari kelas baru untuk bergabung.</p>
                 </div>
-                <p className="text-[#131616] dark:text-white font-bold text-base">Bergabung dengan Kelas</p>
-                <p className="text-[#6b7c80] dark:text-gray-400 text-sm text-center px-4 mt-1">Cari kelas baru untuk bergabung.</p>
-              </div>
+              }
             </div>
           </div>
           <div className="lg:col-span-4 space-y-6">

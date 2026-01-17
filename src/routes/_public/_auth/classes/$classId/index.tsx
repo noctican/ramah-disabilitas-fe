@@ -43,7 +43,7 @@ function RouteComponent() {
   useRegisterCommands([
     {
       pattern: /^panel\s+(.+)$/i, 
-      description: "Panel nama panel untuk berpindah teb.",
+      description: "panel... adalah berpindah teb. panel dapat berupa: materi, tugas, anggota.",
       action: ([target]) => {
         const targetTab = target.toLowerCase().trim()
         if(Object.values(panelList).some(v => v == targetTab)) {

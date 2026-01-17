@@ -29,7 +29,7 @@ export const Route = createRootRoute({
     useEffect(() => {
       if(disability?.some(d => d == HEARING_DISABILITY) && !isActive && isFirst) {
         setIsFirst(false)
-        speak('silahkan ketuk layar terlebih dahulu untuk memu')
+        speak('silahkan ketuk layar terlebih dahulu untuk memulai fitur asisten suara')
       }
     }, [disability, isActive, isFirst])
 
