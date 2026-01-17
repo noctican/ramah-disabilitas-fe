@@ -19,5 +19,6 @@ export const disabilityOptions = [
     { id: "tuna_rungu", label: "Saya sulit mendengar audio/video" },
     { id: "tuna_netra", label: "Saya sulit melihat layar atau butuh pembaca layar" },
     { id: "tuna_daksa", label: "Saya kesulitan menggunakan mouse atau keyboard biasa" },
-    { id: "kesulitan_kognitif", label: "Saya mudah terdistraksi atau sulit membaca teks panjang" },
+    { id: "tuna_grahita", label: "Saya mudah terdistraksi atau sulit membaca teks panjang" },
+    // { id: "kesulitan_kognitif", label: "Saya mudah terdistraksi atau sulit membaca teks panjang" },
 ] satisfies { id: DisabilityType, label: string }[]

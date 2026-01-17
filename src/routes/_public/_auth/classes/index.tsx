@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import PublicHeaderGap from '@/layout/PublicHeaderGap'
 import { 
   Plus, 
@@ -36,6 +36,7 @@ function RouteComponent() {
   const { data: assignmentsData } = useQueryData<ApiResponseType<'multiple', AssignmentType>>(ASSIGNMENT.MY_ASSIGNMENTS, { filter: 'upcoming' })
   const speak = useVoiceStore(state => state.speak)
   const { user, hasDisability } = useAuthStore()
+  const navigate = useNavigate()
 
   useRegisterCommands([
     {
@@ -78,6 +79,19 @@ function RouteComponent() {
         else {
           speak(`Maaf, saya tidak bisa membacakan daftar ${jenis}. Coba katakan 'Daftar kelas' atau 'Daftar tugas'.`)
         }
+      }
+    },
+    {
+      pattern: /^masuk kelas\s+(.+)$/i,
+      description: "masuk kelas... adalah untuk masuk ke kelas yang sudah ada. perintah diikuti oleh nama kelas",
+      action: ([target]) => {
+        const className = target.toLowerCase().trim()
+        const classData = data?.data?.find(c => c.title.toLowerCase() === className)
+        if (!classData) {
+          speak(`Kelas ${className} tidak ditemukan.`)
+          return
+        }
+        navigate({to: "/classes/$classId", params: { classId: String(classData.id) } })
       }
     }
   ])

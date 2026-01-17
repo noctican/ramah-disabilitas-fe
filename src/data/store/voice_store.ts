@@ -97,44 +97,28 @@ export const useVoiceStore = create<VoiceState>((set, get) => ({
   speak: (text: string) => {
     if (!window.speechSynthesis) return;
 
-    // Hentikan suara sebelumnya & set state SPEAKING
+    // Hentikan suara sebelumnya
     window.speechSynthesis.cancel();
-    set({ isSystemSpeaking: true }); // <--- Matikan telinga
+    set({ isSystemSpeaking: true });
 
-    const chunks = text.match(/[^.,?!]+[.,?!]?/g) || [text]
-    let index = 0;
-
-    const playNextChunk = () => {
-      // A. JIKA SUDAH HABIS
-      if (index >= chunks.length) {
-        // Cooldown terakhir sebelum mic nyala lagi
-        setTimeout(() => {
-          set({ isSystemSpeaking: false });
-        }, 800);
-        return;
-      }
-
+    // Tunggu sebentar untuk memastikan cancel selesai
+    setTimeout(() => {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'id-ID';
-      utterance.rate = .8;
+      utterance.rate = 0.9; // Sedikit lebih cepat agar natural
 
-      // Saat SELESAI bicara
-      utterance.onend = () => {
-        setTimeout(() => {
-          set({ isSystemSpeaking: false }); // <--- Nyalakan telinga lagi
-        }, 300)
+      // Handler ketika selesai bicara
+      const onComplete = () => {
+        set({ isSystemSpeaking: false });
       };
 
-      // Saat ERROR (misal dibatalkan paksa), pastikan state kembali false
-      utterance.onerror = () => {
-        setTimeout(() => {
-          set({ isSystemSpeaking: false });
-        }, 100)
+      utterance.onend = onComplete;
+      utterance.onerror = (e) => {
+        console.error("TTS Error:", e);
+        onComplete();
       };
 
-      setTimeout(() => {
-        window.speechSynthesis.speak(utterance);
-      }, 100);
-    }
+      window.speechSynthesis.speak(utterance);
+    }, 50);
   }
 }));

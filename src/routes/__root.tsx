@@ -56,6 +56,10 @@ export const Route = createRootRoute({
       if(firstRender) getCurrentUser()
     }, [firstRender, isAuthenticated])
 
+    useEffect(() => {
+      if(isAuthenticated && disability === null) setIsOpenDisabilityModal(true)
+    }, [isAuthenticated, disability])
+
     if(firstRender) return <LoadingPage />
     return (
       <>
@@ -63,13 +67,13 @@ export const Route = createRootRoute({
         <Outlet />
         <Toaster richColors position="top-right" />
 
-        {disability?.some(d => d == BLIND_DISABILITY) && !isActive && <button className='absolute left-0 right-0 bottom-0 top-0 opacity-0 z-9999' onClick={startAssistant}></button>}
+        {disability?.some(d => d == BLIND_DISABILITY) && !isActive && <button className='fixed left-0 right-0 bottom-0 top-0 opacity-0 z-9999' onClick={startAssistant}></button>}
 
         {disability?.some(d => d == BLIND_DISABILITY) &&
-          <div className='absolute left-0 right-0 bottom-0 z-10'>
+          <div className='fixed left-0 right-0 bottom-0 z-999'>
             <div className={`p-4 text-white flex justify-between items-center ${isActive ? 'bg-lime-500' : 'bg-yellow-500'}`}>
               <div>
-                Status: <strong>{isActive ? 'Mendengarkan...' : 'Nonaktif (Klik Mulai)'}</strong>
+                Status: <strong>{isActive ? 'Mendengarkan...' : 'Nonaktif (Klik layar)'}</strong>
                 <br/>
                 <span className="text-sm opacity-80">Mendengar: "{lastTranscript}"</span>
               </div>

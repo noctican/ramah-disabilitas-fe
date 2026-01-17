@@ -2,14 +2,14 @@ import { useVoiceStore } from '@/data/store/voice_store';
 import { useEffect, useRef } from 'react';
 
 export const useVoiceAssistant = () => {
-  const { 
-    isActive, 
+  const {
+    isActive,
     isSystemSpeaking,
-    setIsListening, 
-    setTranscript, 
-    processTranscript 
+    setIsListening,
+    setTranscript,
+    processTranscript
   } = useVoiceStore();
-  
+
   const recognitionRef = useRef<any>(null);
 
   // 1. Inisialisasi Recognition Object (Hanya sekali)
@@ -24,28 +24,28 @@ export const useVoiceAssistant = () => {
     recognition.interimResults = false;
 
     recognition.onstart = () => setIsListening(true);
-    
+
     // Saat mic mati otomatis (karena diam), kita restart JIKA kondisi masih memenuhi
     recognition.onend = () => {
       setIsListening(false);
       // Cek state langsung dari store (fresh) untuk menghindari closure lawas
       const state = useVoiceStore.getState();
-      
+
       // Add delay to prevent rapid restart loops if mic fails repeatedly
       if (state.isActive && !state.isSystemSpeaking) {
         setTimeout(() => {
-            const freshState = useVoiceStore.getState();
-            if (freshState.isActive && !freshState.isSystemSpeaking) {
-                try { recognition.start(); } catch(e) {}
-            }
+          const freshState = useVoiceStore.getState();
+          if (freshState.isActive && !freshState.isSystemSpeaking) {
+            try { recognition.start(); } catch (e) { }
+          }
         }, 500);
       }
     };
 
     recognition.onresult = (event: any) => {
-        const text = event.results[event.resultIndex][0].transcript;
-        setTranscript(text);
-        processTranscript(text);
+      const text = event.results[event.resultIndex][0].transcript;
+      setTranscript(text);
+      processTranscript(text);
     };
 
     recognitionRef.current = recognition;

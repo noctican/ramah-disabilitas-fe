@@ -5,7 +5,7 @@ import { z } from "zod"
 import { Loader2, Plus, UserPlus } from "lucide-react"
 import { useMutationAction } from "@/hooks/api/use-global-fetch"
 import { COURSE, STUDENT } from "@/data/const/api_path"
-import { ALL_DISABILITY, BLIND_DISABILITY, HEARING_DISABILITY, MOBILITY_DISABLE, SLOW_LEARNER } from "@/data/const/disability"
+import { ALL_DISABILITY, BLIND_DISABILITY, HEARING_DISABILITY, INTELECTUAL_DISABILITY, MOBILITY_DISABLE, SLOW_LEARNER } from "@/data/const/disability"
 import { Checkbox } from "@/components/ui/checkbox"
 
 import {
@@ -112,7 +112,8 @@ export function AddStudentModal({
         case HEARING_DISABILITY: return "Tuna Rungu"
         case BLIND_DISABILITY: return "Tuna Netra"
         case MOBILITY_DISABLE: return "Tuna Daksa"
-        case SLOW_LEARNER: return "Kesulitan Kognitif"
+        case INTELECTUAL_DISABILITY: return "Tuna Grahita"
+        // case SLOW_LEARNER: return "Kesulitan Kognitif"
         default: return "Tidak Ada"
     }
   }
