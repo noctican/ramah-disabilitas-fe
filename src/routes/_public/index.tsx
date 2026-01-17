@@ -61,7 +61,7 @@ function LandingPage() {
                           <CardHeader className="pb-2">
                              <div className="flex items-center justify-between">
                                 <CardTitle className="text-lg">Kelas Bahasa Isyarat</CardTitle>
-                                <span className="bg-primary-100 text-primary-700 text-xs px-2 py-1 rounded-full">Live</span>
+                                <span className="bg-primary-100 text-primary-700 text-xs px-2 py-1 rounded-full">Langsung</span>
                              </div>
                           </CardHeader>
                           <CardContent>
@@ -74,13 +74,13 @@ function LandingPage() {
                       <Card className="bg-primary-600 text-white border-none shadow-md">
                           <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
                               <Volume2 className="h-8 w-8 mb-2 opacity-90" />
-                              <p className="font-bold text-sm">Text-to-Speech</p>
+                              <p className="font-bold text-sm">Teks-ke-Suara</p>
                           </CardContent>
                       </Card>
                       <Card className="bg-white/80 border-primary-100 shadow-sm">
                           <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
                               <Eye className="h-8 w-8 mb-2 text-primary-600" />
-                              <p className="font-bold text-sm text-foreground">High Contrast</p>
+                              <p className="font-bold text-sm text-foreground">Kontras Tinggi</p>
                           </CardContent>
                       </Card>
                   </div>

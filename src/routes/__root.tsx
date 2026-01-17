@@ -69,7 +69,7 @@ export const Route = createRootRoute({
           <div className='absolute left-0 right-0 bottom-0 z-10'>
             <div className={`p-4 text-white flex justify-between items-center ${isActive ? 'bg-lime-500' : 'bg-yellow-500'}`}>
               <div>
-                Status: <strong>{isActive ? 'Mendengarkan...' : 'Nonaktif (Klik Start)'}</strong>
+                Status: <strong>{isActive ? 'Mendengarkan...' : 'Nonaktif (Klik Mulai)'}</strong>
                 <br/>
                 <span className="text-sm opacity-80">Mendengar: "{lastTranscript}"</span>
               </div>

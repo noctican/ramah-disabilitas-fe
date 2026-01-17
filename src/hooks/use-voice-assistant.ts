@@ -30,8 +30,15 @@ export const useVoiceAssistant = () => {
       setIsListening(false);
       // Cek state langsung dari store (fresh) untuk menghindari closure lawas
       const state = useVoiceStore.getState();
+      
+      // Add delay to prevent rapid restart loops if mic fails repeatedly
       if (state.isActive && !state.isSystemSpeaking) {
-        try { recognition.start(); } catch(e) {}
+        setTimeout(() => {
+            const freshState = useVoiceStore.getState();
+            if (freshState.isActive && !freshState.isSystemSpeaking) {
+                try { recognition.start(); } catch(e) {}
+            }
+        }, 500);
       }
     };
 
