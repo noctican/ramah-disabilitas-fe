@@ -41,7 +41,7 @@ function TeacherDashboard() {
     }
 
     return (
-        <div className="flex-1 space-y-8 min-h-full font-sans">
+        <div className="flex-1  min-h-full font-sans">
             {/* Header */}
             <div className="flex items-center justify-between space-y-2">
                 <div>
