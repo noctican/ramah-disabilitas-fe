@@ -11,13 +11,14 @@ import { apiClient } from '@/lib/api-client'
 import { AUTH } from '@/data/const/api_path'
 import { LoadingPage } from '@/components/custom/LoadingPage'
 import { useRegisterCommands } from '@/hooks/use-register-command'
+import { ROLE_STUDENT } from '@/data/enums/roles'
 
 
 export const Route = createRootRoute({
   component: () => {
     const [isFirst, setIsFirst] = useState(true)
     const { setIsActive, isActive, lastTranscript, speak } = useVoiceStore()
-    const { disability, firstRender, isAuthenticated, login, logout, setFirstRender } = useAuthStore()
+    const { disability, firstRender, isAuthenticated, login, logout, setFirstRender, role } = useAuthStore()
     
     const [isOpenDisabilityModal, setIsOpenDisabilityModal] = useState(false)
 
@@ -25,7 +26,7 @@ export const Route = createRootRoute({
     
     const startAssistant = () => {
       setIsActive(true)
-      speak('microfon aktif')
+      speak('microfon aktif. katakan "bantuan" untuk melihat daftar perintah')
     }
 
     useVoiceAssistant()
@@ -69,7 +70,7 @@ export const Route = createRootRoute({
     }, [firstRender, isAuthenticated])
 
     useEffect(() => {
-      if(isAuthenticated && disability === null) setIsOpenDisabilityModal(true)
+      if(isAuthenticated && disability === null && role === ROLE_STUDENT) setIsOpenDisabilityModal(true)
     }, [isAuthenticated, disability])
 
     if(firstRender) return <LoadingPage />

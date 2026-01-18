@@ -32,7 +32,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <Link to="/">
-                <img src="/logos/logo.png" className="size-6 rounded-sm group-data-[collapsible=icon]:size-5" alt="shadcn ui kit svg logo" />
+                <img src="/logos/favicon.ico" className="size-6 rounded-sm group-data-[collapsible=icon]:size-5" alt="shadcn ui kit svg logo" />
                 <span className="text-base font-medium">{import.meta.env.VITE_APP_NAME}</span>
               </Link>
             </SidebarMenuButton>

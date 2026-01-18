@@ -60,7 +60,7 @@ export const JoinClassDialog = ({ isOpen, setIsOpen }: Props) => {
                     const targetKey = kolom.toLowerCase().trim();
                     const actualFieldName = fieldMapping[targetKey];
                     if (actualFieldName) {
-                        form.setValue(actualFieldName, nilai, { shouldValidate: true, shouldDirty: true });
+                        form.setValue(actualFieldName, nilai.replaceAll(' ', ''), { shouldValidate: true, shouldDirty: true });
                         speak(`Mengisi ${targetKey} dengan ${nilai}`);
                     } else {
                         speak(`maaf, kolom ${targetKey} tidak dikenali. Coba katakan ${Object.keys(fieldMapping).join(', ')}.`);

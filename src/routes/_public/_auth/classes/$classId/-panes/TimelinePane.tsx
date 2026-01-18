@@ -38,7 +38,7 @@ export const TimelinePane = ({ data }: Props) => {
         speak(text_to_speech || 'Tidak ada materi')
       }
     }, {
-      pattern: /daftar materi/i,
+      pattern: /daftar materi\s+(.+)/i,
       description: "daftar materi... adalah untuk membacakan daftar materi yang ada pada kelas ini. perintah ini harus diikuti oleh nama modul.",
       action: ([module]) => {
         const mod = data?.modules?.find((m) => m.title.toLocaleLowerCase() === module.toLocaleLowerCase())

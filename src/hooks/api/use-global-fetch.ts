@@ -37,10 +37,11 @@ export const useMutationAction = (
             const { speak } = useVoiceStore.getState()
             speak(msg)
             toaster(msg, 'error')
-
         },
         onSuccess: (data: any) => {
             toaster(data?.message || 'Berhasil', 'success')
+            const { speak } = useVoiceStore.getState()
+            speak(data?.message || 'Berhasil')
             if (config?.refreshKey) mutate(
                 (key) => {
                     if (Array.isArray(key) && key[0] === config.refreshKey) return true
