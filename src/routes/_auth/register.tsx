@@ -10,16 +10,84 @@ import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ROLE_STUDENT, ROLE_TEACHER } from '@/data/enums/roles'
 
+import { useVoiceStore } from '@/data/store/voice_store'
+import { useRegisterCommands } from '@/hooks/use-register-command'
+import { useEffect } from 'react'
+
+
 export const Route = createFileRoute('/_auth/register')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
     const { trigger, isMutating } = useRegister()
+    const { speak } = useVoiceStore()
     const form = useForm<RegisterType>({
         mode: "onChange",
         resolver: zodResolver(registerSchema),
-    })    
+    })
+
+    const mapField = (field: string): keyof RegisterType | null => {
+      const f = field.toLowerCase().trim()
+      if (f === 'email') return 'email'
+      if (['nama', 'name'].includes(f)) return 'name'
+      if (['password', 'kata sandi', 'sandi'].includes(f)) return 'password'
+      if (['konfirmasi', 'ulangi', 'konfirmasi kata sandi', 'konfirmasi password', 'konfirmasi sandi'].includes(f)) return 'confirm_password'
+      if (['role', 'sebagai'].includes(f)) return 'role'
+      return null
+    }
+
+    useRegisterCommands([
+      {
+        pattern: /(?:isi|masukkan|tulis)+(.+)+dengan+(.+)/i,
+        description: "isi [field] dengan [nilai] untuk mengisi form. contoh: isi nama dengan budi",
+        action: ([field, value]) => {
+          const key = mapField(field)
+          if (!key) {
+             speak(`Field ${field} tidak ditemukan`)
+             return
+          }
+
+          let val = value.trim()
+          
+          if (key === 'role') {
+            if (['pelajar', 'murid', 'siswa', 'mahasiswa'].includes(val.toLowerCase())) val = ROLE_STUDENT
+            else if (['pengajar', 'guru', 'dosen', 'tendik'].includes(val.toLowerCase())) val = ROLE_TEACHER
+            else {
+               speak("Role harus pelajar atau pengajar")
+               return
+            }
+          }
+
+          form.setValue(key, val, { shouldValidate: true })
+          speak(`${field} diisi dengan ${value}`)
+        }
+      },
+      {
+        pattern: /(?:baca|sebutkan)+(.+)/i,
+        description: "baca [field] untuk mengetahui nilai saat ini",
+        action: ([field]) => {
+          const key = mapField(field)
+          if (!key) {
+             speak(`Field ${field} tidak ditemukan`)
+             return
+          }
+          const val = form.getValues(key)
+          speak(val ? `${field} saat ini adalah ${val}` : `${field} masih kosong`)
+        }
+      },
+      {
+        pattern: /(?:daftar|register|kirim|submit)/i,
+        description: "daftar atau kirim untuk memproses pendaftaran",
+        action: () => {
+          form.handleSubmit((d) => trigger(d))()
+        }
+      }
+    ])
+
+    useEffect(() => {
+        speak("Anda berada di halaman pendaftaran. Silahkan isi nama, email, password, konfirmasi password, dan pilih role anda sebagai pelajar atau pengajar. Katakan 'isi [nama field] dengan [nilai]' untuk mengisi.")
+    }, [])
     
   return (
     <FormProvider {...form}>

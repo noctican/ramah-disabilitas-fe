@@ -39,11 +39,11 @@ function RouteComponent() {
   const navigate = useNavigate()
 
   useRegisterCommands([
-    {
-      pattern:  /^gabung kelas$/i,
-      description: 'gabung kelas... adalah untuk bergabung dengan kelas baru',
-      action: () => setIsJoinDialogOpen(true)
-    },
+    // {
+    //   pattern:  /^gabung kelas$/i,
+    //   description: 'gabung kelas... adalah untuk bergabung dengan kelas baru',
+    //   action: () => setIsJoinDialogOpen(true)
+    // },
     {
       pattern: /^daftar\s+(.+)$/i, 
       description: "daftar... adalah untuk membacakan daftar yang ada. Nama daftar dapat berupa: kelas, tugas.",
@@ -103,23 +103,23 @@ function RouteComponent() {
 
       <div className="container mx-auto  px-4 mb-8 space-y-8">
         
-        <section className="bg-white dark:bg-[#1e2d3b] rounded-2xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[#f1f3f3] dark:border-gray-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <section className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-gray-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex flex-col gap-2">
-            <h2 className="text-[#131616] dark:text-white text-3xl font-black leading-tight tracking-[-0.03em]">Selamat belajar, {user.name}! 👋</h2>
-            {!hasDisability(SLOW_LEARNER) &&<p className="text-[#6b7c80] dark:text-gray-400 text-base font-normal">Anda memiliki <span className="font-bold text-primary">3 tugas</span> yang harus dikumpulkan minggu ini.</p>}
+            <h2 className="text-gray-900 dark:text-white text-3xl font-black leading-tight tracking-[-0.03em]">Selamat belajar, {user.name}! 👋</h2>
+            {!hasDisability(SLOW_LEARNER) &&<p className="text-gray-600 dark:text-gray-400 text-base font-normal">Anda memiliki <span className="font-bold text-primary">3 tugas</span> yang harus dikumpulkan minggu ini.</p>}
           </div>
-          <button 
+          {/* <button 
             onClick={() => setIsJoinDialogOpen(true)}
             className="flex items-center justify-center gap-2 bg-primary hover:bg-primary-300 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-[0_4px_10px_rgba(45,106,118,0.3)] hover:shadow-[0_6px_15px_rgba(45,106,118,0.4)] transition-all transform hover:-translate-y-0.5 cursor-pointer"
           >
             <Plus className="w-5 h-5" />
             <span>Gabung Kelas</span>
-          </button>
+          </button> */}
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           <div className="lg:col-span-8 space-y-6">
-              <h3 className="text-[#131616] dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">Kelas Saya</h3>
+              <h3 className="text-gray-900 dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">Kelas Saya</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {data?.data?.map((course) => (
@@ -128,23 +128,23 @@ function RouteComponent() {
               {!hasDisability(SLOW_LEARNER) &&
                 <div 
                     onClick={() => setIsJoinDialogOpen(true)}
-                    className="bg-[#f1f3f3] dark:bg-white/5 rounded-2xl border-2 border-dashed border-[#d1d5db] dark:border-gray-700 p-4 flex flex-col items-center justify-center min-h-[250px] group cursor-pointer hover:border-primary/50 transition-colors"
+                    className="bg-gray-100 dark:bg-white/5 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 p-4 flex flex-col items-center justify-center min-h-[250px] group cursor-pointer hover:border-primary/50 transition-colors"
                 >
                   <div className="bg-white dark:bg-white/10 p-4 rounded-full mb-3 group-hover:scale-110 transition-transform">
                     <Plus className="text-gray-400 w-8 h-8" />
                   </div>
-                  <p className="text-[#131616] dark:text-white font-bold text-base">Bergabung dengan Kelas</p>
-                  <p className="text-[#6b7c80] dark:text-gray-400 text-sm text-center px-4 mt-1">Cari kelas baru untuk bergabung.</p>
+                  <p className="text-gray-900 dark:text-white font-bold text-base">Bergabung dengan Kelas</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm text-center px-4 mt-1">Cari kelas baru untuk bergabung.</p>
                 </div>
               }
             </div>
           </div>
           <div className="lg:col-span-4 space-y-6">
             <div className="flex items-center justify-between">
-                <h3 className="text-[#131616] dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">Tugas Aktif Terbaru</h3>
+                <h3 className="text-gray-900 dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">Tugas Aktif Terbaru</h3>
             </div>
 
-            <div className="bg-white dark:bg-[#1e2d3b] rounded-2xl shadow-sm border border-[#f1f3f3] dark:border-gray-800 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
               <div className="flex flex-col gap-5">
                 {assignmentsData?.data?.length === 0 ? (
                     <p className="text-center text-gray-500 text-sm py-4">Tidak ada tugas.</p>

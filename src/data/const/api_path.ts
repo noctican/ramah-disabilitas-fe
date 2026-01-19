@@ -47,6 +47,7 @@ export const MATERIAL = {
     CHAT: "/v1/materials/{material_id}/chat",
     QUIZ: "/v1/materials/{material_id}/quiz",
     FLASHCARDS: "/v1/materials/{material_id}/flashcards",
+    MARK_AS_DONE: "/v1/materials/{material_id}/complete",
 } as const satisfies UrlGroupType
 
 export const MEDIA = {

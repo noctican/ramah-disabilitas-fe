@@ -1,27 +1,62 @@
 import { useRegisterCommands } from '@/hooks/use-register-command'
 import { 
   Presentation, 
-  Check, 
-  Mail, 
-  CalendarRange, 
-  Users, 
-  Search, 
-  Filter, 
-  MoreHorizontal, 
-  ChevronLeft, 
-  ChevronRight 
+  Users
 } from 'lucide-react'
+import { useVoiceStore } from '@/data/store/voice_store'
+import { useEffect } from 'react'
+import { useQueryData } from '@/hooks/api/use-global-fetch'
+import { COURSE } from '@/data/const/api_path'
+import { useParams } from '@tanstack/react-router'
+import { type ApiResponseType } from '@/data/types/api_response_types'
+import { type StudentCourseDetail } from '@/data/types/course_type'
+
+interface StudentType {
+  id: number
+  name: string
+  email: string
+  // Add other properties if available from API
+}
 
 export const PeoplePane = () => {
+  const speak = useVoiceStore((state) => state.speak)
+  const { classId } = useParams({ from: '/_public/_auth/classes/$classId/' })
+
+  const { data: courseData } = useQueryData<ApiResponseType<'single', StudentCourseDetail>>(COURSE.STUDENT_DETAIL, { course_id: classId })
+  const { data: studentsData } = useQueryData<ApiResponseType<'multiple', StudentType>>(COURSE.LIST_STUDENT, { course_id: classId })
+  
+  const course = courseData?.data
+  const students = studentsData?.data || []
+  const teacherName = (course as any)?.teacher?.name || "Pengajar Kelas" 
+
   useRegisterCommands([
     {
       pattern: /^daftar\s+(.+)$/i,
       description: "daftar... adalah untuk membacakan daftar yang ada. bisa berupa: orang, pengajar, pelajar",
       action: ([type]) => {
-                
+        const target = type.toLowerCase()
+        if (target.includes('pengajar') || target.includes('guru') || target.includes('dosen')) {
+            speak(`Pengajar di kelas ini adalah ${teacherName}`)
+        } else if (target.includes('pelajar') || target.includes('siswa') || target.includes('teman') || target.includes('murid')) {
+            if (students.length === 0) {
+              speak("Belum ada teman sekelas yang terdaftar.")
+              return
+            }
+            const names = students.slice(0, 3).map(s => s.name).join(', ')
+            const suffix = students.length > 3 ? "dan lain-lain." : "."
+            speak(`Terdapat ${students.length} teman sekelas, diantaranya: ${names} ${suffix}`)
+        } else if (target.includes('orang') || target.includes('anggota') || target.includes('semua')) {
+            speak(`Daftar anggota kelas: Pengajar adalah ${teacherName}. Dan terdapat ${students.length} teman sekelas.`)
+        } else {
+            speak("Maaf, saya tidak mengerti siapa yang dimaksud. Coba katakan 'daftar pengajar' atau 'daftar teman sekelas'")
+        }
       }
     }
   ])
+
+  useEffect(() => {
+    speak("Ini adalah panel anggota. Katakan 'daftar pengajar' atau 'daftar teman sekelas' untuk mengetahui anggota kelas.")
+  }, [])
   return (
     <div className="flex flex-col gap-10">
       <section>
@@ -31,9 +66,11 @@ export const PeoplePane = () => {
         <div className="p-4 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-800/40 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] grid grid-cols-1 gap-2">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-200 to-slate-300 dark:from-zinc-700 dark:to-zinc-600 flex-shrink-0 flex items-center justify-center shadow-inner overflow-hidden">
-              <span className="font-bold text-slate-400 dark:text-zinc-500">JD</span>
+              <span className="font-bold text-slate-400 dark:text-zinc-500">
+                {teacherName.substring(0, 2).toUpperCase()}
+              </span>
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Jane Doe</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">{teacherName}</h3>
           </div>
         </div>
       </section>
@@ -43,23 +80,27 @@ export const PeoplePane = () => {
           <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
             <Users className="w-5 h-5 text-[#2280c3]" />
             Teman Sekelas
-            <span className="ml-2 text-xs font-bold px-2.5 py-1 bg-slate-100 dark:bg-zinc-800 text-slate-500 rounded-full">24 Pelajar</span>
+            <span className="ml-2 text-xs font-bold px-2.5 py-1 bg-slate-100 dark:bg-zinc-800 text-slate-500 rounded-full">{students.length} Pelajar</span>
           </h2>
         </div>
         <div className="p-4 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-800/40 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] grid grid-cols-1 gap-2">
-        {Array(24).fill(0).map((_, i) => (
-          <>
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-200 to-slate-300 dark:from-zinc-700 dark:to-zinc-600 flex-shrink-0 flex items-center justify-center shadow-inner overflow-hidden">
-                <span className="font-bold text-slate-400 dark:text-zinc-500">JD</span>
+        {students.length === 0 ? (
+           <p className="text-center text-slate-500 py-4">Belum ada siswa.</p>
+        ) : (
+          students.map((student, i) => (
+            <div key={student.id || i}>
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-200 to-slate-300 dark:from-zinc-700 dark:to-zinc-600 flex-shrink-0 flex items-center justify-center shadow-inner overflow-hidden">
+                  <span className="font-bold text-slate-400 dark:text-zinc-500">{student.name.substring(0, 2).toUpperCase()}</span>
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{student.name}</h3>
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Jane Doe</h3>
+              {i !== students.length - 1 && (
+                <div className='border-b border-slate-100 dark:border-zinc-800 my-2'></div>
+              )}
             </div>
-            {i !== 23 && (
-              <div className='border-b border-slate-100 dark:border-zinc-800'></div>
-            )}
-          </>
-        ))}
+          ))
+        )}
         </div>
 
       </section>

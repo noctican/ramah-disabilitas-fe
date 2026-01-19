@@ -43,6 +43,8 @@ import { getToken } from "@/lib/token-handler";
 import { apiClient } from "@/lib/api-client";
 import { AUTH, COURSE, MATERIAL } from "@/data/const/api_path";
 import { useQueryData, useMutationAction } from "@/hooks/api/use-global-fetch";
+import { useVoiceStore } from "@/data/store/voice_store";
+import { useRegisterCommands } from "@/hooks/use-register-command";
 import type { ApiResponseType } from "@/data/types/api_response_types";
 import type {
   StudentCourseDetail,
@@ -54,24 +56,7 @@ export const Route = createFileRoute("/learn/$classId")({
   validateSearch: z.object({
     materialId: z.number().optional(),
   }),
-  beforeLoad: async () => {
-    const { isAuthenticated, login, logout } = useAuthStore.getState();
-    const token = getToken();
-
-    if (!isAuthenticated) {
-      if (token) {
-        try {
-          const userData = await apiClient.get(AUTH.ME);
-          login(userData);
-          return;
-        } catch (error) {
-          console.error("Session timeout", error);
-        }
-      }
-      logout();
-      throw redirect({ to: "/login" });
-    }
-  },
+  // beforeLoad removed to match other layouts logic
   component: ClassLessonView,
 });
 
@@ -79,9 +64,21 @@ function ClassLessonView() {
   const { classId } = Route.useParams();
   const { materialId } = Route.useSearch();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore()
+  const speak = useVoiceStore((state) => state.speak)
+  
+  // Auth Check (Client Side)
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate({ to: "/login" })
+    }
+  }, [isAuthenticated, navigate])
+
   const [activeTab, setActiveTab] = useState<
     "chat" | "flashcards" | "quiz" | "summary"
   >("summary");
+
+
   const [sidebarWidth, setSidebarWidth] = useState(384); // Default w-96 (24rem = 384px)
   const [isResizing, setIsResizing] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
@@ -140,6 +137,59 @@ function ClassLessonView() {
     material_id: activeMaterialId,
   });
   const material = materialData?.data;
+
+  const { trigger: markAsDone, isMutating: isMarkingDone } = useMutationAction(
+    MATERIAL.MARK_AS_DONE,
+    "post",
+    { refreshKey: MATERIAL.GET_DETAIL }
+  );
+
+  const handleMarkAsDone = async () => {
+    if (!material?.id || material.is_completed) return;
+    try {
+      await markAsDone({ material_id: material.id });
+      speak("Selamat! Materi berhasil diselesaikan.");
+    } catch (error) {
+      console.error(error);
+      speak("Gagal menandai materi selesai.");
+    }
+  };
+
+  useRegisterCommands([
+    {
+      pattern: /^buka chat$/i,
+      description: "Membuka tab chat AI",
+      action: () => {
+        setActiveTab("chat")
+        speak("Membuka chat AI")
+      }
+    },
+    {
+      pattern: /^buka tab +(.+)$/i,
+      description: "buka tab <nama tab> ",
+      action: ([match]) => {
+        let tabName = match[1]
+        if(['ringkasan', 'summary'].includes(tabName.toLowerCase())){
+          tabName = 'summary'
+        }else if(['kuis', 'quiz'].includes(tabName.toLowerCase())){
+          tabName = 'quiz'
+        }else if(['flashcard', 'kartu'].includes(tabName.toLowerCase())){
+          tabName = 'flashcards'
+        }else if(['chat', 'ai'].includes(tabName.toLowerCase())){
+          tabName = 'chat'
+        }
+        setActiveTab(tabName as "chat" | "flashcards" | "quiz" | "summary")
+        speak(`Membuka tab ${tabName}`)
+      }
+    },
+    {
+      pattern: /^tandai+(.+)+selesai$/i,
+      description: "Menandai materi sebagai selesai",
+      action: () => {
+         handleMarkAsDone()
+      }
+    }
+  ])
 
   // Redirect to first material if no materialId in URL
   if (course && !materialId && activeMaterialId) {
@@ -291,10 +341,25 @@ function ClassLessonView() {
                   </div>
                 </div>
                 <button
-                  className={`flex-shrink-0 flex items-center gap-2 px-6 py-3 font-semibold rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer ${material?.is_completed ? "bg-green-100 text-green-700 shadow-none" : "bg-primary-500 hover:bg-primary-600 text-white shadow-[0_0_15px_rgba(34,128,195,0.15)]"}`}
+                  onClick={handleMarkAsDone}
+                  disabled={isMarkingDone || material?.is_completed}
+                  className={`flex-shrink-0 flex items-center gap-2 px-6 py-3 font-semibold rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed ${
+                    material?.is_completed
+                      ? "bg-green-100 text-green-700 shadow-none"
+                      : "bg-primary-500 hover:bg-primary-600 text-white shadow-[0_0_15px_rgba(34,128,195,0.15)]"
+                  }`}
                 >
-                  <CheckCircle className="w-5 h-5" />
-                  {material?.is_completed ? "Selesai" : "Tandai Selesai"}
+                  {isMarkingDone ? (
+                    <>
+                      <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                      Proses...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-5 h-5" />
+                      {material?.is_completed ? "Selesai" : "Tandai Selesai"}
+                    </>
+                  )}
                 </button>
               </div>
 
@@ -440,6 +505,43 @@ function SummaryView({ material }: { material?: MaterialDetailType }) {
     { refreshKey: MATERIAL.GET_DETAIL }
   );
 
+  const speak = useVoiceStore((state) => state.speak)
+
+  useRegisterCommands([
+    {
+      pattern: /^buat ringkasan$/i,
+      description: "Generate ringkasan otomatis",
+      action: () => {
+        if (!material?.smart_feature?.summary && !previewSummary) {
+             speak("Sedang membuat ringkasan, mohon tunggu sebentar.")
+             handleGenerate()
+        } else {
+             speak("Ringkasan sudah tersedia.")
+        }
+      }
+    },
+    {
+      pattern: /^bacakan ringkasan$/i,
+      description: "Membacakan isi ringkasan",
+      action: () => {
+         const text = displaySummary || "Belum ada ringkasan."
+         speak(text.substring(0, 200) + (text.length > 200 ? "... dan seterusnya" : ""))
+      }
+    },
+    {
+      pattern: /^simpan ringkasan$/i,
+      description: "Menyimpan ringkasan yang sedang dipreview",
+      action: () => {
+        if (previewSummary) {
+            handleSave()
+            speak("Menyimpan ringkasan")
+        } else {
+            speak("Tidak ada ringkasan baru untuk disimpan")
+        }
+      }
+    }
+  ])
+
   const handleGenerate = async () => {
     if (!material?.id) return;
     try {
@@ -572,6 +674,63 @@ function ChatView({ material }: { material?: MaterialDetailType }) {
         'post'
     )
 
+    const speak = useVoiceStore((state) => state.speak)
+
+    const handleSendMessage = async (msg?: string) => {
+        const messageToSend = msg || input.trim()
+        if (!messageToSend || !material?.id) return
+
+        const userMessage: Message = {
+            id: Date.now().toString(),
+            role: 'user',
+            content: messageToSend,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+
+        setMessages(prev => [...prev, userMessage])
+        setInput("")
+
+        try {
+            const res = await sendChat({ 
+                material_id: material.id,
+                question: userMessage.content 
+            })
+
+            const answer = res?.data?.answer || "Maaf, saya tidak dapat menemukan jawaban saat ini."
+            
+            const aiMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                content: answer,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+            
+            setMessages(prev => [...prev, aiMessage])
+            speak(answer)
+
+        } catch (error) {
+            console.error(error)
+             const errorMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                content: "Maaf, terjadi kesalahan saat memproses pertanyaan Anda. Silakan coba lagi.",
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+            setMessages(prev => [...prev, errorMessage])
+            speak("Maaf, terjadi kesalahan.")
+        }
+    }
+
+    useRegisterCommands([
+        {
+          pattern: /(?:tanya|bertanya|chat)\s+(.+)/i,
+          description: "Bertanya kepada AI. Contoh: 'tanya apa itu react'",
+          action: ([question]) => {
+            handleSendMessage(question)
+          }
+        }
+    ])
+
     // Initial greeting
     useEffect(() => {
         if (messages.length === 0) {
@@ -595,47 +754,7 @@ function ChatView({ material }: { material?: MaterialDetailType }) {
         scrollToBottom()
     }, [messages])
 
-    const handleSendMessage = async () => {
-        if (!input.trim() || !material?.id) return
 
-        const userMessage: Message = {
-            id: Date.now().toString(),
-            role: 'user',
-            content: input.trim(),
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }
-
-        setMessages(prev => [...prev, userMessage])
-        setInput("")
-
-        try {
-            const res = await sendChat({ 
-                material_id: material.id,
-                question: userMessage.content 
-            })
-
-            const answer = res?.data?.answer || "Maaf, saya tidak dapat menemukan jawaban saat ini."
-            
-            const aiMessage: Message = {
-                id: (Date.now() + 1).toString(),
-                role: 'assistant',
-                content: answer,
-                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            }
-            
-            setMessages(prev => [...prev, aiMessage])
-
-        } catch (error) {
-            console.error(error)
-             const errorMessage: Message = {
-                id: (Date.now() + 1).toString(),
-                role: 'assistant',
-                content: "Maaf, terjadi kesalahan saat memproses pertanyaan Anda. Silakan coba lagi.",
-                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            }
-            setMessages(prev => [...prev, errorMessage])
-        }
-    }
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -651,7 +770,7 @@ function ChatView({ material }: { material?: MaterialDetailType }) {
                     <div key={msg.id} className={`flex flex-col gap-2 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                         <div className="flex gap-3 max-w-[85%]">
                             {msg.role === 'assistant' && (
-                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-600 flex items-center justify-center shrink-0 mt-1">
+                                <div className="w-8 h-8 rounded-lg bg-linear-to-br from-primary to-primary-600 flex items-center justify-center shrink-0 mt-1">
                                     <Sparkles className="w-4 h-4 text-white" />
                                 </div>
                             )}
@@ -700,7 +819,7 @@ function ChatView({ material }: { material?: MaterialDetailType }) {
                         className="w-full pl-4 pr-12 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-60"
                     />
                     <button 
-                        onClick={handleSendMessage}
+                        onClick={() => handleSendMessage()}
                         disabled={isLoading || !input.trim()}
                         className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
@@ -727,6 +846,35 @@ function FlashcardsView({ material }: { material?: MaterialDetailType }) {
         MATERIAL.FLASHCARDS,
         'post'
     )
+    
+    const speak = useVoiceStore((state) => state.speak)
+
+    useRegisterCommands([
+        {
+          pattern: /^(?:lanjut|next|selanjutnya)$/i,
+          description: "Flashcard selanjutnya",
+          action: () => {
+            handleNext()
+            speak("Kartu selanjutnya")
+          }
+        },
+        {
+          pattern: /^(?:balik|mundur|sebelumnya)$/i,
+          description: "Flashcard sebelumnya",
+          action: () => {
+            handlePrev()
+            speak("Kartu sebelumnya")
+          }
+        },
+        {
+          pattern: /^(?:putar|flip|balik kartu)$/i,
+          description: "Memutar kartu flashcard",
+          action: () => {
+            setIsFlipped(!isFlipped)
+            speak("Memutar kartu")
+          }
+        }
+    ])
 
     const handleGenerate = async () => {
         if (!material?.id) return
@@ -798,7 +946,7 @@ function FlashcardsView({ material }: { material?: MaterialDetailType }) {
                 `}
             </style>
 
-            <div className="flex items-center justify-between mb-4 flex-shrink-0">
+            <div className="flex items-center justify-between mb-4 shrink-0">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <BrainCircuit className="w-5 h-5 text-primary" />
                     Review Konsep
@@ -810,7 +958,7 @@ function FlashcardsView({ material }: { material?: MaterialDetailType }) {
 
             <div className="flex-1 flex flex-col items-center justify-center perspective-1000 min-h-0 w-full my-2">
                 <div 
-                    className={`relative w-full h-full max-h-72 aspect-[4/5] cursor-pointer transition-transform duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}
+                    className={`relative w-full h-full max-h-72 aspect-4/5 cursor-pointer transition-transform duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}
                     onClick={() => setIsFlipped(!isFlipped)}
                 >
                     {/* Front */}
@@ -838,7 +986,7 @@ function FlashcardsView({ material }: { material?: MaterialDetailType }) {
                 </div>
             </div>
 
-            <div className="mt-4 flex items-center justify-between gap-3 flex-shrink-0">
+            <div className="mt-4 flex items-center justify-between gap-3 shrink-0">
                 <button 
                     onClick={handlePrev}
                     className="p-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-600 dark:text-slate-400 transition-colors cursor-pointer"

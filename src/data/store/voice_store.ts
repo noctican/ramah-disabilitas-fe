@@ -72,7 +72,7 @@ export const useVoiceStore = create<VoiceState>((set, get) => ({
     }
 
     const { commands } = get();
-    const cleanText = transcript.toLowerCase().replace(/[.,?!]/g, "").trim();
+    const cleanText = transcript.toLowerCase().replace(/[?!]/g, "").replace(/\.$/g, "").trim();
     console.log("Mendengar:", cleanText);
 
     if (cleanText === 'bantuan') {

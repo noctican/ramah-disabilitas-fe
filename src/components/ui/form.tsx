@@ -15,6 +15,7 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
+import { useVoiceStore } from "@/data/store/voice_store"
 
 const Form = FormProvider
 
@@ -137,7 +138,12 @@ function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
 
 function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   const { error, formMessageId } = useFormField()
+  const { speak } = useVoiceStore()
   const body = error ? String(error?.message ?? "") : props.children
+
+  React.useEffect(() => {
+    if(error?.message) speak(error?.message)
+  }, [error])
 
   if (!body) {
     return null

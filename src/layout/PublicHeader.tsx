@@ -34,56 +34,39 @@ export default function PublicHeader() {
     return PUBLIC_NAV_ITEMS.filter(i => !i.hasAccess || i.hasAccess.some(r => r === role))
   }, [role])
 
-  const dynamicCommands = useMemo(() => {
-    const cmds = []
-    
-    cmds.push({
-      pattern: /^buka beranda$/i,
-      description: "buka beranda... adalah untuk membuka halaman beranda.",
-      action: () => {
+  useRegisterCommands([{
+    pattern: /^(?:buka|ke)\s+(.+)$/i,
+    description: "buka... adalah untuk membuka halaman yang diminta. contoh: buka beranda, login, daftar, kelas, atau tugas",
+    action: ([match]) => {
+      const page = match.toLowerCase().trim()
+      if(page === "beranda" || page === "home") {
         speak("Membuka halaman beranda");
         navigate({ to: '/' });
-      }
-    })
-    if(!isAuthenticated) cmds.push({
-      pattern: /^buka login$/i,
-      description: "buka login... adalah untuk membuka halaman login.",
-      action: () => {
+      } else if(page === "login" || page === "masuk") {
+        if(isAuthenticated) return speak("Anda sudah login");
         speak("Membuka halaman login");
         navigate({ to: '/login' });
-      }
-    })
-    else if(role === ROLE_STUDENT) {
-      cmds.push({
-        pattern: /^buka kelas$/i,
-        description: "buka kelas... adalah untuk membuka halaman kelas.",
-        action: () => {
-          speak("Membuka halaman kelas");
-          navigate({ to: '/classes' });
-        }
-      })
-      cmds.push({
-        pattern: /^buka tugas$/i,
-        description: "buka tugas... adalah untuk membuka halaman tugas.",
-        action: () => {
-          speak("Membuka halaman tugas");
-          navigate({ to: '/assignments' });
-        }
-      })
-    }
-    else if(role === ROLE_TEACHER) cmds.push({
-      pattern: /^buka dashboard$/i,
-      description: "buka dashboard... adalah untuk membuka halaman dashboard.",
-      action: () => {
+      } else if(page === "register" || page === "daftar") {
+        if(isAuthenticated) return speak("Anda sudah login");
+        speak("Membuka halaman daftar");
+        navigate({ to: '/register' });
+      } else if(page === "kelas") {
+        if(!isAuthenticated || role !== ROLE_STUDENT) return speak("Anda harus login sebagai siswa terlebih dahulu");
+        speak("Membuka halaman kelas");
+        navigate({ to: '/classes' });
+      } else if(page === "tugas") {
+        if(!isAuthenticated || role !== ROLE_STUDENT) return speak("Anda harus login sebagai siswa terlebih dahulu");
+        speak("Membuka halaman tugas");
+        navigate({ to: '/assignments' });
+      } else if(page === "dashboard") {
+        if(!isAuthenticated || role !== ROLE_TEACHER) return speak("Anda harus login sebagai guru terlebih dahulu");
         speak("Membuka halaman dashboard");
         navigate({ to: '/teacher' });
+      } else {
+        speak("Halaman tidak ditemukan");
       }
-    })
-
-    return cmds
-  }, [isAuthenticated, user, navigate, speak])
-
-  useRegisterCommands(dynamicCommands)
+    }
+  }])
 
   useGSAP(() => {
     const handleScroll = () => {

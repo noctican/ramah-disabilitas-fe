@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { useState, useEffect } from 'react'
 import PublicHeaderGap from '@/layout/PublicHeaderGap'
 import { TimelinePane } from './-panes/TimelinePane'
 import { AssignmentsPane } from './-panes/AssignmentsPane'
@@ -31,6 +32,7 @@ function RouteComponent() {
     people: 'anggota'
   } as const
 
+  const [activeTab, setActiveTab] = useState("materials")
   const { classId } = Route.useParams()
   const { data } = useQueryData<ApiResponseType<'single', StudentCourseDetail>>(COURSE.STUDENT_DETAIL, { course_id: classId })
   const course = data?.data
@@ -42,16 +44,39 @@ function RouteComponent() {
 
   useRegisterCommands([
     {
-      pattern: /^panel\s+(.+)$/i, 
-      description: "panel... adalah berpindah teb. panel dapat berupa: materi, tugas, anggota.",
+      pattern: /(?:buka|pindah|lihat|ke)\s+(?:panel|tab|halaman|bagian)?\s*(.+)/i, 
+      description: "Berpindah panel/tab. Contoh: 'buka materi', 'lihat tugas', 'ke anggota'",
       action: ([target]) => {
-        const targetTab = target.toLowerCase().trim()
-        if(Object.values(panelList).some(v => v == targetTab)) {
-          speak(`teb ${target} dibuka`)
+        const t = target.toLowerCase().trim()
+        
+        // Cari key berdasarkan value (bahasa indonesia) atau key itu sendiri
+        const foundKey = Object.keys(panelList).find(key => {
+            const value = panelList[key as keyof typeof panelList]
+            return value === t || key === t || (t.includes(value))
+        })
+
+        if (foundKey) {
+            setActiveTab(foundKey)
+            speak(`Membuka panel ${panelList[foundKey as keyof typeof panelList]}`)
+        } else {
+            speak(`Panel ${t} tidak ditemukan. Panel yang tersedia: materi, tugas, dan anggota.`)
         }
+      }
+    },
+    {
+      pattern: /(?:baca|sebutkan)+(?:progres|kemajuan)/i,
+      description: "Menyebutkan progres kelas saat ini",
+      action: () => {
+        speak(`Progres kelas anda saat ini adalah ${Math.round(progress)} persen`)
       }
     }
   ])
+
+  useEffect(() => {
+    if(course?.title) {
+        speak(`Anda berada di kelas ${course.title}. Terdapat 3 panel: materi, tugas, dan anggota. Katakan 'buka materi' atau lainnya untuk berpindah.`)
+    }
+  }, [course?.title])
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-[#18181b] text-slate-800 dark:text-slate-100 font-sans">
@@ -74,7 +99,7 @@ function RouteComponent() {
         </aside>
 
         <main className="flex-1 h-full overflow-y-auto bg-white dark:bg-[#18181b] relative">
-          <Tabs defaultValue="materials" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="sticky top-0 z-10 bg-white/90 dark:bg-[#18181b]/90 backdrop-blur-md border-b border-slate-100 dark:border-zinc-800 px-6 md:px-8 pt-4 pb-0">
               <div className="max-w-5xl mx-auto w-full">
                 <div className="flex flex-col gap-4">

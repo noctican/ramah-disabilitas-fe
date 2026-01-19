@@ -5,11 +5,13 @@ import { Button } from '@/components/ui/button'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { loginSchema, type LoginType } from '@/data/validations/auth_schema'
-import { useLogin } from '@/hooks/api/use-auth'
+import { useLogin, useRegister } from '@/hooks/api/use-auth'
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Eye, EyeClosed } from 'lucide-react'
+import { useRegisterCommands } from '@/hooks/use-register-command'
+import { useVoiceStore } from '@/data/store/voice_store'
 
 export const Route = createFileRoute('/_auth/login')({
   component: RouteComponent,
@@ -24,6 +26,43 @@ function RouteComponent() {
   })
 
   const [showPass, setShowPass] = useState(false)
+  const speak = useVoiceStore((state) => state.speak)
+
+  useRegisterCommands([
+    {
+      pattern: /(?:isi|masukkan|tulis)+(.+)+dengan+(.+)/i,
+      description: "isi email atau kata sandi dengan data anda adalah untuk mengisi kolom email atau kata sandi. contoh: isi email dengan email@gmail.com",
+      action: ([field, value]) => {
+        console.log({field, value})
+        const normalize_field = ['kata sandi', 'password', 'sandi'].includes(field.toLowerCase().trim()) ? 'password' : field.toLowerCase().trim()
+        form.setValue(normalize_field as "email" | "password", value.trim(), {shouldValidate: true})
+        speak(`${field} diisi: ${value}`)
+      }
+    },
+    {
+      pattern: /(?:baca|sebutkan)+(.+)/i,
+      description: "baca email atau kata sandi adalah untuk membaca nilai dari kolom email atau kata sandi. contoh: baca email",
+      action: ([field]) => {
+        const normalize_field = ['kata sandi', 'password', 'sandi'].includes(field.toLowerCase().trim()) ? 'password' : field.toLowerCase().trim()
+        const value = form.getValues(normalize_field as "email" | "password")
+        speak(value ? `${normalize_field} saat ini: ${value}` : `${normalize_field} masih kosong`)
+      }
+    },
+    {
+      pattern: /(?:login|masuk|kirim|submit)/i,
+      description: "kirim adalah untuk mengirim form login",
+      action: () => {
+        speak('mengirim data')
+        form.handleSubmit((d) => trigger(d))()
+      }
+    }
+  ])
+
+
+
+  useEffect(() => {
+    speak("Terdapat 2 masukan yang harus anda isi, yaitu email dan kata sandi; kata sandi hanya bisa diisi oleh angka. katakan 'isi email atau kata sandi dengan data anda' untuk mengisinya.")
+  }, [])
 
 
   return (
@@ -72,7 +111,7 @@ function RouteComponent() {
             />
           </Field>
           <Field>
-            <Button type="submit" disabled={isMutating}>Login</Button>
+            <Button type="submit" id="btn-login" disabled={isMutating}>Login</Button>
           </Field>
           {/* <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
             Atau masuk dengan

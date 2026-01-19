@@ -7,6 +7,7 @@ import { TaskCard } from '../../-component/TaskCard'
 import { Filter } from 'lucide-react'
 import { useRegisterCommands } from '@/hooks/use-register-command'
 import { useVoiceStore } from '@/data/store/voice_store'
+import { useEffect } from 'react'
 
 export const AssignmentsPane = () => {
   const { classId } = useParams({ from: '/_public/_auth/classes/$classId/' }) // Ensure correct route ID
@@ -26,51 +27,57 @@ export const AssignmentsPane = () => {
 
   useRegisterCommands([
     {
-      pattern: /^daftar tugas\s+(.+)$/i,
-      description: "daftar tugas... adalah untuk membacakan daftar tugas",
+      pattern: /(?:baca|sebutkan|lihat|daftar)\s*tugas\s*(.*)/i,
+      description: "Membacakan daftar tugas. Bisa spesifik: 'daftar tugas terlambat', 'daftar tugas mendatang', atau 'daftar tugas' saja.",
       action: ([type]) => {
-        const jenis = type.toLowerCase().trim()
+        const jenis = type ? type.toLowerCase().trim() : ""
+        
         if (jenis.includes('terlambat')) {
           if(overdue.length == 0) {
             speak('tidak ada tugas terlambat')
             return
           }
           speak(`Anda memiliki ${overdue.length} tugas terlambat.`)
-        
           const taskList = overdue.map((c, i) => `Tugas ke-${i+1}: ${c.title}`).join('. ')
           speak(`Yaitu: ${taskList}`)
-        } else if(jenis.includes('mendatang')) {
+
+        } else if(jenis.includes('mendatang') || jenis.includes('aktif')) {
           if(upcoming.length == 0) {
             speak('tidak ada tugas mendatang')
             return
           }
           speak(`Anda memiliki ${upcoming.length} tugas mendatang.`)
-        
           const taskList = upcoming.map((c, i) => `Tugas ke-${i+1}: ${c.title}`).join('. ')
           speak(`Yaitu: ${taskList}`)
+
         } else {
+          // Default: List summary
           if(assignments.length == 0) {
-            speak('tidak ada tugas')
+            speak('Anda belum memiliki tugas sama sekali.')
             return
           }
-          speak(`Anda memiliki ${assignments.length} tugas.`)
-        
-          const taskList = assignments.map((c, i) => `Tugas ke-${i+1}: ${c.title}`).join('. ')
-          speak(`Yaitu: ${taskList}`)
+          speak(`Total ada ${assignments.length} tugas. ${overdue.length} terlambat, dan ${upcoming.length} mendatang. Katakan 'daftar tugas terlambat' untuk detailnya.`)
         }
       }
     },
     {
-      pattern: /^tugas\s+(.+)$/i,
-      description: "tugas... adalah untuk menampilkan detail tugas. sertakan nama tugas setelah kata tugas.",
+      pattern: /(?:buka|lihat|detail)\s+tugas\s+(.+)/i,
+      description: "Membuka detail tugas tertentu. Contoh: 'buka tugas [nama tugas]'",
       action: ([target]) => {
         const targetTask = target.toLowerCase().trim()
-        const assignment = assignments.find(a => a.title.toLowerCase() == targetTask)
-        if(assignment) navigate({ to: `/assignments/$assignmentId`, params: { assignmentId: assignment.id.toString() } })
-        else speak(`tugas ${targetTask} tidak ditemukan`)
+        const assignment = assignments.find(a => a.title.toLowerCase().includes(targetTask))
+        if(assignment) {
+            speak(`Membuka tugas ${assignment.title}`)
+            navigate({ to: `/assignments/$assignmentId`, params: { assignmentId: assignment.id.toString() } })
+        }
+        else speak(`Tugas dengan nama ${targetTask} tidak ditemukan`)
       }
     }
   ])
+
+  useEffect(() => {
+    speak("Ini adalah panel tugas. Katakan 'daftar tugas' untuk melihat ringkasan tugas anda.")
+  }, [])
 
   if (isLoading) {
       return <div className="text-center py-10 text-slate-500">Memuat daftar tugas...</div>

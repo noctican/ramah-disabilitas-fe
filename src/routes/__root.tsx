@@ -11,7 +11,7 @@ import { apiClient } from '@/lib/api-client'
 import { AUTH } from '@/data/const/api_path'
 import { LoadingPage } from '@/components/custom/LoadingPage'
 import { useRegisterCommands } from '@/hooks/use-register-command'
-import { ROLE_STUDENT } from '@/data/enums/roles'
+import { ROLE_STUDENT, ROLE_TEACHER } from '@/data/enums/roles'
 
 
 export const Route = createRootRoute({
@@ -40,11 +40,11 @@ export const Route = createRootRoute({
     }])
     
     useEffect(() => {
-      if(disability?.some(d => d == BLIND_DISABILITY) && !isActive && isFirst) {
+      if(role !== ROLE_TEACHER && !isActive && isFirst) {
         setIsFirst(false)
         speak('silahkan ketuk layar terlebih dahulu untuk memulai fitur asisten suara')
       }
-    }, [disability, isActive, isFirst])
+    }, [role, isActive, isFirst])
 
     useEffect(() => {
       const getCurrentUser = async () => {
@@ -80,9 +80,9 @@ export const Route = createRootRoute({
         <Outlet />
         <Toaster richColors position="top-right" />
 
-        {disability?.some(d => d == BLIND_DISABILITY) && !isActive && <button className='fixed left-0 right-0 bottom-0 top-0 opacity-0 z-9999' onClick={startAssistant}></button>}
+        {role !== ROLE_TEACHER && !isActive && <button className='fixed left-0 right-0 bottom-0 top-0 opacity-0 z-9999' onClick={startAssistant}></button>}
 
-        {disability?.some(d => d == BLIND_DISABILITY) &&
+        {role !== ROLE_TEACHER &&
           <div className='fixed left-0 right-0 bottom-0 z-999'>
             <div className={`p-4 text-white flex justify-between items-center ${isActive ? 'bg-lime-500' : 'bg-yellow-500'}`}>
               <div>
@@ -93,7 +93,7 @@ export const Route = createRootRoute({
             </div>
           </div>
         }
-        {disability?.some(d => d == BLIND_DISABILITY) &&
+        {role !== ROLE_TEACHER &&
           <div className={`p-4 text-white flex justify-between items-center opacity-0 ${isActive ? 'bg-lime-500' : 'bg-yellow-500'}`}>
             <div>
               Status: <strong>{isActive ? 'Mendengarkan...' : 'Nonaktif (Klik layar)'}</strong>
