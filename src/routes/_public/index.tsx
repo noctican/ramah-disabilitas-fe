@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Accessibility, ArrowRight, BookOpen, Ear, Eye, Users, Volume2 } from 'lucide-react'
+import { ArrowRight, AudioLines, FileAudio, Headphones, Mic, Speech, Volume2 } from 'lucide-react'
 
 export const Route = createFileRoute('/_public/')({
   component: LandingPage,
@@ -17,24 +17,24 @@ function LandingPage() {
             <div className="flex flex-col justify-center space-y-8 animate-in slide-in-from-left duration-700 fade-in">
               <div className="space-y-4">
                 <div className="inline-block rounded-full bg-primary-100 px-3 py-1 text-sm font-semibold text-primary-700">
-                  Platform LMS Ramah Disabilitas
+                  LMS Khusus Sahabat Netra
                 </div>
                 <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl xl:text-6xl text-balance">
-                  Pendidikan Tanpa Batas untuk <span className="text-primary-600">Semua Potensi</span>
+                  Melihat Dunia Lewat <span className="text-primary-600">Suara dan Nada</span>
                 </h1>
                 <p className="max-w-150 text-lg text-muted-foreground md:text-xl leading-relaxed">
-                  Wujudkan pengalaman belajar yang inklusif dengan fitur aksesibilitas adaptif. Dirancang khusus untuk mendukung pelajar disabilitas meraih prestasi gemilang.
+                  Platform pembelajaran yang didesain 100% untuk pelajar tunanetra. Nikmati pengalaman belajar mandiri dengan navigasi suara penuh dan berbagai fitur berbasis audio.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/register">
-                  <Button size="lg" className="w-full sm:w-auto text-lg px-8 py-6 rounded-full shadow-lg shadow-primary-500/20 transition-all hover:scale-105 active:scale-95">
-                    Mulai Sekarang <ArrowRight className="ml-2 h-5 w-5" />
+                  <Button size="lg" className="w-full sm:w-auto text-lg px-8 py-6 rounded-full shadow-lg shadow-primary-500/20 transition-all hover:scale-105 active:scale-95 cursor-pointer">
+                    Mulai Belajar <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
                 <a href="#features">
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto text-lg px-8 py-6 rounded-full bg-white/50 backdrop-blur-sm border-primary-200 text-primary-700 hover:bg-white hover:text-primary-800">
-                    Pelajari Fitur
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto text-lg px-8 py-6 rounded-full bg-white/50 backdrop-blur-sm border-primary-200 text-primary-700 hover:bg-white hover:text-primary-800 cursor-pointer">
+                    Dengar Fitur
                   </Button>
                 </a>
               </div>
@@ -45,7 +45,7 @@ function LandingPage() {
                   <div className="h-8 w-8 rounded-full border-2 border-white bg-primary-300 flex items-center justify-center text-xs font-bold text-primary-800">R</div>
                   <div className="h-8 w-8 rounded-full border-2 border-white bg-primary-400 flex items-center justify-center text-xs font-bold text-primary-900">S</div>
                 </div>
-                <p>Bergabung dengan <span className="font-bold text-primary-700">1,000+</span> pelajar lainnya</p>
+                <p>Dipercaya oleh <span className="font-bold text-primary-700">1,000+</span> sahabat netra</p>
               </div>
             </div>
             
@@ -60,27 +60,34 @@ function LandingPage() {
                       <Card className="col-span-2 bg-white/80 border-primary-100 shadow-sm">
                           <CardHeader className="pb-2">
                              <div className="flex items-center justify-between">
-                                <CardTitle className="text-lg">Kelas Bahasa Isyarat</CardTitle>
-                                <span className="bg-primary-100 text-primary-700 text-xs px-2 py-1 rounded-full">Langsung</span>
+                                <CardTitle className="text-lg">Audiobook Sejarah</CardTitle>
+                                <span className="bg-primary-100 text-primary-700 text-xs px-2 py-1 rounded-full">Sedang Diputar</span>
                              </div>
                           </CardHeader>
                           <CardContent>
-                              <div className="h-2 w-full bg-primary-100 rounded-full mb-2 overflow-hidden">
-                                  <div className="h-full bg-primary-500 w-[65%] rounded-full"></div>
+                              <div className="flex items-center gap-3">
+                                  <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600">
+                                      <Headphones className="h-5 w-5" />
+                                  </div>
+                                  <div className="flex-1">
+                                      <div className="h-2 w-full bg-primary-100 rounded-full mb-2 overflow-hidden">
+                                          <div className="h-full bg-primary-500 w-[65%] rounded-full animate-pulse"></div>
+                                      </div>
+                                      <p className="text-xs text-muted-foreground">Bab 3: Era Reformasi (12:30 / 45:00)</p>
+                                  </div>
                               </div>
-                              <p className="text-xs text-muted-foreground">Progres: 65%</p>
                           </CardContent>
                       </Card>
                       <Card className="bg-primary-600 text-white border-none shadow-md">
                           <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
-                              <Volume2 className="h-8 w-8 mb-2 opacity-90" />
-                              <p className="font-bold text-sm">Teks-ke-Suara</p>
+                              <Speech className="h-8 w-8 mb-2 opacity-90" />
+                              <p className="font-bold text-sm">Screen Reader</p>
                           </CardContent>
                       </Card>
                       <Card className="bg-white/80 border-primary-100 shadow-sm">
                           <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
-                              <Eye className="h-8 w-8 mb-2 text-primary-600" />
-                              <p className="font-bold text-sm text-foreground">Kontras Tinggi</p>
+                              <Mic className="h-8 w-8 mb-2 text-primary-600" />
+                              <p className="font-bold text-sm text-foreground">Perintah Suara</p>
                           </CardContent>
                       </Card>
                   </div>
@@ -95,28 +102,28 @@ function LandingPage() {
         <div className="container mx-auto px-4 md:px-6">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl text-balance">
-              Teknologi Pendukung untuk <span className="text-primary-600">Setiap Kebutuhan</span>
+              Didesain Khusus untuk <span className="text-primary-600">Telinga Anda</span>
             </h2>
             <p className="text-lg text-muted-foreground">
-              Kami mengintegrasikan standar untuk memastikan tidak ada pelajar yang tertinggal.
+              Teknologi asistif mutakhir yang membuat belajar terasa alami dan tanpa hambatan.
             </p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
              <FeatureCard 
-                icon={<Ear className="h-10 w-10 text-primary-500" />}
-                title="Dukungan Tuna Rungu"
-                description="Navigasi dan akses materi pembelajaran menggunakan perintah suara untuk kemudahan akses tanpa sentuhan."
+                icon={<Mic className="h-10 w-10 text-primary-500" />}
+                title="Kontrol Suara Penuh"
+                description="Lupakan mouse dan keyboard. Navigasi seluruh aplikasi, kerjakan kuis, dan cari materi hanya dengan suara Anda."
              />
              <FeatureCard 
-                icon={<Eye className="h-10 w-10 text-primary-500" />}
-                title="Visual Adaptif"
-                description="Mode kontras tinggi, penyesuaian ukuran teks dinamis, dan dukungan screen reader untuk pelajar dengan gangguan penglihatan."
+                icon={<Volume2 className="h-10 w-10 text-primary-500" />}
+                title="Screen Reader Friendly"
+                description="Struktur kode semantik (ARIA) yang dioptimalkan untuk NVDA, JAWS, dan TalkBack. Tidak ada tombol tanpa label."
              />
              <FeatureCard 
-                icon={<Accessibility className="h-10 w-10 text-primary-500" />}
-                title="Navigasi Ramah Motorik"
-                description="Seluruh platform dapat dioperasikan sepenuhnya menggunakan keyboard."
+                icon={<FileAudio className="h-10 w-10 text-primary-500" />}
+                title="Materi Berbasis Audio"
+                description="Seluruh materi pembelajaran tersedia dalam format audio berkualitas tinggi dan podcast edukasi."
              />
           </div>
         </div>
@@ -129,37 +136,37 @@ function LandingPage() {
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16 divide-x divide-primary-800">
                 <div className="p-4">
-                    <div className="text-4xl lg:text-5xl font-extrabold text-primary-100 mb-2">10k+</div>
-                    <div className="text-primary-200">Pelajar Aktif</div>
+                    <div className="text-4xl lg:text-5xl font-extrabold text-primary-100 mb-2">5k+</div>
+                    <div className="text-primary-200">Audiobook Pelajaran</div>
                 </div>
                 <div className="p-4">
-                    <div className="text-4xl lg:text-5xl font-extrabold text-primary-100 mb-2">500+</div>
-                    <div className="text-primary-200">Materi Inklusif</div>
+                    <div className="text-4xl lg:text-5xl font-extrabold text-primary-100 mb-2">120+</div>
+                    <div className="text-primary-200">Sekolah LB Bermitra</div>
                 </div>
                 <div className="p-4">
-                    <div className="text-4xl lg:text-5xl font-extrabold text-primary-100 mb-2">98%</div>
-                    <div className="text-primary-200">Kepuasan Pengguna</div>
+                    <div className="text-4xl lg:text-5xl font-extrabold text-primary-100 mb-2">99%</div>
+                    <div className="text-primary-200">Aksesibilitas Web</div>
                 </div>
                 <div className="p-4">
                     <div className="text-4xl lg:text-5xl font-extrabold text-primary-100 mb-2">24/7</div>
-                    <div className="text-primary-200">Dukungan Aksesibilitas</div>
+                    <div className="text-primary-200">Asisten Suara AI</div>
                 </div>
             </div>
 
             <div className="max-w-2xl mx-auto space-y-6">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Siap Memulai Perjalanan Belajarmu?</h2>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Dengar dan Pelajari Sekarang</h2>
                 <p className="text-primary-100 text-lg">
-                    Bergabunglah sekarang dan rasakan pengalaman belajar yang benar-benar mengerti kebutuhanmu. Gratis untuk pendaftaran pertama.
+                    Bergabunglah sekarang. Platform inklusif yang benar-benar mengerti cara Anda melihat dunia.
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
                     <Link to="/register">
-                      <Button size="lg" className="w-full sm:w-auto bg-white text-primary-900 hover:bg-primary-50 rounded-full text-lg px-8">
-                        Daftar Gratis
+                      <Button size="lg" className="w-full sm:w-auto bg-white text-primary-900 hover:bg-primary-50 rounded-full text-lg px-8 cursor-pointer">
+                        Mulai Gratis
                       </Button>
                     </Link>
                     <Link to="/login">
-                      <Button size="lg" variant="outline" className="w-full sm:w-auto border-white text-white hover:bg-white/10 hover:text-white bg-transparent rounded-full text-lg px-8">
-                        Masuk
+                      <Button size="lg" variant="outline" className="w-full sm:w-auto border-white text-white hover:bg-white/10 hover:text-white bg-transparent rounded-full text-lg px-8 cursor-pointer">
+                        Masuk Akun
                       </Button>
                     </Link>
                 </div>
