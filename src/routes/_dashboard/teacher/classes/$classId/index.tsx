@@ -205,26 +205,7 @@ function CourseDetailPage() {
                     {!['assignments', 'students'].includes(activeTab) && (
                         <div style={{ gridColumn: 'span 12' }} className="lg:col-span-4 lg:!col-span-4 col-span-12 space-y-6" css-hack-col-span-4="true">
                             
-                            {/* Progress Card */}
-                            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800 shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6">
-                                <h4 className="font-bold text-xs text-zinc-400 uppercase tracking-widest mb-4">Progres Kelas</h4>
-                                <div className="relative pt-1">
-                                    <div className="flex mb-2 items-center justify-between">
-                                        <div>
-                                            <span className="text-xs font-bold inline-block py-1 px-2 uppercase rounded-full text-primary bg-primary/10 border border-primary/20">
-                                                Content Completion
-                                            </span>
-                                        </div>
-                                        <div className="text-right">
-                                            <span className="text-sm font-bold inline-block text-primary">{(course.modules?.length || 0 ) * 20}%</span>
-                                        </div>
-                                    </div>
-                                    <div className="overflow-hidden h-2 mb-4 text-xs flex rounded-full bg-zinc-100 dark:bg-zinc-800">
-                                        <div className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary" style={{ width: `${(course.modules?.length || 0) * 20}%` }}></div>
-                                    </div>
-                                </div>
-                                <p className="text-xs text-zinc-500 leading-relaxed">Status based on module content population.</p>
-                            </div>
+                
 
                             {/* Enrollment Card */}
                             <div className="bg-[#141217] text-white rounded-2xl shadow-lg p-6 flex flex-col h-auto relative overflow-hidden group">
