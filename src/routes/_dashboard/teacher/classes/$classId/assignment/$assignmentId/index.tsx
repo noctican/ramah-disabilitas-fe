@@ -1,9 +1,23 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useQueryData } from '@/hooks/api/use-global-fetch'
+import { useQuery } from '@tanstack/react-query'
+import { getFetcher, postFetcher } from '@/lib/api-client'
+import { toast } from 'sonner' 
+import { useQueryClient } from '@tanstack/react-query'
 import { ASSIGNMENT } from '@/data/const/api_path'
 import { ArrowLeft, Calendar, Clock, FileText, CheckCircle, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { useState } from 'react'
 
 export const Route = createFileRoute('/_dashboard/teacher/classes/$classId/assignment/$assignmentId/')({
@@ -12,16 +26,64 @@ export const Route = createFileRoute('/_dashboard/teacher/classes/$classId/assig
 
 function AssignmentDetailPage() {
   const { classId, assignmentId } = Route.useParams()
-  
-  const { data: assignmentData, isLoading: isLoadingAssignment } = useQueryData<any>(
-    ASSIGNMENT.GET_DETAIL.replace('{assignment_id}', assignmentId)
-  )
-  const assignment = assignmentData?.data
+  const queryClient = useQueryClient()
+  const [isGradingOpen, setIsGradingOpen] = useState(false)
+  const [currentSubmission, setCurrentSubmission] = useState<any>(null)
+  const [gradeForm, setGradeForm] = useState({ grade: '', feedback: '' })
+  const [isSubmittingGrade, setIsSubmittingGrade] = useState(false)
 
-  const { data: submissionData, isLoading: isLoadingSubmissions } = useQueryData<any>(
-    ASSIGNMENT.GET_SUBMISSIONS.replace('{assignment_id}', assignmentId)
-  )
-  const submissions = submissionData?.data || []
+  const handleOpenGrading = (submission: any) => {
+    setCurrentSubmission(submission)
+    setGradeForm({
+        grade: submission.grade ? String(submission.grade) : '',
+        feedback: submission.feedback || ''
+    })
+    setIsGradingOpen(true)
+  }
+
+  const handleSubmitGrade = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!currentSubmission) return
+
+    const gradeValue = parseFloat(gradeForm.grade)
+    if (isNaN(gradeValue) || gradeValue < 0 || gradeValue > (assignment?.max_points || 100)) {
+        toast.error(`Nilai harus antara 0 - ${assignment?.max_points || 100}`)
+        return
+    }
+
+    try {
+        setIsSubmittingGrade(true)
+        await postFetcher(ASSIGNMENT.GRADE_SUBMISSION.replace('{submission_id}', currentSubmission.id), {
+            arg: {
+                grade: gradeValue,
+                feedback: gradeForm.feedback
+            }
+        })
+        
+        toast.success('Nilai berhasil disimpan')
+        setIsGradingOpen(false)
+        await queryClient.invalidateQueries({ queryKey: ['assignment-submissions', assignmentId] })
+    } catch (error) {
+        console.error(error)
+        toast.error('Gagal menyimpan nilai')
+    } finally {
+        setIsSubmittingGrade(false)
+    }
+  }
+  
+  const { data: assignmentData, isLoading: isLoadingAssignment } = useQuery({
+    queryKey: ['assignment-detail', assignmentId],
+    queryFn: () => getFetcher(ASSIGNMENT.GET_DETAIL.replace('{assignment_id}', assignmentId))
+  })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const assignment = (assignmentData as any)?.data
+
+  const { data: submissionData, isLoading: isLoadingSubmissions } = useQuery({
+    queryKey: ['assignment-submissions', assignmentId],
+    queryFn: () => getFetcher(ASSIGNMENT.GET_SUBMISSIONS.replace('{assignment_id}', assignmentId))
+  })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const submissions = (submissionData as any)?.data || []
 
   const [activeTab, setActiveTab] = useState('submissions')
 
@@ -196,7 +258,12 @@ function AssignmentDetailPage() {
                                             )}
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <Button size="sm" variant={sub.grade ? "outline" : "default"} className="h-8 text-xs font-semibold shadow-sm">
+                                            <Button 
+                                                size="sm" 
+                                                variant={sub.grade ? "outline" : "default"} 
+                                                className="h-8 text-xs font-semibold shadow-sm"
+                                                onClick={() => handleOpenGrading(sub)}
+                                            >
                                                 {sub.grade ? "Edit Nilai" : "Beri Nilai"}
                                             </Button>
                                         </td>
@@ -209,6 +276,47 @@ function AssignmentDetailPage() {
              </div>
          </TabsContent>
       </Tabs>
+
+      <Dialog open={isGradingOpen} onOpenChange={setIsGradingOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+            <DialogTitle>Beri Nilai</DialogTitle>
+            <DialogDescription>
+                Masukkan nilai dan feedback untuk {currentSubmission?.student_name || 'siswa ini'}.
+            </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmitGrade}>
+                <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor="grade">Nilai (Maks: {assignment?.max_points})</Label>
+                        <Input
+                        id="grade"
+                        type="number"
+                        placeholder="0"
+                        value={gradeForm.grade}
+                        onChange={(e) => setGradeForm({ ...gradeForm, grade: e.target.value })}
+                        />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="feedback">Feedback (Opsional)</Label>
+                        <Textarea
+                        id="feedback"
+                        placeholder="Berikan masukan untuk siswa..."
+                        value={gradeForm.feedback}
+                        onChange={(e) => setGradeForm({ ...gradeForm, feedback: e.target.value })}
+                        />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setIsGradingOpen(false)}>Batal</Button>
+                    <Button type="submit" disabled={isSubmittingGrade}>
+                        {isSubmittingGrade && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                        Simpan Nilai
+                    </Button>
+                </DialogFooter>
+            </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
