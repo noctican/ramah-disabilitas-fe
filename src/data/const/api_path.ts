@@ -25,7 +25,7 @@ export const COURSE = {
     JOIN: "/v1/courses/join",
     JOINED: "/v1/courses/joined",
     STUDENT_DETAIL: "/v1/courses/{course_id}",
-    LIST_STUDENT: "/v1/lecturer/courses/{course_id}/students/",
+    LIST_STUDENT: "/v1/lecturer/courses/{course_id}/students",
 } as const satisfies UrlGroupType
 
 export const STUDENT = {
