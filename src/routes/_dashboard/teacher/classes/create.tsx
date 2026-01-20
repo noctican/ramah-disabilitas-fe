@@ -165,7 +165,7 @@ function CreateCoursePage() {
               </h3>
               
               <div className="relative group cursor-pointer" onClick={() => document.getElementById('dropzone-file')?.click()}>
-                <div className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl bg-gray-50 dark:bg-[#1e293b]/50 hover:bg-[#eef2ff] dark:hover:bg-[#0f172a]/10 hover:border-[#6366f1] dark:hover:border-[#6366f1] transition-all overflow-hidden">
+                <div className="flex flex-col items-center justify-center w-full aspect-video border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl bg-gray-50 dark:bg-[#1e293b]/50 hover:bg-[#eef2ff] dark:hover:bg-[#0f172a]/10 hover:border-[#6366f1] dark:hover:border-[#6366f1] transition-all overflow-hidden">
                   {thumbnail && !thumbnail.includes('example.com') ? (
                       <div className="relative w-full h-full"> 
                           <img src={thumbnail} alt="Thumbnail" className="w-full h-full object-cover rounded-2xl" />
