@@ -185,7 +185,7 @@ export function AddMaterialModal({ isOpen, onClose, onSave, moduleId, initialDat
 
                     <TabsContent value="pdf" className="space-y-4 outline-none">
                         <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-[#1e293b]/50 p-6">
-                             <FileUpload onChange={(files) => setFile(files[0])} accept="application/pdf" />
+                             <FileUpload onChange={(files) => setFile(files[0])} accept=".pdf" />
                              {file ? (
                                  <div className="mt-4 flex items-center p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                                      <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
@@ -201,7 +201,7 @@ export function AddMaterialModal({ isOpen, onClose, onSave, moduleId, initialDat
                                 </div>
                              ) : null}
                         </div>
-                        <p className="text-xs text-slate-500">Mendukung format PDF, PPT, DOCX. Maksimal 10MB.</p>
+                        <p className="text-xs text-slate-500">Mendukung format PDF. Maksimal 10MB.</p>
                     </TabsContent>
 
                     <TabsContent value="youtube" className="space-y-4 outline-none">
