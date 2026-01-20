@@ -10,9 +10,6 @@ import { PUBLIC_NAV_ITEMS } from "@/data/const/public_nav";
 import { useAuthStore } from "@/data/store/auth_store";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { speak } from "@/lib/speech";
-import { ROLE_STUDENT, ROLE_TEACHER } from "@/data/enums/roles";
-import { useRegisterCommands } from "@/hooks/use-register-command";
 import { UserDropdownContent } from "@/components/custom/UserDropdownContent";
 import { SLOW_LEARNER } from "@/data/const/disability";
 import { useLogout } from "@/hooks/api/use-auth";
@@ -33,40 +30,6 @@ export default function PublicHeader() {
     if(hasDisability(SLOW_LEARNER)) return PUBLIC_NAV_ITEMS.filter(i => (!i.hasAccess || i.hasAccess.some(r => r === role)) && i.name !== "Beranda")
     return PUBLIC_NAV_ITEMS.filter(i => !i.hasAccess || i.hasAccess.some(r => r === role))
   }, [role])
-
-  useRegisterCommands([{
-    pattern: /^(?:buka|ke)\s+(.+)$/i,
-    description: "buka... adalah untuk membuka halaman yang diminta. contoh: buka beranda, login, daftar, kelas, atau tugas",
-    action: ([match]) => {
-      const page = match.toLowerCase().trim()
-      if(page === "beranda" || page === "home") {
-        speak("Membuka halaman beranda");
-        navigate({ to: '/' });
-      } else if(page === "login" || page === "masuk") {
-        if(isAuthenticated) return speak("Anda sudah login");
-        speak("Membuka halaman login");
-        navigate({ to: '/login' });
-      } else if(page === "register" || page === "daftar") {
-        if(isAuthenticated) return speak("Anda sudah login");
-        speak("Membuka halaman daftar");
-        navigate({ to: '/register' });
-      } else if(page === "kelas") {
-        if(!isAuthenticated || role !== ROLE_STUDENT) return speak("Anda harus login sebagai siswa terlebih dahulu");
-        speak("Membuka halaman kelas");
-        navigate({ to: '/classes' });
-      } else if(page === "tugas") {
-        if(!isAuthenticated || role !== ROLE_STUDENT) return speak("Anda harus login sebagai siswa terlebih dahulu");
-        speak("Membuka halaman tugas");
-        navigate({ to: '/assignments' });
-      } else if(page === "dashboard") {
-        if(!isAuthenticated || role !== ROLE_TEACHER) return speak("Anda harus login sebagai guru terlebih dahulu");
-        speak("Membuka halaman dashboard");
-        navigate({ to: '/teacher' });
-      } else {
-        speak("Halaman tidak ditemukan");
-      }
-    }
-  }])
 
   useGSAP(() => {
     const handleScroll = () => {

@@ -30,9 +30,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 const formSchema = z.object({
   mode: z.enum(["existing", "new"]),
   email: z.string().email("Email tidak valid"),
-  name: z.string().optional(),
-  password: z.string().optional(),
-  disabilities: z.array(z.string()),
+  name: z.string().min(3, "nama minimal 3 karakter").optional(),
+  password: z.string().min(8, 'Password minimal 8 karakter').regex(/^[0-9]+$/, { message: "kata sandi hanya dapat berisi angka" }).optional(),
 }).superRefine((data, ctx) => {
   if (data.mode === "new") {
     if (!data.name || data.name.length < 3) {
@@ -93,9 +92,8 @@ export function AddStudentModal({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
       await addNewStudent.trigger({
         email: values.email,
-        name: values.name || "",
-        password: values.password || "",
-        disabilities: values.disabilities,
+        name: values.mode == 'new' ? values.name : undefined,
+        password: values.mode == 'new' ? values.password : undefined,
         course_id: classId,
       })
   }
@@ -204,7 +202,7 @@ export function AddStudentModal({
                     </FormItem>
                   )}
                 />
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="disabilities"
                   render={() => (
@@ -248,7 +246,7 @@ export function AddStudentModal({
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
               </TabsContent>
 
               <div className="flex justify-end gap-3 pt-4">

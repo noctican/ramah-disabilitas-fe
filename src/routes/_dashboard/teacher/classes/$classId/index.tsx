@@ -51,6 +51,8 @@ function CourseDetailPage() {
       enabled: !!classId
   })
 
+  
+
   // Populate state when data is fetched
   useEffect(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

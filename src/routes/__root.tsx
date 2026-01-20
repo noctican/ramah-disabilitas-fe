@@ -2,7 +2,7 @@ import { BLIND_DISABILITY } from '@/data/const/disability'
 import { useAuthStore } from '@/data/store/auth_store'
 import { useVoiceStore } from '@/data/store/voice_store'
 import { useVoiceAssistant } from '@/hooks/use-voice-assistant'
-import { Outlet, createRootRoute, useRouter } from '@tanstack/react-router'
+import { Outlet, createRootRoute, useNavigate, useRouter } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { Toaster } from 'sonner'
 import { DisabilityCheckModal } from './-components/DisabilityCheckModal'
@@ -19,6 +19,7 @@ export const Route = createRootRoute({
     const [isFirst, setIsFirst] = useState(true)
     const { setIsActive, isActive, lastTranscript, speak } = useVoiceStore()
     const { disability, firstRender, isAuthenticated, login, logout, setFirstRender, role } = useAuthStore()
+    const navigate = useNavigate()
     
     // const [isOpenDisabilityModal, setIsOpenDisabilityModal] = useState(false)
 
@@ -36,6 +37,38 @@ export const Route = createRootRoute({
       description: "kembali... adalah untuk kembali ke halaman sebelumnya.",
       action: () => {
         router.history.back()
+      }
+    },{
+      pattern: /^(?:buka|ke)\s+(.+)$/i,
+      description: "buka... adalah untuk membuka halaman yang diminta. contoh: buka beranda, login, daftar, kelas, atau tugas",
+      action: ([match]) => {
+        const page = match.toLowerCase().trim()
+        if(page === "beranda" || page === "home") {
+          speak("Membuka halaman beranda");
+          navigate({ to: '/' });
+        } else if(page === "login" || page === "masuk") {
+          if(isAuthenticated) return speak("Anda sudah login");
+          speak("Membuka halaman login");
+          navigate({ to: '/login' });
+        } else if(page === "register" || page === "daftar") {
+          if(isAuthenticated) return speak("Anda sudah login");
+          speak("Membuka halaman daftar");
+          navigate({ to: '/register' });
+        } else if(page === "kelas") {
+          if(!isAuthenticated || role !== ROLE_STUDENT) return speak("Anda harus login sebagai siswa terlebih dahulu");
+          speak("Membuka halaman kelas");
+          navigate({ to: '/classes' });
+        } else if(page === "tugas") {
+          if(!isAuthenticated || role !== ROLE_STUDENT) return speak("Anda harus login sebagai siswa terlebih dahulu");
+          speak("Membuka halaman tugas");
+          navigate({ to: '/assignments' });
+        } else if(page === "dashboard") {
+          if(!isAuthenticated || role !== ROLE_TEACHER) return speak("Anda harus login sebagai guru terlebih dahulu");
+          speak("Membuka halaman dashboard");
+          navigate({ to: '/teacher' });
+        } else {
+          speak("Halaman tidak ditemukan");
+        }
       }
     }])
     

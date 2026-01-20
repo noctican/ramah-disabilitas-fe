@@ -8,6 +8,7 @@ import {
   ArrowRight, 
   Lightbulb, 
   Check,
+  X,
 } from 'lucide-react'
 import { useState } from 'react'
 import { JoinClassDialog } from './-component/JoinClassDialog'
@@ -86,7 +87,7 @@ function RouteComponent() {
       description: "buka kelas... adalah untuk masuk ke kelas yang sudah ada. perintah diikuti oleh nama kelas",
       action: ([target]) => {
         const className = target.toLowerCase().trim()
-        const classData = data?.data?.find(c => c.title.toLowerCase() === className)
+        const classData = data?.data?.find(c => c.title.toLowerCase().replace(/[^a-z0-9]/g, '') === className.replace(/[^a-z0-9]/g, ''))
         if (!classData) {
           speak(`Kelas ${className} tidak ditemukan.`)
           return
@@ -125,7 +126,7 @@ function RouteComponent() {
               {data?.data?.map((course) => (
                 <ClassCard key={course.id} data={course} />
               ))}
-              {!hasDisability(SLOW_LEARNER) &&
+              {/* {!hasDisability(SLOW_LEARNER) &&
                 <div 
                     onClick={() => setIsJoinDialogOpen(true)}
                     className="bg-gray-100 dark:bg-white/5 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 p-4 flex flex-col items-center justify-center min-h-[250px] group cursor-pointer hover:border-primary/50 transition-colors"
@@ -135,6 +136,17 @@ function RouteComponent() {
                   </div>
                   <p className="text-gray-900 dark:text-white font-bold text-base">Bergabung dengan Kelas</p>
                   <p className="text-gray-600 dark:text-gray-400 text-sm text-center px-4 mt-1">Cari kelas baru untuk bergabung.</p>
+                </div>
+              } */}
+              {!data?.data?.length &&
+                <div 
+                    className="col-span-2 bg-gray-100 dark:bg-white/5 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 p-4 flex flex-col items-center justify-center min-h-[250px] transition-colors"
+                >
+                  <div className="bg-white dark:bg-white/10 p-4 rounded-full mb-3 transition-transform">
+                    <X className="text-gray-400 w-8 h-8" />
+                  </div>
+                  <p className="text-gray-900 dark:text-white font-bold text-base">Belum Ada Kelas</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm text-center px-4 mt-1">Minta pengajar untuk menambahkan anda.</p>
                 </div>
               }
             </div>

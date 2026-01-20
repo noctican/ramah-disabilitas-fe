@@ -45,7 +45,7 @@ function RouteComponent() {
   useRegisterCommands([
     {
       pattern: /(?:buka|pindah|lihat|ke)\s+(?:panel|tab|halaman|bagian)?\s*(.+)/i, 
-      description: "Berpindah panel/tab. Contoh: 'buka materi', 'lihat tugas', 'ke anggota'",
+      description: "buka panel [nama panel] adalah untuk berpindah ke panel lain",
       action: ([target]) => {
         const t = target.toLowerCase().trim()
         
@@ -65,7 +65,7 @@ function RouteComponent() {
     },
     {
       pattern: /(?:baca|sebutkan)+(?:progres|kemajuan)/i,
-      description: "Menyebutkan progres kelas saat ini",
+      description: "baca [progres/kemajuan] adalah untuk mengetahui progres kelas saat ini",
       action: () => {
         speak(`Progres kelas anda saat ini adalah ${Math.round(progress)} persen`)
       }

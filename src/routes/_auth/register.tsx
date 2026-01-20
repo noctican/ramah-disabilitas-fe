@@ -25,6 +25,9 @@ function RouteComponent() {
     const form = useForm<RegisterType>({
         mode: "onChange",
         resolver: zodResolver(registerSchema),
+        defaultValues: {
+          role: ROLE_TEACHER
+        }
     })
 
     const mapField = (field: string): keyof RegisterType | null => {
@@ -33,7 +36,6 @@ function RouteComponent() {
       if (['nama', 'name'].includes(f)) return 'name'
       if (['password', 'kata sandi', 'sandi'].includes(f)) return 'password'
       if (['konfirmasi', 'ulangi', 'konfirmasi kata sandi', 'konfirmasi password', 'konfirmasi sandi'].includes(f)) return 'confirm_password'
-      if (['role', 'sebagai'].includes(f)) return 'role'
       return null
     }
 
@@ -50,14 +52,14 @@ function RouteComponent() {
 
           let val = value.trim()
           
-          if (key === 'role') {
-            if (['pelajar', 'murid', 'siswa', 'mahasiswa'].includes(val.toLowerCase())) val = ROLE_STUDENT
-            else if (['pengajar', 'guru', 'dosen', 'tendik'].includes(val.toLowerCase())) val = ROLE_TEACHER
-            else {
-               speak("Role harus pelajar atau pengajar")
-               return
-            }
-          }
+          // if (key === 'role') {
+          //   if (['pelajar', 'murid', 'siswa', 'mahasiswa'].includes(val.toLowerCase())) val = ROLE_STUDENT
+          //   else if (['pengajar', 'guru', 'dosen', 'tendik'].includes(val.toLowerCase())) val = ROLE_TEACHER
+          //   else {
+          //      speak("Role harus pelajar atau pengajar")
+          //      return
+          //   }
+          // }
 
           form.setValue(key, val, { shouldValidate: true })
           speak(`${field} diisi dengan ${value}`)
@@ -86,7 +88,7 @@ function RouteComponent() {
     ])
 
     useEffect(() => {
-        speak("Anda berada di halaman pendaftaran. Silahkan isi nama, email, password, konfirmasi password, dan pilih role anda sebagai pelajar atau pengajar. Katakan 'isi [nama field] dengan [nilai]' untuk mengisi.")
+        speak("Anda berada di halaman pendaftaran. Silahkan isi nama, email, password, dan konfirmasi password. Katakan 'isi [nama field] dengan [nilai]' untuk mengisi.")
     }, [])
     
   return (
@@ -94,9 +96,9 @@ function RouteComponent() {
       <form onSubmit={form.handleSubmit((d) => trigger(d))}>
         <FieldGroup>
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl font-bold">Buat Akun</h1>
+            <h1 className="text-2xl font-bold">Buat Akun Pengajar</h1>
             <p className="text-muted-foreground text-sm text-balance">
-              Masukkan data berikut untuk membuat akun
+              Masukkan data berikut untuk membuat akun pengajar
             </p>
           </div>
           <Field>
@@ -161,27 +163,27 @@ function RouteComponent() {
                 />
             </Field>
           </Field>
-        <Field>
-            <FormField
-            control={form.control}
-            name="role"
-            render={({field}) => (
-                <FormItem>
-                    <FieldLabel htmlFor="role">Sebagai</FieldLabel>
-                    <Select onValueChange={(v) => field.onChange(v)} name='role'>
-                        <SelectTrigger className='w-full' id='role'>
-                            <SelectValue placeholder="Pilih role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value={ROLE_STUDENT}>Pelajar</SelectItem>
-                            <SelectItem value={ROLE_TEACHER}>Pengajar</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <FormMessage />
-                </FormItem>
-            )}
-            />
-        </Field>
+          {/* <Field>
+              <FormField
+              control={form.control}
+              name="role"
+              render={({field}) => (
+                  <FormItem>
+                      <FieldLabel htmlFor="role">Sebagai</FieldLabel>
+                      <Select onValueChange={(v) => field.onChange(v)} name='role'>
+                          <SelectTrigger className='w-full' id='role'>
+                              <SelectValue placeholder="Pilih role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              <SelectItem value={ROLE_STUDENT}>Pelajar</SelectItem>
+                              <SelectItem value={ROLE_TEACHER}>Pengajar</SelectItem>
+                          </SelectContent>
+                      </Select>
+                      <FormMessage />
+                  </FormItem>
+              )}
+              />
+          </Field> */}
           <Field>
             <Button type="submit" disabled={isMutating}>Daftar</Button>
           </Field>

@@ -9,6 +9,7 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use((config) => {
     const token = getToken()
     if (token) config.headers['Authorization'] = 'Bearer ' + token
+    config.headers['Accept'] = 'multipart/form-data'
 
     const replaceUrl = (sourceData: any) => {
         if (!config.url || !sourceData) return
