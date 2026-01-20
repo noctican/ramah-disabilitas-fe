@@ -20,7 +20,7 @@ export const Route = createRootRoute({
     const { setIsActive, isActive, lastTranscript, speak } = useVoiceStore()
     const { disability, firstRender, isAuthenticated, login, logout, setFirstRender, role } = useAuthStore()
     
-    const [isOpenDisabilityModal, setIsOpenDisabilityModal] = useState(false)
+    // const [isOpenDisabilityModal, setIsOpenDisabilityModal] = useState(false)
 
     const router = useRouter()
     
@@ -69,14 +69,14 @@ export const Route = createRootRoute({
       if(firstRender) getCurrentUser()
     }, [firstRender, isAuthenticated])
 
-    useEffect(() => {
-      if(isAuthenticated && disability === null && role === ROLE_STUDENT) setIsOpenDisabilityModal(true)
-    }, [isAuthenticated, disability])
+    // useEffect(() => {
+    //   if(isAuthenticated && disability === null && role === ROLE_STUDENT) setIsOpenDisabilityModal(true)
+    // }, [isAuthenticated, disability])
 
     if(firstRender) return <LoadingPage />
     return (
       <>
-        <DisabilityCheckModal isOpen={isOpenDisabilityModal} setIsOpen={setIsOpenDisabilityModal} />
+        {/* <DisabilityCheckModal isOpen={isOpenDisabilityModal} setIsOpen={setIsOpenDisabilityModal} /> */}
         <Outlet />
         <Toaster richColors position="top-right" />
 
