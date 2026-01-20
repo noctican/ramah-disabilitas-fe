@@ -164,7 +164,7 @@ function UnifiedNavItem({
         className={cn(
           "flex items-center justify-between font-medium transition-colors select-none",
           isMobile && "text-lg py-2 w-full",
-          !isMobile && "text-sm text-muted-foreground hover:text-primary-600",
+          !isMobile && "text-sm text-muted-foreground hover:text-primary-600 [&.active]:font-bold [&.active]:text-foreground",
           !isMobile && hasChild && "cursor-default hover:text-foreground",
           hasChild && isOpen && isMobile && "text-primary-600"
         )}

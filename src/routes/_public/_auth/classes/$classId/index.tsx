@@ -44,8 +44,9 @@ function RouteComponent() {
 
   useRegisterCommands([
     {
-      pattern: /(?:buka|pindah|lihat|ke)\s+(?:panel|tab|halaman|bagian)?\s*(.+)/i, 
+      pattern: /(?:buka|pindah|lihat|ke)\s+(?:panel|tab|bagian)?\s*(.+)/i, 
       description: "buka panel [nama panel] adalah untuk berpindah ke panel lain",
+      priority: 9,
       action: ([target]) => {
         const t = target.toLowerCase().trim()
         
@@ -100,7 +101,7 @@ function RouteComponent() {
 
         <main className="flex-1 h-full overflow-y-auto bg-white dark:bg-[#18181b] relative">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="sticky top-0 z-10 bg-white/90 dark:bg-[#18181b]/90 backdrop-blur-md border-b border-slate-100 dark:border-zinc-800 px-6 md:px-8 pt-4 pb-0">
+            <div className="bg-white/90 dark:bg-[#18181b]/90 backdrop-blur-md border-b border-slate-100 dark:border-zinc-800 px-6 md:px-8 pt-4 pb-0">
               <div className="max-w-5xl mx-auto w-full">
                 <div className="flex flex-col gap-4">
                   <Link 
@@ -128,7 +129,7 @@ function RouteComponent() {
                   </div>
 
                   {/* Navigation Tabs */}
-                  <div className="mt-8">
+                  <div className="mt-8 bg-white/90 dark:bg-[#18181b]/90 backdrop-blur-md border-b border-slate-100 dark:border-zinc-800">
                     <TabsList className="flex w-full border-b border-slate-200 dark:border-zinc-800 bg-transparent p-0">
                        <TabsTrigger
                         value="materials" 

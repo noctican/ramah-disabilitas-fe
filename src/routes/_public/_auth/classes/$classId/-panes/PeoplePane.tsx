@@ -55,7 +55,7 @@ export const PeoplePane = () => {
   ])
 
   useEffect(() => {
-    speak("Ini adalah panel anggota. Katakan 'daftar pengajar' atau 'daftar teman sekelas' untuk mengetahui anggota kelas.")
+    speak("Ini adalah panel anggota. Katakan 'daftar pengajar' atau 'daftar teman' untuk mengetahui anggota kelas.")
   }, [])
   return (
     <div className="flex flex-col gap-10">
