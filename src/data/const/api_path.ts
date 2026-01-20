@@ -60,5 +60,8 @@ export const ASSIGNMENT = {
     MY_ASSIGNMENTS: "/v1/courses/assignments",
     GET_COURSE_ASSIGNMENTS: "/v1/courses/{course_id}/assignments",
     GET_DETAIL: "/v1/assignments/{assignment_id}",
+    GET_SUBMISSIONS: "/v1/lecturer/assignments/{assignment_id}/submissions",
+    UPDATE: "/v1/lecturer/assignments/{assignment_id}",
+    DELETE: "/v1/lecturer/assignments/{assignment_id}",
     SUBMIT_ANSWER: "/v1/assignments/{assignment_id}/submit",
 } as const satisfies UrlGroupType
