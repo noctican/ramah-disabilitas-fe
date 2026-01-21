@@ -4,7 +4,7 @@ import {
   Users
 } from 'lucide-react'
 import { useVoiceStore } from '@/data/store/voice_store'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useQueryData } from '@/hooks/api/use-global-fetch'
 import { COURSE } from '@/data/const/api_path'
 import { useParams } from '@tanstack/react-router'
@@ -32,6 +32,16 @@ export const PeoplePane = () => {
   const students = membersData?.data?.students || []
   const teacherName = lecturer?.name || "Pengajar Kelas"
 
+  const studentsRef = useRef(students)
+  useEffect(() => {
+    studentsRef.current = students
+  }, [students])
+
+  const teacherRef = useRef(teacherName)
+  useEffect(() => {
+    teacherRef.current = teacherName
+  }, [teacherName])
+
   useRegisterCommands([
     {
       pattern: /^daftar\s+(.+)$/i,
@@ -39,17 +49,17 @@ export const PeoplePane = () => {
       action: ([type]) => {
         const target = type.toLowerCase()
         if (target.includes('pengajar') || target.includes('guru') || target.includes('dosen')) {
-            speak(`Pengajar di kelas ini adalah ${teacherName}`)
+            speak(`Pengajar di kelas ini adalah ${teacherRef.current}`)
         } else if (target.includes('pelajar') || target.includes('siswa') || target.includes('teman') || target.includes('murid')) {
-            if (students.length === 0) {
+            if (studentsRef.current.length === 0) {
               speak("Belum ada teman sekelas yang terdaftar.")
               return
             }
-            const names = students.slice(0, 3).map(s => s.name).join(', ')
-            const suffix = students.length > 3 ? "dan lain-lain." : "."
-            speak(`Terdapat ${students.length} teman sekelas, diantaranya: ${names} ${suffix}`)
+            const names = studentsRef.current.slice(0, 3).map(s => s.name).join(', ')
+            const suffix = studentsRef.current.length > 3 ? "dan lain-lain." : "."
+            speak(`Terdapat ${studentsRef.current.length} teman sekelas, diantaranya: ${names} ${suffix}`)
         } else if (target.includes('orang') || target.includes('anggota') || target.includes('semua')) {
-            speak(`Daftar anggota kelas: Pengajar adalah ${teacherName}. Dan terdapat ${students.length} teman sekelas.`)
+            speak(`Daftar anggota kelas: Pengajar adalah ${teacherRef.current}. Dan terdapat ${studentsRef.current.length} teman sekelas.`)
         } else {
             speak("Maaf, saya tidak mengerti siapa yang dimaksud. Coba katakan 'daftar pengajar' atau 'daftar teman sekelas'")
         }

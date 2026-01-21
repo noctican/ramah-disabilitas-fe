@@ -7,7 +7,7 @@ import { TaskCard } from '../../-component/TaskCard'
 import { Filter } from 'lucide-react'
 import { useRegisterCommands } from '@/hooks/use-register-command'
 import { useVoiceStore } from '@/data/store/voice_store'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 export const AssignmentsPane = () => {
   const { classId } = useParams({ from: '/_public/_auth/classes/$classId/' }) // Ensure correct route ID
@@ -19,18 +19,26 @@ export const AssignmentsPane = () => {
   const speak = useVoiceStore(state => state.speak)
 
   const assignments = assignmentsData?.data || []
+
+  const assignmentsRef = useRef(assignments)
+  useEffect(() => {
+    assignmentsRef.current = assignments
+  }, [assignments])
   
   // Group by status (Simple sorting for now: Overdue vs Upcoming)
   const now = new Date()
   const upcoming = assignments.filter(a => new Date(a.deadline) > now).sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
   const overdue = assignments.filter(a => new Date(a.deadline) <= now).sort((a, b) => new Date(b.deadline).getTime() - new Date(a.deadline).getTime()) // Most recent overdue first
-
+  
   useRegisterCommands([
     {
       pattern: /(?:baca|sebutkan|lihat|daftar)\s*tugas\s*(.*)/i,
       description: "Membacakan daftar tugas. Bisa spesifik: 'daftar tugas terlambat', 'daftar tugas mendatang', atau 'daftar tugas' saja.",
       action: ([type]) => {
         const jenis = type ? type.toLowerCase().trim() : ""
+        const now = new Date()
+        const upcoming = assignmentsRef.current.filter(a => new Date(a.deadline) > now).sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
+        const overdue = assignmentsRef.current.filter(a => new Date(a.deadline) <= now).sort((a, b) => new Date(b.deadline).getTime() - new Date(a.deadline).getTime()) // Most recent overdue first
         
         if (jenis.includes('terlambat')) {
           if(overdue.length == 0) {
@@ -52,11 +60,11 @@ export const AssignmentsPane = () => {
 
         } else {
           // Default: List summary
-          if(assignments.length == 0) {
+          if(assignmentsRef.current.length == 0) {
             speak('Anda belum memiliki tugas sama sekali.')
             return
           }
-          speak(`Total ada ${assignments.length} tugas. ${overdue.length} terlambat, dan ${upcoming.length} mendatang. Katakan 'daftar tugas terlambat' untuk detailnya.`)
+          speak(`Total ada ${assignmentsRef.current.length} tugas. ${overdue.length} terlambat, dan ${upcoming.length} mendatang. Katakan 'daftar tugas terlambat' untuk detailnya.`)
         }
       }
     },
@@ -65,7 +73,7 @@ export const AssignmentsPane = () => {
       description: "Membuka detail tugas tertentu. Contoh: 'buka tugas [nama tugas]'",
       action: ([target]) => {
         const targetTask = target.toLowerCase().trim()
-        const assignment = assignments.find(a => a.title.toLowerCase().includes(targetTask))
+        const assignment = assignmentsRef.current.find(a => a.title.toLowerCase().includes(targetTask))
         if(assignment) {
             speak(`Membuka tugas ${assignment.title}`)
             navigate({ to: `/assignments/$assignmentId`, params: { assignmentId: assignment.id.toString() } })
