@@ -142,7 +142,6 @@ function RouteComponent() {
                         className="cursor-pointer pb-3 px-4 text-sm font-medium rounded-none shadow-none bg-transparent border-0 border-b-2 border-transparent data-[state=active]:border-[#2280c3] data-[state=active]:text-[#2280c3] data-[state=active]:bg-transparent data-[state=active]:shadow-none text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 transition-all focus-visible:ring-0 focus-visible:ring-offset-0 flex items-center gap-2"
                       >
                         Tugas
-                        <span className="flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-[10px] font-bold text-white bg-red-500 rounded-full shadow-sm">3</span>
                       </TabsTrigger>
                       <TabsTrigger 
                         value="people" 

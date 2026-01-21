@@ -9,25 +9,28 @@ import { useQueryData } from '@/hooks/api/use-global-fetch'
 import { COURSE } from '@/data/const/api_path'
 import { useParams } from '@tanstack/react-router'
 import { type ApiResponseType } from '@/data/types/api_response_types'
-import { type StudentCourseDetail } from '@/data/types/course_type'
 
-interface StudentType {
+interface MemberType {
   id: number
   name: string
-  email: string
-  // Add other properties if available from API
+  role: string
+  accessibility_profile?: any
+}
+
+interface MembersData {
+  lecturer: MemberType
+  students: MemberType[]
 }
 
 export const PeoplePane = () => {
   const speak = useVoiceStore((state) => state.speak)
   const { classId } = useParams({ from: '/_public/_auth/classes/$classId/' })
 
-  const { data: courseData } = useQueryData<ApiResponseType<'single', StudentCourseDetail>>(COURSE.STUDENT_DETAIL, { course_id: classId })
-  const { data: studentsData } = useQueryData<ApiResponseType<'multiple', StudentType>>(COURSE.LIST_STUDENT, { course_id: classId })
+  const { data: membersData } = useQueryData<ApiResponseType<'single', MembersData>>(COURSE.MEMBERS, { course_id: classId })
   
-  const course = courseData?.data
-  const students = studentsData?.data || []
-  const teacherName = (course as any)?.teacher?.name || "Pengajar Kelas" 
+  const lecturer = membersData?.data?.lecturer
+  const students = membersData?.data?.students || []
+  const teacherName = lecturer?.name || "Pengajar Kelas"
 
   useRegisterCommands([
     {
@@ -57,6 +60,7 @@ export const PeoplePane = () => {
   useEffect(() => {
     speak("Ini adalah panel anggota. Katakan 'daftar pengajar' atau 'daftar teman' untuk mengetahui anggota kelas.")
   }, [])
+  
   return (
     <div className="flex flex-col gap-10">
       <section>
@@ -93,7 +97,12 @@ export const PeoplePane = () => {
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-200 to-slate-300 dark:from-zinc-700 dark:to-zinc-600 flex-shrink-0 flex items-center justify-center shadow-inner overflow-hidden">
                   <span className="font-bold text-slate-400 dark:text-zinc-500">{student.name.substring(0, 2).toUpperCase()}</span>
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{student.name}</h3>
+                <div className='flex flex-col'>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">{student.name}</h3>
+                    {student.accessibility_profile && (
+                        <span className='text-xs text-slate-500'>Profil aksesibilitas tersedia</span>
+                    )}
+                </div>
               </div>
               {i !== students.length - 1 && (
                 <div className='border-b border-slate-100 dark:border-zinc-800 my-2'></div>
