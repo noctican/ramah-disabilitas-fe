@@ -27,6 +27,7 @@ export const useMutationAction = (
     config?: {
         refreshKey?: string,
         onSuccess?: () => void,
+        onError?: (err: any) => void,
     }
 ) => (useSWRMutation(
     url,
@@ -36,7 +37,12 @@ export const useMutationAction = (
             const msg = err?.response?.data?.error || err?.response?.data?.message || 'Terjadi kesalahan'
             const { speak } = useVoiceStore.getState()
             speak(msg)
-            toaster(msg, 'error')
+
+            if (config?.onError) {
+                config.onError(err)
+            } else {
+                toaster(msg, 'error')
+            }
         },
         onSuccess: (data: any) => {
             toaster(data?.message || 'Berhasil', 'success')

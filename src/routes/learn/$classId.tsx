@@ -281,8 +281,9 @@ function ClassLessonView() {
                                  )
                              }
 
+                             const VideoPlayer = ReactPlayer as any;
                              return (
-                                <ReactPlayer
+                                <VideoPlayer
                                     url={material.source_url}
                                     width="100%"
                                     height="100%"

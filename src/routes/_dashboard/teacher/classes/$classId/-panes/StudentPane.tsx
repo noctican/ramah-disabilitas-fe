@@ -37,7 +37,7 @@ export const StudentPane = () => {
             onSuccess: () => {
                 toast.success("Siswa berhasil dihapus")
             },
-            onError: (err) => {
+            onError: (err: any) => {
                 toast.error("Gagal menghapus siswa: " + (err.response?.data?.message || err.message))
             },
             refreshKey: COURSE.LIST_STUDENT.replace('{course_id}', classId)
