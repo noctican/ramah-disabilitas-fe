@@ -61,7 +61,7 @@ function RouteComponent() {
       action: ([target]) => {
         const jenis = target.toLowerCase().trim()
         if (jenis.includes('kelas') || jenis.includes('course') || jenis.includes('pelajaran')) {
-          const classes = data?.data
+          const classes = classesRef?.current
 
           if (!classes || classes.length === 0) {
             speak("Anda belum bergabung dengan kelas manapun.")
@@ -74,7 +74,7 @@ function RouteComponent() {
         } 
         
         else if (jenis.includes('tugas') || jenis.includes('assignment') || jenis.includes('pr')) {
-          const tasks = assignmentsData?.data
+          const tasks = assignmentsRef?.current
 
           if (!tasks || tasks.length === 0) {
             speak("Tidak ada tugas aktif yang harus dikumpulkan.")
