@@ -663,22 +663,6 @@ function SummaryView({ material }: { material?: MaterialDetailType }) {
           </button>
         </div>
       )}
-
-      {/* Existing buttons (Download/Copy) - Show only if not previewing and summary exists */}
-      {displaySummary && !previewSummary && (
-        <div className="p-4 bg-white dark:bg-zinc-900 border-t border-slate-100 dark:border-zinc-800">
-          <div className="flex gap-2">
-            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 transition-colors cursor-pointer">
-              <Download className="w-5 h-5 text-[18px]" />
-              Download PDF
-            </button>
-            <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 transition-colors cursor-pointer">
-              <Copy className="w-5 h-5 text-[18px]" />
-              Copy
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
