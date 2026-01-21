@@ -31,6 +31,8 @@ export const COURSE = {
 export const STUDENT = {
     ADD_TO_COURSE: "/v1/lecturer/courses/{course_id}/students",
     IMPORT_TO_COURSE: "/v1/lecturer/courses/{course_id}/students/import",
+    UPDATE: "/v1/lecturer/students/{student_id}",
+    DELETE: "/v1/lecturer/students/{student_id}",
 } as const satisfies UrlGroupType
 
 export const MODULE = {

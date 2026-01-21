@@ -1,22 +1,61 @@
 import { Button } from "@/components/ui/button"
 import { useParams } from "@tanstack/react-router"
-import { MoreHorizontal } from "lucide-react"
+import { MoreHorizontal, Pencil, Trash } from "lucide-react"
 import { useState } from "react"
 import { ImportStudentModal } from "../../-components/ImportStudentModal"
 import { AddStudentModal } from "../../-components/AddStudentModal"
-import { useQueryData } from "@/hooks/api/use-global-fetch"
+import { EditStudentModal } from "../../-components/EditStudentModal"
+import { useMutationAction, useQueryData } from "@/hooks/api/use-global-fetch"
 import type { ApiResponseType } from "@/data/types/api_response_types"
-import { COURSE } from "@/data/const/api_path"
+import { COURSE, STUDENT } from "@/data/const/api_path"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { toast } from "sonner" // Assuming sonner is used for toasts based on file list
 
-    export const StudentPane = () => {
+export const StudentPane = () => {
     const { classId } = useParams({ from: '/_dashboard/teacher/classes/$classId/' })
 
     const [isImportModalOpen, setIsImportModalOpen] = useState(false)
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+    const [studentToEdit, setStudentToEdit] = useState<any>(null)
 
     // Fix: Perform URL replacement correctly
     const { data: studentData, isLoading } = useQueryData<any>(COURSE.LIST_STUDENT.replace('{course_id}', classId))
     const students = studentData?.data || []
+
+    const deleteStudent = useMutationAction(
+        STUDENT.DELETE,
+        "delete",
+        {
+            onSuccess: () => {
+                toast.success("Siswa berhasil dihapus")
+            },
+            onError: (err) => {
+                toast.error("Gagal menghapus siswa: " + (err.response?.data?.message || err.message))
+            },
+            refreshKey: COURSE.LIST_STUDENT.replace('{course_id}', classId)
+        }
+    )
+
+    const handleDelete = async (student: any) => {
+        if (confirm(`Apakah Anda yakin ingin menghapus siswa ${student.name}?`)) {
+            await deleteStudent.trigger({
+                student_id: student.id
+            })
+        }
+    }
+
+    const handleEdit = (student: any) => {
+        setStudentToEdit(student)
+        setIsEditModalOpen(true)
+    }
 
     return (
         <>
@@ -28,6 +67,12 @@ import { COURSE } from "@/data/const/api_path"
             <AddStudentModal
                 open={isAddModalOpen}
                 onOpenChange={setIsAddModalOpen}
+                classId={classId}
+            />
+            <EditStudentModal
+                open={isEditModalOpen}
+                onOpenChange={setIsEditModalOpen}
+                student={studentToEdit}
                 classId={classId}
             />
             <div className="space-y-6">
@@ -88,9 +133,26 @@ import { COURSE } from "@/data/const/api_path"
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <button className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1">
-                                                <MoreHorizontal className="w-4 h-4" />
-                                            </button>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <button className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1">
+                                                        <MoreHorizontal className="w-4 h-4" />
+                                                    </button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem onClick={() => handleEdit(student)}>
+                                                        <Pencil className="w-4 h-4 mr-2" />
+                                                        Edit Siswa
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem 
+                                                        className="text-red-600 focus:text-red-600"
+                                                        onClick={() => handleDelete(student)}
+                                                    >
+                                                        <Trash className="w-4 h-4 mr-2" />
+                                                        Hapus Siswa
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         </td>
                                     </tr>
                                 ))
