@@ -161,8 +161,8 @@ function ClassLessonView() {
       }
     },
     {
-      pattern: /^buka tab +(.+)$/i,
-      description: "buka tab <nama tab> ",
+      pattern: /^buka panel +(.+)$/i,
+      description: "buka panel <nama panel> ",
       action: ([match]) => {
         let tabName = match[1]
         if(['ringkasan', 'summary'].includes(tabName.toLowerCase())){
@@ -175,7 +175,7 @@ function ClassLessonView() {
           tabName = 'chat'
         }
         setActiveTab(tabName as "chat" | "flashcards" | "quiz" | "summary")
-        speak(`Membuka tab ${tabName}`)
+        speak(`Membuka panel ${tabName}`)
       }
     },
     {
@@ -523,12 +523,27 @@ function SummaryView({ material }: { material?: MaterialDetailType }) {
 
   const speak = useVoiceStore((state) => state.speak)
 
+  const materialRef = useRef(material)
+  useEffect(() => {
+    materialRef.current = material
+  }, [material])
+
+  const displaySummaryRef = useRef(previewSummary)
+  useEffect(() => {
+    displaySummaryRef.current = previewSummary
+  }, [previewSummary])
+
+  const previewSummaryRef = useRef(previewSummary)
+  useEffect(() => {
+    previewSummaryRef.current = previewSummary
+  }, [previewSummary])
+
   useRegisterCommands([
     {
       pattern: /^buat ringkasan$/i,
       description: "Generate ringkasan otomatis",
       action: () => {
-        if (!material?.smart_feature?.summary && !previewSummary) {
+        if (!materialRef.current?.smart_feature?.summary && !previewSummaryRef.current) {
              speak("Sedang membuat ringkasan, mohon tunggu sebentar.")
              handleGenerate()
         } else {
@@ -540,7 +555,7 @@ function SummaryView({ material }: { material?: MaterialDetailType }) {
       pattern: /^bacakan ringkasan$/i,
       description: "Membacakan isi ringkasan",
       action: () => {
-         const text = displaySummary || "Belum ada ringkasan."
+         const text = displaySummaryRef.current || "Belum ada ringkasan."
          speak(text.substring(0, 200) + (text.length > 200 ? "... dan seterusnya" : ""))
       }
     },
@@ -548,7 +563,7 @@ function SummaryView({ material }: { material?: MaterialDetailType }) {
       pattern: /^simpan ringkasan$/i,
       description: "Menyimpan ringkasan yang sedang dipreview",
       action: () => {
-        if (previewSummary) {
+        if (previewSummaryRef.current) {
             handleSave()
             speak("Menyimpan ringkasan")
         } else {
