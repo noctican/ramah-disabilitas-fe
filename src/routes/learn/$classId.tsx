@@ -154,6 +154,7 @@ function ClassLessonView() {
   useRegisterCommands([
     {
       pattern: /^buka chat$/i,
+      priority: 5,
       description: "Membuka tab chat AI",
       action: () => {
         setActiveTab("chat")
@@ -161,20 +162,22 @@ function ClassLessonView() {
       }
     },
     {
-      pattern: /^buka panel +(.+)$/i,
+      pattern: /^buka panel\s+(.+)$/i,
+      priority: 10,
       description: "buka panel <nama panel> ",
       action: ([match]) => {
-        let tabName = match[1]
+        let tabName = match
         if(['ringkasan', 'summary'].includes(tabName.toLowerCase())){
           tabName = 'summary'
         }else if(['kuis', 'quiz'].includes(tabName.toLowerCase())){
           tabName = 'quiz'
         }else if(['flashcard', 'kartu'].includes(tabName.toLowerCase())){
           tabName = 'flashcards'
-        }else if(['chat', 'ai'].includes(tabName.toLowerCase())){
+        }else if(['chat', 'ai', 'cat', 'cet', 'obrolan', 'chatbot'].includes(tabName.toLowerCase())){
           tabName = 'chat'
         }
         setActiveTab(tabName as "chat" | "flashcards" | "quiz" | "summary")
+        console.log({tabName})
         speak(`Membuka panel ${tabName}`)
       }
     },
@@ -887,6 +890,13 @@ function FlashcardsView({ material }: { material?: MaterialDetailType }) {
           action: () => {
             setIsFlipped(!isFlipped)
             speak("Memutar kartu")
+          }
+        }, {
+          pattern: /^(?:buat|generate)\skartu$/i,
+          description: "Membuat flashcard otomatis dari materi ini",
+          action: () => {
+            handleGenerate()
+            speak("Membuat flashcard otomatis dari materi ini")
           }
         }
     ])

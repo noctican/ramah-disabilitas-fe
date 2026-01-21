@@ -9,7 +9,7 @@ import {
     ArrowLeft,
     Download
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { SubmitAssignmentDialog } from './-components/SubmitAssignmentDialog'
 import { useQueryData } from '@/hooks/api/use-global-fetch'
 import { ASSIGNMENT } from '@/data/const/api_path'
@@ -35,16 +35,21 @@ function RouteComponent() {
 
   const assignment = assignmentData?.data
 
+  const assignmentRef = useRef(assignment)
+  useEffect(() => {
+    assignmentRef.current = assignment
+  }, [assignment])
+
   useRegisterCommands([
     {
         pattern: /^bacakan\s(.+)$/i,
         description: "bacakan... adalah untuk membacakan bagian tugas. Contoh, bacakan judul, bacakan instruksi, bacakan tenggat",
         action: ([type]) => {
             const cleanType = type.toLowerCase().trim()
-            if (cleanType === 'judul') speak(assignment?.title || '')
-            if (cleanType === 'instruksi') speak(assignment?.instruction || '')
-            if (cleanType === 'tenggat') speak(dayjs(assignment?.deadline).format('DD MMMM YYYY, HH:mm') || '')
-            if(cleanType === 'jenis pengumpulan') speak(`diizinkan untuk menjawab dengan ${assignment?.allow_file ? 'file' : ''}, ${assignment?.allow_text ? 'teks' : ''}`)
+            if (cleanType === 'judul') speak(assignmentRef.current?.title || '')
+            if (cleanType === 'instruksi') speak(assignmentRef.current?.instruction || '')
+            if (cleanType === 'tenggat') speak(dayjs(assignmentRef.current?.deadline).format('DD MMMM YYYY, HH:mm') || '')
+            if(cleanType === 'jenis pengumpulan') speak(`diizinkan untuk menjawab dengan ${assignmentRef.current?.allow_file ? 'file' : ''}, ${assignmentRef.current?.allow_text ? 'teks' : ''}`)
         }
     }, {
         pattern: /^jawab$/i,

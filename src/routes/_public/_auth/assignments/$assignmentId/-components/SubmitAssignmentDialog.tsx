@@ -107,7 +107,7 @@ export const SubmitAssignmentDialog = ({ isOpen, setIsOpen, assignmentId, allowT
             pattern: /^isi teks dengan +(.+)$/i,
             description: "isi teks dengan adalah untuk mengisi teks jawaban anda",
             action: ([match]) => {
-                form.setValue("text_answer", match)
+                form.setValue("text_answer", match, {shouldValidate: true, shouldDirty: true})
             }
         },{
             pattern: /^kirim$/i,
