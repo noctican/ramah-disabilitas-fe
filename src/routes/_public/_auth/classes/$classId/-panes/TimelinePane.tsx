@@ -8,7 +8,7 @@ import {
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import { useRegisterCommands, type CommandInput } from '@/hooks/use-register-command'
 import { useVoiceStore } from '@/data/store/voice_store'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 type Props = {
   data?: StudentCourseDetail
@@ -19,13 +19,17 @@ export const TimelinePane = ({ data }: Props) => {
   const { speak } = useVoiceStore()
   const navigate = useNavigate()
 
-  const cmds = useMemo<CommandInput[]>(() => {
-    return [{
+  const modulesRef = useRef(data?.modules || [])
+  useEffect(() => {
+    modulesRef.current = data?.modules || []
+  }, [data])
+
+  useRegisterCommands([
+    {
       pattern: /daftar modul/i,
       description: "daftar modul... adalah untuk membacakan daftar modul atau bab yang ada pada kelas ini",
       action: () => {
-        console.log({data})
-        const modules = data?.modules
+        const modules = modulesRef.current
         const text_to_speech = modules?.map((m, i) => `${i + 1}. ${m.title}`).join('. ')
         speak(text_to_speech || 'Tidak ada modul')
       }
@@ -33,7 +37,7 @@ export const TimelinePane = ({ data }: Props) => {
       pattern: /daftar semua materi/i,
       description: "daftar semua materi... adalah untuk membacakan daftar materi yang ada pada kelas ini.",
       action: () => {
-        const materials = data?.modules?.map((m) => m.materials).flat()
+        const materials = modulesRef.current?.map((m) => m.materials).flat()
         const text_to_speech = materials?.map((m, i) => `${i + 1}. ${m.title}`).join('. ')
         speak(text_to_speech || 'Tidak ada materi')
       }
@@ -41,7 +45,7 @@ export const TimelinePane = ({ data }: Props) => {
       pattern: /daftar materi\s+(.+)/i,
       description: "daftar materi... adalah untuk membacakan daftar materi yang ada pada kelas ini. perintah ini harus diikuti oleh nama modul.",
       action: ([module]) => {
-        const mod = data?.modules?.find((m) => m.title.toLocaleLowerCase() === module.toLocaleLowerCase())
+        const mod = modulesRef.current?.find((m) => m.title.toLowerCase().trim() === module.toLowerCase().trim())
         const materials = mod?.materials
         const text_to_speech = materials?.map((m, i) => `${i + 1}. ${m.title}`).join('. ')
         speak(text_to_speech || 'Tidak ada materi')
@@ -51,7 +55,7 @@ export const TimelinePane = ({ data }: Props) => {
       description: "buka materi... adalah untuk membuka materi yang ada pada kelas ini. perintah ini harus diikuti oleh nama materi.",
       priority: 10,
       action: ([args]) => {
-        if (!args || !data?.modules) {
+        if (!args || !modulesRef.current) {
             speak('Data materi belum siap');
             return;
         }
@@ -62,11 +66,11 @@ export const TimelinePane = ({ data }: Props) => {
           let foundMaterial = null;
           let foundModule = null;
 
-          for (const mod of data.modules) {
+          for (const mod of modulesRef.current) {
               if (!mod.materials) continue;
 
               const mat = mod.materials.find(m => {
-                  const title = m.title.toLowerCase();
+                  const title = m.title.toLowerCase().trim();
                   return title.includes(keyword) || keyword.includes(title); 
               });
 
@@ -78,7 +82,7 @@ export const TimelinePane = ({ data }: Props) => {
           }
 
           if (!foundMaterial) {
-              console.log(`Gagal menemukan: ${keyword} dalam`, data.modules);
+              console.log(`Gagal menemukan: ${keyword} dalam`, modulesRef.current);
               speak(`Materi ${args} tidak ditemukan`);
               return;
           }
@@ -86,51 +90,8 @@ export const TimelinePane = ({ data }: Props) => {
           speak(`Membuka ${foundMaterial.title}`);
           navigate({ to: '/learn/$classId', params: { classId }, search: { materialId: foundMaterial.id } });
       }
-    }]
-  }, [data])
-
-  useRegisterCommands(cmds)
-
-  useRegisterCommands([{
-    pattern: /daftar modul/i,
-    description: "daftar modul... adalah untuk membacakan daftar modul atau bab yang ada pada kelas ini",
-    action: () => {
-      console.log({data})
-      const modules = data?.modules
-      const text_to_speech = modules?.map((m, i) => `${i + 1}. ${m.title}`).join('. ')
-      speak(text_to_speech || 'Tidak ada modul')
     }
-  }, {
-    pattern: /daftar semua materi/i,
-    description: "daftar semua materi... adalah untuk membacakan daftar materi yang ada pada kelas ini.",
-    action: () => {
-      const materials = data?.modules?.map((m) => m.materials).flat()
-      const text_to_speech = materials?.map((m, i) => `${i + 1}. ${m.title}`).join('. ')
-      speak(text_to_speech || 'Tidak ada materi')
-    }
-  }, {
-    pattern: /daftar materi/i,
-    description: "daftar materi... adalah untuk membacakan daftar materi yang ada pada kelas ini. perintah ini harus diikuti oleh nama modul.",
-    action: ([module]) => {
-      const mod = data?.modules?.find((m) => m.title === module)
-      const materials = mod?.materials
-      const text_to_speech = materials?.map((m, i) => `${i + 1}. ${m.title}`).join('. ')
-      speak(text_to_speech || 'Tidak ada materi')
-    }
-  }, {
-    pattern: /buka materi\s(.+)/i,
-    description: "buka materi... adalah untuk membuka materi yang ada pada kelas ini. perintah ini harus diikuti oleh nama materi.",
-    action: ([material]) => {
-      const mod = data?.modules?.find((m) => m.materials?.some((m) => m.title === material))
-      const mat = mod?.materials?.find(m => m.title === material)
-      console.log({mod, mat, material, modules: data?.modules})
-      if (!mat) {
-        speak('Materi tidak ditemukan')
-        return
-      }
-      navigate({ to: '/learn/$classId', params: { classId }, search: { materialId: mat.id } })
-    }
-  }])
+  ])
 
   if (!data || !data.modules) {
     return <div className="text-center py-10 text-slate-500">Memuat materi...</div>
