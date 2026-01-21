@@ -38,7 +38,7 @@ export function RecentActivityCard({ className }: RecentActivityCardProps) {
                     ))}
                 </div>
                 <Button variant="ghost" className="w-full mt-6 text-xs text-primary hover:text-primary hover:bg-primary/5 h-8 font-medium" asChild>
-                    <Link to="/teacher/classes">Lihat Semua Aktivitas</Link>
+                    <Link to="/teacher/activities">Lihat Semua Aktivitas</Link>
                 </Button>
             </CardContent>
         </Card>
