@@ -3,7 +3,7 @@ import { useAuthStore } from '@/data/store/auth_store'
 import { useVoiceStore } from '@/data/store/voice_store'
 import { useVoiceAssistant } from '@/hooks/use-voice-assistant'
 import { Outlet, createRootRoute, useNavigate, useRouter } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Toaster } from 'sonner'
 import { DisabilityCheckModal } from './-components/DisabilityCheckModal'
 import { getToken } from '@/lib/token-handler'
@@ -24,6 +24,13 @@ export const Route = createRootRoute({
     // const [isOpenDisabilityModal, setIsOpenDisabilityModal] = useState(false)
 
     const router = useRouter()
+    const startBtnRef = useRef<HTMLButtonElement>(null)
+
+    const authRef = useRef({isAuthenticated, role})
+
+    useEffect(() => {
+      authRef.current = {isAuthenticated, role}
+    }, [isAuthenticated, role])
     
     const startAssistant = () => {
       setIsActive(true)
@@ -47,23 +54,23 @@ export const Route = createRootRoute({
           speak("Membuka halaman beranda");
           navigate({ to: '/' });
         } else if(page === "login" || page === "masuk") {
-          if(isAuthenticated) return speak("Anda sudah login");
+          if(authRef.current.isAuthenticated) return speak("Anda sudah login");
           speak("Membuka halaman login");
           navigate({ to: '/login' });
         } else if(page === "register" || page === "daftar") {
-          if(isAuthenticated) return speak("Anda sudah login");
+          if(authRef.current.isAuthenticated) return speak("Anda sudah login");
           speak("Membuka halaman daftar");
           navigate({ to: '/register' });
         } else if(page === "kelas") {
-          if(!isAuthenticated || role !== ROLE_STUDENT) return speak("Anda harus login sebagai siswa terlebih dahulu");
+          if(!authRef.current.isAuthenticated || authRef.current.role !== ROLE_STUDENT) return speak("Anda harus login sebagai siswa terlebih dahulu");
           speak("Membuka halaman kelas");
           navigate({ to: '/classes' });
         } else if(page === "tugas") {
-          if(!isAuthenticated || role !== ROLE_STUDENT) return speak("Anda harus login sebagai siswa terlebih dahulu");
+          if(!authRef.current.isAuthenticated || authRef.current.role !== ROLE_STUDENT) return speak("Anda harus login sebagai siswa terlebih dahulu");
           speak("Membuka halaman tugas");
           navigate({ to: '/assignments' });
         } else if(page === "dashboard") {
-          if(!isAuthenticated || role !== ROLE_TEACHER) return speak("Anda harus login sebagai guru terlebih dahulu");
+          if(!authRef.current.isAuthenticated || authRef.current.role !== ROLE_TEACHER) return speak("Anda harus login sebagai guru terlebih dahulu");
           speak("Membuka halaman dashboard");
           navigate({ to: '/teacher' });
         } else {
@@ -71,6 +78,13 @@ export const Route = createRootRoute({
         }
       }
     }])
+
+    useEffect(() => {
+      if (isFirst && !isActive && role !== ROLE_TEACHER) {
+        const timer = setTimeout(() => {startBtnRef.current?.focus() }, 500)
+        return () => clearTimeout(timer)
+      }
+    }, [isFirst, isActive, role])
     
     useEffect(() => {
       if(role !== ROLE_TEACHER && !isActive && isFirst) {
@@ -102,6 +116,10 @@ export const Route = createRootRoute({
       if(firstRender) getCurrentUser()
     }, [firstRender, isAuthenticated])
 
+    useEffect(() => {
+      if(isActive && !firstRender) speak('katakan "bantuan" untuk melihat daftar perintah')
+    }, [isAuthenticated, firstRender, isActive])
+
     // useEffect(() => {
     //   if(isAuthenticated && disability === null && role === ROLE_STUDENT) setIsOpenDisabilityModal(true)
     // }, [isAuthenticated, disability])
@@ -113,7 +131,7 @@ export const Route = createRootRoute({
         <Outlet />
         <Toaster richColors position="top-right" />
 
-        {role !== ROLE_TEACHER && !isActive && <button className='fixed left-0 right-0 bottom-0 top-0 opacity-0 z-9999' onClick={startAssistant}></button>}
+        {role !== ROLE_TEACHER && !isActive && <button ref={startBtnRef} aria-label="Selamat datang. Ketuk layar dua kali di mana saja untuk mengaktifkan asisten suara." className='fixed left-0 right-0 bottom-0 top-0 opacity-0 z-9999' onClick={startAssistant}></button>}
 
         {role !== ROLE_TEACHER &&
           <div className='fixed left-0 right-0 bottom-0 z-999'>

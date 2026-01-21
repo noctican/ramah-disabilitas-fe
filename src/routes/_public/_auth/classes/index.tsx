@@ -10,7 +10,7 @@ import {
   Check,
   X,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { JoinClassDialog } from './-component/JoinClassDialog'
 import { useQueryData } from '@/hooks/api/use-global-fetch'
 import { COURSE } from '@/data/const/api_path'
@@ -38,6 +38,16 @@ function RouteComponent() {
   const speak = useVoiceStore(state => state.speak)
   const { user, hasDisability } = useAuthStore()
   const navigate = useNavigate()
+  const classesRef = useRef(data?.data)
+  const assignmentsRef = useRef(assignmentsData?.data)
+
+  useEffect(() => {
+    classesRef.current = data?.data
+  }, [data])
+
+  useEffect(() => {
+    assignmentsRef.current = assignmentsData?.data
+  }, [assignmentsData])
 
   useRegisterCommands([
     // {
@@ -83,18 +93,33 @@ function RouteComponent() {
       }
     },
     {
-      pattern: /^buka kelas\s+(.+)$/i,
+      pattern: /^(?:buka|lihat|ke) kelas\s+(.+)$/i,
+      priority: 10,
       description: "buka kelas... adalah untuk masuk ke kelas yang sudah ada. perintah diikuti oleh nama kelas",
       action: ([target]) => {
         const className = target.toLowerCase().trim()
-        const classData = data?.data?.find(c => c.title.toLowerCase().replace(/[^a-z0-9]/g, '') === className.replace(/[^a-z0-9]/g, ''))
+        const classData = classesRef?.current?.find(c => c.title.toLowerCase().replace(/[^a-z0-9]/g, '') === className.replace(/[^a-z0-9]/g, ''))
         if (!classData) {
           speak(`Kelas ${className} tidak ditemukan.`)
           return
         }
         navigate({to: "/classes/$classId", params: { classId: String(classData.id) } })
       }
-    }
+    },
+    {
+      pattern: /^(?:buka|lihat|ke) tugas\s+(.+)$/i,
+      priority: 10,
+      description: "buka tugas... adalah untuk masuk ke tugas yang sudah ada. perintah diikuti oleh nama tugas",
+      action: ([target]) => {
+        const taskName = target.toLowerCase().trim()
+        const taskData = assignmentsRef?.current?.find(c => c.title.toLowerCase().replace(/[^a-z0-9]/g, '') === taskName.replace(/[^a-z0-9]/g, ''))
+        if (!taskData) {
+          speak(`Tugas ${taskName} tidak ditemukan.`)
+          return
+        }
+        navigate({to: "/assignments/$assignmentId", params: { assignmentId: String(taskData.id) } })
+      }
+    },
   ])
 
   return (
