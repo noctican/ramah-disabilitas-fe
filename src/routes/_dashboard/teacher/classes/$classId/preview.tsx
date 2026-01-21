@@ -159,13 +159,6 @@ function CoursePreviewPage() {
                 "w-80 bg-white dark:bg-[#0f172a] border-l border-gray-200 dark:border-gray-800 flex flex-col shrink-0 absolute right-0 top-0 bottom-0 z-10 transition-transform duration-300 lg:relative lg:translate-x-0 shadow-xl lg:shadow-none",
                 !sidebarOpen && "translate-x-full lg:hidden"
             )}>
-                <div className="p-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#1e293b]/50">
-                    <h3 className="font-bold text-gray-900 dark:text-white text-sm">Konten Kelas</h3>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full mt-3 overflow-hidden">
-                        <div className="bg-green-500 h-full w-[0%]"></div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1.5">0% Selesai</p>
-                </div>
 
                 <div className="flex-1 overflow-y-auto">
                     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}

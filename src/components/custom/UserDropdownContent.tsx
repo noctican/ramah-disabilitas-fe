@@ -35,16 +35,6 @@ export const UserDropdownContent = ({ side="bottom", align="end" }: Props) => {
                 </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="my-2" />
-            <DropdownMenuGroup className="space-y-1">
-                <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5">
-                    <IconUserCircle className="w-5 h-5 text-muted-foreground" />
-                    <span className="ml-2.5">Profile Saya</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5">
-                    <IconNotification className="w-5 h-5 text-muted-foreground" />
-                    <span className="ml-2.5">Notifikasi</span>
-                </DropdownMenuItem>
-            </DropdownMenuGroup>
             <DropdownMenuSeparator className="my-2" />
             <DropdownMenuItem 
                 onClick={() => trigger()}
