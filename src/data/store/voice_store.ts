@@ -115,7 +115,7 @@ export const useVoiceStore = create<VoiceState>((set, get) => {
 
         // Handler ketika selesai bicara
         const onComplete = () => {
-          if (currentId === latestSpeechId) return;
+          if (currentId !== latestSpeechId) return;
           set({ isSystemSpeaking: false });
         };
 
@@ -132,7 +132,7 @@ export const useVoiceStore = create<VoiceState>((set, get) => {
           console.error("Speech Failed", err);
           onComplete();
         }
-      }, 100);
+      }, 50);
     }
   }
 });

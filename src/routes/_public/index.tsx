@@ -39,14 +39,14 @@ function LandingPage() {
                 </a>
               </div>
               
-              <div className="flex items-center gap-4 text-sm text-muted-foreground mt-4">
+              {/* <div className="flex items-center gap-4 text-sm text-muted-foreground mt-4">
                 <div className="flex -space-x-2">
                   <div className="h-8 w-8 rounded-full border-2 border-white bg-primary-200 flex items-center justify-center text-xs font-bold text-primary-700">A</div>
                   <div className="h-8 w-8 rounded-full border-2 border-white bg-primary-300 flex items-center justify-center text-xs font-bold text-primary-800">R</div>
                   <div className="h-8 w-8 rounded-full border-2 border-white bg-primary-400 flex items-center justify-center text-xs font-bold text-primary-900">S</div>
                 </div>
                 <p>Dipercaya oleh <span className="font-bold text-primary-700">1,000+</span> sahabat netra</p>
-              </div>
+              </div> */}
             </div>
             
             <div className="relative mx-auto lg:ml-auto w-full max-w-125 lg:max-w-none animate-in slide-in-from-right duration-700 fade-in delay-200">
@@ -123,7 +123,7 @@ function LandingPage() {
              <FeatureCard 
                 icon={<FileAudio className="h-10 w-10 text-primary-500" />}
                 title="Materi Berbasis Audio"
-                description="Seluruh materi pembelajaran tersedia dalam format audio berkualitas tinggi dan podcast edukasi."
+                description="Seluruh materi pembelajaran dapat diakses sebagai audio."
              />
           </div>
         </div>
@@ -136,11 +136,11 @@ function LandingPage() {
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16 divide-x divide-primary-800">
                 <div className="p-4">
-                    <div className="text-4xl lg:text-5xl font-extrabold text-primary-100 mb-2">5k+</div>
-                    <div className="text-primary-200">Audiobook Pelajaran</div>
+                    <div className="text-4xl lg:text-5xl font-extrabold text-primary-100 mb-2">8+</div>
+                    <div className="text-primary-200">Kelas</div>
                 </div>
                 <div className="p-4">
-                    <div className="text-4xl lg:text-5xl font-extrabold text-primary-100 mb-2">120+</div>
+                    <div className="text-4xl lg:text-5xl font-extrabold text-primary-100 mb-2">2+</div>
                     <div className="text-primary-200">Sekolah LB Bermitra</div>
                 </div>
                 <div className="p-4">
