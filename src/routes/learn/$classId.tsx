@@ -31,11 +31,7 @@ import {
   Save,
 } from "lucide-react";
 
-// Import React PDF Viewer components and styles
-import { Worker, Viewer } from "@react-pdf-viewer/core";
-import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
-import "@react-pdf-viewer/core/lib/styles/index.css";
-import "@react-pdf-viewer/default-layout/lib/styles/index.css";
+
 
 import ReactMarkdown from "react-markdown";
 import { useState, useEffect, useRef } from "react";
@@ -118,8 +114,7 @@ function ClassLessonView() {
     };
   }, [isResizing]);
 
-  // Create new instance of default layout plugin
-  const defaultLayoutPluginInstance = defaultLayoutPlugin();
+
 
   // Fetch Course Detail (for navigation context)
   const { data: courseData } = useQueryData<
@@ -304,17 +299,11 @@ function ClassLessonView() {
                     material?.source_url?.toLowerCase().includes(".pdf")) &&
                   material.source_url ? (
                     <div className="h-[800px] border border-slate-200 dark:border-zinc-700 rounded-lg overflow-hidden relative">
-                      <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-                        <div className="h-full w-full">
-                          <Viewer
-                            fileUrl={material.source_url}
-                            plugins={[defaultLayoutPluginInstance]}
-                            theme={{
-                              theme: "auto",
-                            }}
-                          />
-                        </div>
-                      </Worker>
+                      <iframe
+                        src={material.source_url}
+                        className="w-full h-full"
+                        title={material.title}
+                      />
                     </div>
                   ) : (
                     <div className="prose dark:prose-invert max-w-none p-4">
