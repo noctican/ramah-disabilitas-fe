@@ -4,6 +4,7 @@ import {
   redirect,
   useNavigate,
 } from "@tanstack/react-router";
+import ReactPlayer from 'react-player'
 import {
   ArrowLeft,
   Bookmark,
@@ -255,16 +256,41 @@ function ClassLessonView() {
           <main className="flex-1 overflow-y-auto bg-[#F8F8F8] dark:bg-black/20 p-6 lg:p-10 flex flex-col">
             <div className="max-w-5xl mx-auto w-full flex flex-col gap-6 flex-1">
               {/* Video Player or Content */}
-              {material?.type === "video" ? (
+              {(material?.type === "video" || material?.type === "youtube") ? (
                 <div className="aspect-video w-full bg-black rounded-2xl shadow-lg overflow-hidden relative group">
-                  {/* Simple Video Implementation without custom controls for now, using standard HTML5 video if source_url is valid */}
+                  {/* React Player for Youtube and other video sources */}
                   {material.source_url ? (
-                    <video
-                      src={material.source_url}
-                      controls
-                      className="w-full h-full object-contain"
-                      poster="https://lh3.googleusercontent.com/aida-public/AB6AXuCys9uc_SI6Ykm2IqM4qQhr-V6AjeCWT-RwSkvEqiwajRcUG-_z-jNsdNbLO4fdZ4a9WY-Ywf2vNHLahMdyqcfk2F9QRIhw3yI2Mr5r1xTOY91BoaeaO1qiity45p7OcgtPWCUL_yHLo2Lep3lS7ntqnNHW8xE3DV6EtgGIh-gHDTczmCfBgmKSjaOZhNUvaOP-ffEJNXECAsA374YM7bHp8tzgqyKdYA-HWNsdo5HwzWKx4H_cz17x02EQyHHORMdoESHaDhdWOjzX" // Fallback placeholder
-                    />
+                    <div className="w-full h-full">
+                         {(() => {
+                             const getYoutubeId = (url: string) => {
+                                 const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                                 const match = url?.match(regExp);
+                                 return (match && match[2].length === 11) ? match[2] : null;
+                             }
+                             const youtubeId = getYoutubeId(material.source_url);
+
+                             if (youtubeId) {
+                                 return (
+                                    <iframe 
+                                        className="w-full h-full"
+                                        src={`https://www.youtube.com/embed/${youtubeId}`}
+                                        title={material.title}
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                    ></iframe>
+                                 )
+                             }
+
+                             return (
+                                <ReactPlayer
+                                    url={material.source_url}
+                                    width="100%"
+                                    height="100%"
+                                    controls={true}
+                                />
+                             )
+                         })()}
+                    </div>
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-white">
                       Sumber Video Tidak Tersedia

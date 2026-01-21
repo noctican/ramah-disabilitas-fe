@@ -83,7 +83,7 @@ export const TimelinePane = ({ data }: Props) => {
           }
 
           speak(`Membuka ${foundMaterial.title}`);
-          navigate({ to: `/learn/${classId}?materialId=${foundMaterial.id}` });
+          navigate({ to: '/learn/$classId', params: { classId }, search: { materialId: foundMaterial.id } });
       }
     }]
   }, [data])
@@ -127,7 +127,7 @@ export const TimelinePane = ({ data }: Props) => {
         speak('Materi tidak ditemukan')
         return
       }
-      navigate({ to: `/lean/${classId}?materialId=${mat?.id}` })
+      navigate({ to: '/learn/$classId', params: { classId }, search: { materialId: mat.id } })
     }
   }])
 
@@ -162,16 +162,37 @@ export const TimelinePane = ({ data }: Props) => {
                     : 'bg-[#F8F8F8] dark:bg-zinc-800/40 hover:bg-white dark:hover:bg-zinc-800 hover:shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] hover:border-[#2280c3]/20'
                 }`}
               >
-                <div className={`relative w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-lg shadow-sm transition-transform ${material.is_completed ? '' : 'group-hover:scale-105'} ${material.is_completed ? 'bg-green-100 dark:bg-green-900/30' : 'bg-white dark:bg-zinc-700'}`}>
+                <div className={`relative w-16 h-16 flex-shrink-0 flex items-center justify-center rounded-lg shadow-sm transition-transform overflow-hidden ${material.is_completed ? '' : 'group-hover:scale-105'} ${material.is_completed ? 'bg-green-100 dark:bg-green-900/30' : 'bg-white dark:bg-zinc-700'}`}>
                    {material.is_completed ? (
                       <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
                    ) : (
                       <>
-                        {material.type === 'video' ? (
-                            <>
-                                <div className="absolute inset-0 bg-red-500/10 rounded-lg"></div>
-                                <PlayCircle className="w-8 h-8 text-red-500 fill-current bg-white rounded-full dark:bg-transparent" />
-                            </>
+                        {(material.type === 'video' || material.type === 'youtube') ? (
+                            (() => {
+                                const getYoutubeId = (url: string) => {
+                                    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                                    const match = url?.match(regExp);
+                                    return (match && match[2].length === 11) ? match[2] : null;
+                                }
+                                const vidId = material.source_url ? getYoutubeId(material.source_url) : null;
+                                
+                                return vidId ? (
+                                    <>
+                                        <img 
+                                            src={`https://img.youtube.com/vi/${vidId}/mqdefault.jpg`} 
+                                            alt={material.title}
+                                            className="absolute inset-0 w-full h-full object-cover opacity-80"
+                                        />
+                                        <div className="absolute inset-0 bg-black/20"></div>
+                                        <PlayCircle className="w-8 h-8 text-white relative z-10 drop-shadow-md" />
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="absolute inset-0 bg-red-500/10 rounded-lg"></div>
+                                        <PlayCircle className="w-8 h-8 text-red-500 fill-current bg-white rounded-full dark:bg-transparent" />
+                                    </>
+                                )
+                            })()
                         ) : (
                             <>
                                 <div className="absolute inset-0 bg-blue-500/10 rounded-lg"></div>
@@ -185,11 +206,11 @@ export const TimelinePane = ({ data }: Props) => {
                 <div className="flex-1 w-full text-center md:text-left">
                   <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
                     <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
-                        material.type === 'video' 
+                        (material.type === 'video' || material.type === 'youtube') 
                             ? 'text-red-500 bg-red-50 dark:bg-red-900/20' 
                             : 'text-blue-500 bg-blue-50 dark:bg-blue-900/20'
                     }`}>
-                        {material.type === 'video' ? 'Video' : 'Materi'}
+                        {(material.type === 'video' || material.type === 'youtube') ? 'Video' : 'Materi'}
                     </span>
                     {material.duration_min && (
                         <span className="text-xs text-slate-400">• {material.duration_min} min</span>
@@ -209,6 +230,7 @@ export const TimelinePane = ({ data }: Props) => {
                     <Link 
                         to="/learn/$classId" 
                         params={{ classId }}
+                        search={{ materialId: material.id }}
                         className="flex-shrink-0 px-6 py-2.5 bg-[#2280c3] hover:bg-blue-600 text-white text-sm font-semibold rounded-lg shadow-[0_0_15px_rgba(34,128,195,0.15)] transition-all active:scale-95 w-full md:w-auto text-center cursor-pointer"
                     >
                         Mulai Belajar
