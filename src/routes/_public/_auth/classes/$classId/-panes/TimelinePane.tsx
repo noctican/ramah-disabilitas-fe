@@ -49,6 +49,7 @@ export const TimelinePane = ({ data }: Props) => {
     }, {
       pattern: /buka materi\s+(.+)/i,
       description: "buka materi... adalah untuk membuka materi yang ada pada kelas ini. perintah ini harus diikuti oleh nama materi.",
+      priority: 10,
       action: ([args]) => {
         if (!args || !data?.modules) {
             speak('Data materi belum siap');

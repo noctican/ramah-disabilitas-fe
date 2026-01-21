@@ -61,30 +61,30 @@ function RouteComponent() {
       action: ([target]) => {
         const jenis = target.toLowerCase().trim()
         if (jenis.includes('kelas') || jenis.includes('course') || jenis.includes('pelajaran')) {
-          const classes = classesRef?.current
+          const classes = classesRef?.current || []
+          let mustSpoke = ''
 
-          if (!classes || classes.length === 0) {
-            speak("Anda belum bergabung dengan kelas manapun.")
-            return
+          if (classes.length === 0) {
+            mustSpoke = "Anda belum bergabung dengan kelas manapun."
           }
-          speak(`Anda memiliki ${classes.length} kelas.`)
+          mustSpoke = `Anda memiliki ${classes.length} kelas.`
         
           const classNames = classes.map((c, i) => `Kelas ke-${i+1}: ${c.title}`).join('. ')
-          speak(`Yaitu: ${classNames}`)
+          mustSpoke += `Yaitu: ${classNames}`
+          speak(mustSpoke)
         } 
         
         else if (jenis.includes('tugas') || jenis.includes('assignment') || jenis.includes('pr')) {
-          const tasks = assignmentsRef?.current
-
-          if (!tasks || tasks.length === 0) {
-            speak("Tidak ada tugas aktif yang harus dikumpulkan.")
-            return
+          const tasks = assignmentsRef?.current || []
+          let mustSpoke = ''
+          if (tasks.length === 0) {
+            mustSpoke = "Tidak ada tugas aktif yang harus dikumpulkan."
           }
-
-          speak(`Ada ${tasks.length} tugas aktif.`)
+          mustSpoke = `Ada ${tasks.length} tugas aktif.`
           
           const taskTitles = tasks.map((t, i) => `Tugas ${i+1}: ${t.title}`).join('. ')
-          speak(`yaitu: ${taskTitles}`)
+          mustSpoke += `yaitu: ${taskTitles}`
+          speak(mustSpoke)
         } 
         
         else {

@@ -44,7 +44,7 @@ function RouteComponent() {
 
   useRegisterCommands([
     {
-      pattern: /(?:buka|pindah|lihat|ke)\s+(?:panel|tab|bagian)?\s*(.+)/i, 
+      pattern: /(?:buka|pindah|lihat|ke)\s+(?:panel|tab|bagian)\s*(.+)/i, 
       description: "buka panel [nama panel] adalah untuk berpindah ke panel lain",
       priority: 9,
       action: ([target]) => {
