@@ -303,7 +303,7 @@ function ClassLessonView() {
                   material.source_url ? (
                     <div className="h-[800px] border border-slate-200 dark:border-zinc-700 rounded-lg overflow-hidden relative">
                       <iframe
-                        src={material.source_url}
+                        src={material.source_url.replace('http:', 'https:')}
                         className="w-full h-full"
                         title={material.title}
                       />
