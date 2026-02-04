@@ -29,6 +29,7 @@ interface VoiceState {
 
   // Pindahkan fungsi speak ke sini agar bisa akses state
   speak: (text: string) => void;
+  stopSpeaking: () => void;
 }
 
 export const useVoiceStore = create<VoiceState>((set, get) => {
@@ -133,6 +134,10 @@ export const useVoiceStore = create<VoiceState>((set, get) => {
           onComplete();
         }
       }, 50);
+    },
+    stopSpeaking: () => {
+      window.speechSynthesis.cancel();
+      set({ isSystemSpeaking: false });
     }
   }
 });

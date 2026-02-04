@@ -17,7 +17,7 @@ import { ROLE_STUDENT, ROLE_TEACHER } from '@/data/enums/roles'
 export const Route = createRootRoute({
   component: () => {
     const [isFirst, setIsFirst] = useState(true)
-    const { setIsActive, isActive, lastTranscript, speak } = useVoiceStore()
+    const { setIsActive, isActive, lastTranscript, speak, isSystemSpeaking, stopSpeaking } = useVoiceStore()
     const { disability, firstRender, isAuthenticated, login, logout, setFirstRender, role } = useAuthStore()
     const navigate = useNavigate()
     
@@ -92,6 +92,30 @@ export const Route = createRootRoute({
         speak('silahkan ketuk layar terlebih dahulu untuk memulai fitur asisten suara')
       }
     }, [role, isActive, isFirst])
+
+    useEffect(() => {
+      const handleInterruption = () => {
+        if (isSystemSpeaking) {
+          console.log("Interupsi User: Mematikan suara sistem, menyalakan mic...");
+          stopSpeaking();
+        }
+      };
+
+      // window.addEventListener('click', handleInterruption);
+      window.addEventListener('touchstart', handleInterruption);
+      window.addEventListener('keydown', function(e) {
+        if(e.key === "j" || e.key === 'J') handleInterruption()
+      });
+    
+    console.log({isSystemSpeaking})
+    
+    return () => {
+        window.removeEventListener('keydown', function(e) {
+          if(e.key === "j" || e.key === 'J') handleInterruption()
+        });
+        window.removeEventListener('touchstart', handleInterruption);
+      };
+    }, [isSystemSpeaking, stopSpeaking]);
 
     useEffect(() => {
       const getCurrentUser = async () => {
