@@ -1,3 +1,4 @@
+import remarkGfm from 'remark-gfm'
 import {
   createFileRoute,
   Link,
@@ -344,17 +345,14 @@ function ClassLessonView() {
                   <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
                     {material?.title}
                   </h1>
-                  <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
+                  {/* <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
                     {material?.smart_feature?.summary ||
                       "Tidak ada ringkasan tersedia."}
-                  </p>
-                  <div className="flex items-center gap-4 mt-4 text-sm text-slate-500">
+                  </p> */}
+                  <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
                     {material?.duration_min && (
                       <div className="flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-[18px]">
-                          schedule
-                        </span>
-                        <span>{material.duration_min} menit</span>
+                        <span>Dapat diselesaikan dalam {material.duration_min} menit</span>
                       </div>
                     )}
                   </div>
@@ -612,7 +610,7 @@ function SummaryView({ material }: { material?: MaterialDetailType }) {
 
         {displaySummary ? (
           <div className="prose prose-sm dark:prose-invert max-w-none">
-            <ReactMarkdown>{displaySummary}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{displaySummary}</ReactMarkdown>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center p-8 text-center border-2 border-dashed border-slate-200 dark:border-zinc-700 rounded-xl mt-10">
