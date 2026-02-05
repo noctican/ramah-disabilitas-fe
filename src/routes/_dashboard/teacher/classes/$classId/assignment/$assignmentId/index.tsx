@@ -28,6 +28,7 @@ function AssignmentDetailPage() {
   const { classId, assignmentId } = Route.useParams()
   const queryClient = useQueryClient()
   const [isGradingOpen, setIsGradingOpen] = useState(false)
+  const [isAnswerOpen, setIsAnswerOpen] = useState(false)
   const [currentSubmission, setCurrentSubmission] = useState<any>(null)
   const [gradeForm, setGradeForm] = useState({ grade: '', feedback: '' })
   const [isSubmittingGrade, setIsSubmittingGrade] = useState(false)
@@ -39,6 +40,10 @@ function AssignmentDetailPage() {
         feedback: submission.feedback || ''
     })
     setIsGradingOpen(true)
+  }
+  const handleOpenAnswer = (submission: any) => {
+    setCurrentSubmission(submission)
+    setIsAnswerOpen(true)
   }
 
   const handleSubmitGrade = async (e: React.FormEvent) => {
@@ -260,11 +265,19 @@ function AssignmentDetailPage() {
                                         <td className="px-6 py-4 text-right">
                                             <Button 
                                                 size="sm" 
-                                                variant={sub.grade ? "outline" : "default"} 
+                                                variant="outline" 
                                                 className="h-8 text-xs font-semibold shadow-sm"
                                                 onClick={() => handleOpenGrading(sub)}
                                             >
-                                                {sub.grade ? "Edit Nilai" : "Beri Nilai"}
+                                                {sub.grade ? "Ubah Nilai" : "Beri Nilai"}
+                                            </Button>
+                                            <Button 
+                                                size="sm" 
+                                                variant="outline" 
+                                                className="h-8 text-xs font-semibold shadow-sm"
+                                                onClick={() => handleOpenAnswer(sub)}
+                                            >
+                                                Lihat Jawaban
                                             </Button>
                                         </td>
                                     </tr>
@@ -315,6 +328,22 @@ function AssignmentDetailPage() {
                     </Button>
                 </DialogFooter>
             </form>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isAnswerOpen} onOpenChange={setIsAnswerOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+            <DialogTitle>Jawaban Siswa</DialogTitle>
+            <DialogDescription>
+                Jawaban siswa untuk {currentSubmission?.student_name || 'siswa ini'}.
+            </DialogDescription>
+            </DialogHeader>
+
+            <div className="p-4">
+                <p>{currentSubmission?.answer}</p>
+            </div>
+
         </DialogContent>
       </Dialog>
     </div>
