@@ -228,7 +228,7 @@ function AssignmentDetailPage() {
                                     <tr key={sub.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-9 h-9 rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 flex items-center justify-center font-bold text-xs shrink-0">
+                                                <div className="hidden w-9 h-9 rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 lg-flex items-center justify-center font-bold text-xs shrink-0">
                                                     {(sub.student_name || sub.student?.name || 'S')[0]?.toUpperCase()}
                                                 </div>
                                                 <div>
@@ -253,7 +253,7 @@ function AssignmentDetailPage() {
                                                 day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
                                             }) : '-'}
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-4 flex">
                                             {sub.grade !== null && sub.grade !== undefined ? (
                                                 <span className="font-bold text-slate-900 dark:text-white bg-slate-100 px-2 py-1 rounded-md border border-slate-200">
                                                     {sub.grade} <span className="text-slate-400 font-normal text-xs">/ {assignment?.max_points}</span>
@@ -263,22 +263,24 @@ function AssignmentDetailPage() {
                                             )}
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <Button 
-                                                size="sm" 
-                                                variant="outline" 
-                                                className="h-8 text-xs font-semibold shadow-sm"
-                                                onClick={() => handleOpenGrading(sub)}
-                                            >
-                                                {sub.grade ? "Ubah Nilai" : "Beri Nilai"}
-                                            </Button>
-                                            <Button 
-                                                size="sm" 
-                                                variant="outline" 
-                                                className="h-8 text-xs font-semibold shadow-sm"
-                                                onClick={() => handleOpenAnswer(sub)}
-                                            >
-                                                Lihat Jawaban
-                                            </Button>
+                                            <div className='d-flex gap-1'>
+                                                <Button 
+                                                    size="sm" 
+                                                    variant="outline" 
+                                                    className="h-8 text-xs font-semibold shadow-sm"
+                                                    onClick={() => handleOpenGrading(sub)}
+                                                >
+                                                    {sub.grade ? "Ubah Nilai" : "Beri Nilai"}
+                                                </Button>
+                                                <Button 
+                                                    size="sm" 
+                                                    variant="outline" 
+                                                    className="h-8 text-xs font-semibold shadow-sm"
+                                                    onClick={() => handleOpenAnswer(sub)}
+                                                >
+                                                    Lihat Jawaban
+                                                </Button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
@@ -334,16 +336,11 @@ function AssignmentDetailPage() {
       <Dialog open={isAnswerOpen} onOpenChange={setIsAnswerOpen}>
         <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-            <DialogTitle>Jawaban Siswa</DialogTitle>
-            <DialogDescription>
-                Jawaban siswa untuk {currentSubmission?.student_name || 'siswa ini'}.
-            </DialogDescription>
+            <DialogTitle>Jawaban {currentSubmission?.student?.name || 'siswa'}</DialogTitle>
             </DialogHeader>
-
-            <div className="p-4">
-                <p>{currentSubmission?.answer}</p>
-            </div>
-
+            <DialogDescription>
+                {currentSubmission?.text_answer}
+            </DialogDescription>
         </DialogContent>
       </Dialog>
     </div>
